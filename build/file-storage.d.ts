@@ -1,4 +1,4 @@
-declare class FileStorage {
+export declare class FileStorage {
     private readonly _ENCODING;
     private readonly _basePath;
     constructor(basePath: string);
@@ -8,5 +8,4 @@ declare class FileStorage {
     readJsonSync(id: string): any;
     write(id: string, value: any): Promise<void>;
 }
-export default FileStorage;
 //# sourceMappingURL=file-storage.d.ts.map

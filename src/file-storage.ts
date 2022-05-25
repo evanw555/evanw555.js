@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-class FileStorage {
+export class FileStorage {
     private readonly _ENCODING = 'utf8';
     private readonly _basePath: string;
 
@@ -42,5 +42,3 @@ class FileStorage {
         });
     }
 }
-
-export default FileStorage;
