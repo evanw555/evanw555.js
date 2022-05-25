@@ -13,7 +13,6 @@
     },
     "dependencies": {
         "discord.js": "13.*",
-        "node": "^17.7.2",
         "stable": "^0.1.8"
     },
     "devDependencies": {
