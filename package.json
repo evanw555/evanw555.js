@@ -6,7 +6,7 @@
     "main": "./build/index.js",
     "types": "./build/index.d.ts",
     "scripts": {
-        "build": "rm -rf ./build && tsc --build"
+        "build": "rm -rf ./build && rm ./src/index.ts && cti entrypoint -n ./src -o index.ts && tsc --build"
     },
     "engines": {
         "node": ">=16.6.0"
@@ -20,6 +20,7 @@
         "@typescript-eslint/eslint-plugin": "^4.15.2",
         "@typescript-eslint/parser": "^4.15.2",
         "eslint": "^7.0.0",
-        "typescript": "^4.5.2"
+        "typescript": "^4.5.2",
+        "create-ts-index": "^1.14.0"
     }
 }
