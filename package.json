@@ -9,9 +9,10 @@
         "build": "rm -rf ./build && rm ./src/index.ts && cti entrypoint -n ./src -o index.ts && tsc --build"
     },
     "engines": {
-        "node": ">=16.6.0"
+        "node": ">=16.9.0"
     },
     "dependencies": {
+        "discord.js": "13.*",
         "node": "^17.7.2",
         "stable": "^0.1.8"
     },
