@@ -22,6 +22,19 @@ export declare enum PastTimeoutStrategy {
     IncrementDay = "INCREMENT_DAY"
 }
 /**
+ * More advanced options for some scheduled timeout.
+ */
+export interface TimeoutOptions {
+    /**
+     * Some data that will be passed into the callback function as an argument when this timeout is invoked.
+     */
+    arg?: any;
+    /**
+     * The past strategy for this timeout.
+     */
+    pastStrategy?: PastTimeoutStrategy;
+}
+/**
  * T represents the timeout type. Can either be a generic string or a string-backed enum.
  */
 export declare class TimeoutManager<T extends string> {
@@ -32,7 +45,7 @@ export declare class TimeoutManager<T extends string> {
     private readonly timeouts;
     private readonly timeoutFileName;
     private previousTimeoutId;
-    constructor(storage: FileStorage, callbacks: Record<T, () => Promise<void>>, options?: {
+    constructor(storage: FileStorage, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: {
         fileName?: string;
     });
     private getNextTimeoutId;
@@ -43,9 +56,9 @@ export declare class TimeoutManager<T extends string> {
      * Registers a timeout
      * @param type
      * @param date
-     * @param pastStrategy
+     * @param options
      */
-    registerTimeout(type: T, date: Date, pastStrategy: PastTimeoutStrategy): Promise<void>;
+    registerTimeout(type: T, date: Date, options?: TimeoutOptions): Promise<void>;
     /**
      * @returns the date of some currently scheduled timeout of the given type, or undefined if none exists.
      */

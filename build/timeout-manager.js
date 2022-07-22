@@ -51,7 +51,6 @@ class TimeoutManager {
         return this.previousTimeoutId.toString();
     }
     loadTimeouts() {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             console.log('Loading up timeouts...');
             let timeouts = {};
@@ -62,7 +61,7 @@ class TimeoutManager {
             for (const id of Object.keys(timeouts)) {
                 const timeout = timeouts[id];
                 const date = new Date(timeout.date.trim());
-                yield this.addTimeoutForId(id, timeout.type, date, (_a = timeout.pastStrategy) !== null && _a !== void 0 ? _a : TimeoutManager.DEFAULT_PAST_STRATEGY);
+                yield this.addTimeoutForId(id, timeout.type, date, timeout.options);
             }
             ;
             yield this.dumpTimeouts();
@@ -74,19 +73,21 @@ class TimeoutManager {
             console.log(`Dumped timeouts as ${JSON.stringify(this.timeouts)}`);
         });
     }
-    addTimeoutForId(id, type, date, pastStrategy) {
+    addTimeoutForId(id, type, date, options) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            const pastStrategy = (_a = options.pastStrategy) !== null && _a !== void 0 ? _a : TimeoutManager.DEFAULT_PAST_STRATEGY;
             const millisUntilMessage = date.getTime() - new Date().getTime();
             if (millisUntilMessage > 0) {
                 // If timeout is in the future, then set a timeout for it as per usual
                 this.timeouts[id] = {
                     type,
                     date: date.toJSON(),
-                    pastStrategy
+                    options
                 };
                 setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                     // Perform the actual callback
-                    yield this.callbacks[type]();
+                    yield this.callbacks[type](options.arg);
                     // Clear the timeout info
                     delete this.timeouts[id];
                     // Dump the timeouts
@@ -96,21 +97,21 @@ class TimeoutManager {
             }
             else if (pastStrategy === PastTimeoutStrategy.Invoke) {
                 // Timeout is in the past, so just invoke the callback now
-                yield this.callbacks[type]();
+                yield this.callbacks[type](options.arg);
             }
             else if (pastStrategy === PastTimeoutStrategy.IncrementDay) {
                 // Timeout is in the past, so try again with the day incremented
                 const tomorrow = new Date(date);
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 day`);
-                yield this.addTimeoutForId(id, type, tomorrow, pastStrategy);
+                yield this.addTimeoutForId(id, type, tomorrow, options);
             }
             else if (pastStrategy === PastTimeoutStrategy.IncrementHour) {
                 // Timeout is in the past, so try again with the hour incremented
                 const nextHour = new Date(date);
                 nextHour.setHours(nextHour.getHours() + 1);
                 console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 hour`);
-                yield this.addTimeoutForId(id, type, nextHour, pastStrategy);
+                yield this.addTimeoutForId(id, type, nextHour, options);
             }
             else if (pastStrategy === PastTimeoutStrategy.Delete) {
                 // Timeout is in the past, so just delete the timeout altogether
@@ -122,12 +123,12 @@ class TimeoutManager {
      * Registers a timeout
      * @param type
      * @param date
-     * @param pastStrategy
+     * @param options
      */
-    registerTimeout(type, date, pastStrategy) {
+    registerTimeout(type, date, options = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const id = this.getNextTimeoutId();
-            yield this.addTimeoutForId(id, type, date, pastStrategy);
+            yield this.addTimeoutForId(id, type, date, options);
             yield this.dumpTimeouts();
         });
     }
@@ -155,7 +156,7 @@ class TimeoutManager {
             .sort((x, y) => new Date(x.date).getTime() - new Date(y.date).getTime())
             .map(timeout => {
             var _a;
-            return `\`${timeout.type}\`: ${new Date(timeout.date).toLocaleString()} (\`${(_a = timeout.pastStrategy) !== null && _a !== void 0 ? _a : 'N/A'}\`)`;
+            return `\`${timeout.type}\`: ${new Date(timeout.date).toLocaleString()} (\`${(_a = timeout.options.pastStrategy) !== null && _a !== void 0 ? _a : 'N/A'}\`)`;
         });
     }
 }
