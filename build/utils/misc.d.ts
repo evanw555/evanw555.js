@@ -56,4 +56,11 @@ export declare function pluralize(input: string): string;
  * @returns The given rank expressed as a string (e.g. 1st, 2nd, 3rd, 11th, 21st)
  */
 export declare function getRankString(rank: number): string;
+/**
+ * Returns a new map including key-value pairs from the input map,
+ * but with entries omitted if their value matches the blacklisted value parameter.
+ * @param input input map
+ * @param blacklistedValue value used to determine which entries to omit
+ */
+export declare function filterValueFromMap<T>(input: Record<string, T>, blacklistedValue: T): Record<string, T>;
 //# sourceMappingURL=misc.d.ts.map

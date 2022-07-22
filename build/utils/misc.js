@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRankString = exports.pluralize = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.naturalJoin = void 0;
+exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.naturalJoin = void 0;
 /**
  * @param input List of strings
  * @returns The given list of strings joined in a way that is grammatically correct in English
@@ -135,4 +135,20 @@ function getRankString(rank) {
     return `${rank}th`;
 }
 exports.getRankString = getRankString;
+/**
+ * Returns a new map including key-value pairs from the input map,
+ * but with entries omitted if their value matches the blacklisted value parameter.
+ * @param input input map
+ * @param blacklistedValue value used to determine which entries to omit
+ */
+function filterValueFromMap(input, blacklistedValue) {
+    const output = {};
+    Object.keys(input).forEach((key) => {
+        if (input[key] !== blacklistedValue) {
+            output[key] = input[key];
+        }
+    });
+    return output;
+}
+exports.filterValueFromMap = filterValueFromMap;
 //# sourceMappingURL=misc.js.map

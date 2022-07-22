@@ -22,4 +22,10 @@ export declare function getNumberOfDaysSince(start: string): number;
  * @returns The current 24-hour time in the "HH:MM" format (e.g. "06:30", "17:14")
  */
 export declare function getClockTime(): string;
+/**
+ * For some duration value, return an English expression representing that duration.
+ * @param milliseconds the duration in milliseconds
+ * @returns a phrase representing the provided duration
+ */
+export declare function getDurationString(milliseconds: number): string;
 //# sourceMappingURL=time.d.ts.map

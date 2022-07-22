@@ -102,7 +102,7 @@ export function toLetterId(input: number): string {
  * @param input text to pluralize
  * @returns the pluralized input text
  */
- export function pluralize(input: string): string {
+export function pluralize(input: string): string {
     if (input.endsWith('y')) {
         return input.substring(0, input.length - 1) + 'ies';
     }
@@ -119,7 +119,7 @@ export function toLetterId(input: number): string {
  * @param rank a numerical rank
  * @returns The given rank expressed as a string (e.g. 1st, 2nd, 3rd, 11th, 21st)
  */
- export function getRankString(rank: number): string {
+export function getRankString(rank: number): string {
     if (rank % 10 === 1 && rank !== 11) {
         return `${rank}st`;
     } else if (rank % 10 === 2 && rank !== 12) {
@@ -128,4 +128,20 @@ export function toLetterId(input: number): string {
         return `${rank}rd`;
     }
     return `${rank}th`;
+}
+
+/**
+ * Returns a new map including key-value pairs from the input map,
+ * but with entries omitted if their value matches the blacklisted value parameter.
+ * @param input input map
+ * @param blacklistedValue value used to determine which entries to omit
+ */
+export function filterValueFromMap<T>(input: Record<string, T>, blacklistedValue: T): Record<string, T> {
+    const output: Record<string, T> = {};
+    Object.keys(input).forEach((key) => {
+        if (input[key] !== blacklistedValue) {
+            output[key] = input[key];
+        }
+    });
+    return output;
 }

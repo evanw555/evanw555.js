@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getClockTime = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.getTodayDateString = exports.sleep = void 0;
+exports.getDurationString = exports.getClockTime = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.getTodayDateString = exports.sleep = void 0;
 function sleep(milliseconds) {
     return new Promise(r => setTimeout(r, milliseconds));
 }
@@ -48,4 +48,44 @@ function getClockTime() {
     return now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 }
 exports.getClockTime = getClockTime;
+/**
+ * For some duration value, return an English expression representing that duration.
+ * @param milliseconds the duration in milliseconds
+ * @returns a phrase representing the provided duration
+ */
+function getDurationString(milliseconds) {
+    if (milliseconds === 0) {
+        return 'no time at all';
+    }
+    if (milliseconds === 1) {
+        return '1 millisecond';
+    }
+    if (milliseconds < 1000) {
+        return `${milliseconds} milliseconds`;
+    }
+    const seconds = Math.floor(milliseconds / 1000);
+    if (seconds === 1) {
+        return '1 second';
+    }
+    if (seconds < 60) {
+        return `${seconds} seconds`;
+    }
+    const minutes = Math.floor(seconds / 60);
+    if (minutes === 1) {
+        return '1 minute';
+    }
+    if (minutes < 60) {
+        return `${minutes} minutes`;
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours === 1) {
+        return '1 hour';
+    }
+    if (hours < 48) {
+        return `${hours} hours`;
+    }
+    const days = Math.floor(hours / 24);
+    return `${days} days`;
+}
+exports.getDurationString = getDurationString;
 //# sourceMappingURL=time.js.map
