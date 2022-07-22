@@ -1,4 +1,5 @@
 export * from './file-storage';
+export * from './language-generator';
 export * from './r9k';
 export * from './utils/discord';
 export * from './utils/k-means';
