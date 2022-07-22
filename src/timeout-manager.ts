@@ -168,7 +168,7 @@ export class TimeoutManager<T extends string> {
         return Object.values(this.timeouts)
             .sort((x, y) => new Date(x.date).getTime() - new Date(y.date).getTime())
             .map(timeout => {
-            return `\`${timeout.type}\`: ${new Date(timeout.date).toLocaleString()} (\`${timeout.options.pastStrategy ?? 'N/A'}\`)`
+            return `\`${timeout.type}\`: ${new Date(timeout.date).toLocaleString()} (\`${JSON.stringify(timeout.options)}\`)`
         });
     }
 }

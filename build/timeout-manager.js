@@ -155,8 +155,7 @@ class TimeoutManager {
         return Object.values(this.timeouts)
             .sort((x, y) => new Date(x.date).getTime() - new Date(y.date).getTime())
             .map(timeout => {
-            var _a;
-            return `\`${timeout.type}\`: ${new Date(timeout.date).toLocaleString()} (\`${(_a = timeout.options.pastStrategy) !== null && _a !== void 0 ? _a : 'N/A'}\`)`;
+            return `\`${timeout.type}\`: ${new Date(timeout.date).toLocaleString()} (\`${JSON.stringify(timeout.options)}\`)`;
         });
     }
 }
