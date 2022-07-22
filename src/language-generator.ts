@@ -1,6 +1,6 @@
 import { naturalJoin } from './utils/misc';
 
-class LanguageGenerator {
+export class LanguageGenerator {
     private readonly _config: Record<string, any>;
     private _lastErrorMessage?: string;
     private logger?: (message: string) => void;

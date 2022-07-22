@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./file-storage"), exports);
 __exportStar(require("./language-generator"), exports);
 __exportStar(require("./r9k"), exports);
+__exportStar(require("./timeout-manager"), exports);
 __exportStar(require("./utils/discord"), exports);
 __exportStar(require("./utils/k-means"), exports);
 __exportStar(require("./utils/misc"), exports);

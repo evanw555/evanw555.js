@@ -4,7 +4,7 @@ import { createHash, Hash } from 'crypto';
  * A utility to keep track of text that's previously been used in some context.
  * Santizes and reduces the text so that insignificant modifications don't affect its identity.
  */
-export default class R9KTextBank {
+export class R9KTextBank {
     private readonly bank: Set<string>;
 
     constructor() {

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.R9KTextBank = void 0;
 const crypto_1 = require("crypto");
 /**
  * A utility to keep track of text that's previously been used in some context.
@@ -35,5 +36,5 @@ class R9KTextBank {
             .replace(/(.)\1+/g, '$1');
     }
 }
-exports.default = R9KTextBank;
+exports.R9KTextBank = R9KTextBank;
 //# sourceMappingURL=r9k.js.map

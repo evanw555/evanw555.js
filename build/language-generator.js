@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LanguageGenerator = void 0;
 const misc_1 = require("./utils/misc");
 class LanguageGenerator {
     constructor(config) {
@@ -124,5 +125,6 @@ class LanguageGenerator {
         return "Hello";
     }
 }
+exports.LanguageGenerator = LanguageGenerator;
 exports.default = LanguageGenerator;
 //# sourceMappingURL=language-generator.js.map

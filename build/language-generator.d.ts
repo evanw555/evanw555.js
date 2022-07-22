@@ -1,4 +1,4 @@
-declare class LanguageGenerator {
+export declare class LanguageGenerator {
     private readonly _config;
     private _lastErrorMessage?;
     private logger?;
