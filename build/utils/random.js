@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.randChoice = exports.randInt = void 0;
+exports.shuffle = exports.randChoice = exports.randInt = void 0;
 /**
  * @param lo Lower bound (inclusive)
  * @param hi Upper bound (exclusive)
@@ -20,4 +20,13 @@ function randChoice(...choices) {
 }
 exports.randChoice = randChoice;
 ;
+/**
+ * Shuffles an array in-place.
+ * @param input Input array
+ * @returns Shuffled array
+ */
+function shuffle(input) {
+    return input.sort((x, y) => Math.random() - Math.random());
+}
+exports.shuffle = shuffle;
 //# sourceMappingURL=random.js.map

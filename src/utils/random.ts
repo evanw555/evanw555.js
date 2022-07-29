@@ -14,3 +14,12 @@
 export function randChoice<T>(...choices: T[]): T {
     return choices[randInt(0, choices.length)];
 };
+
+/**
+ * Shuffles an array in-place.
+ * @param input Input array
+ * @returns Shuffled array
+ */
+export function shuffle<T>(input: T[]): T[] {
+    return input.sort((x, y) => Math.random() - Math.random());
+}
