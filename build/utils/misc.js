@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.naturalJoin = void 0;
+exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.naturalJoin = void 0;
 /**
  * @param input List of strings
  * @returns The given list of strings joined in a way that is grammatically correct in English
@@ -151,4 +151,25 @@ function filterValueFromMap(input, blacklistedValue) {
     return output;
 }
 exports.filterValueFromMap = filterValueFromMap;
+/**
+ * For some list of keys and some list of values of equal length, returns
+ * a map with each key mapped to its respective value.
+ * @param keys List of unique keys of length N
+ * @param values List of values of length N
+ * @returns The constructed map
+ */
+function toMap(keys, values) {
+    if (keys.length !== values.length) {
+        throw new Error(`Cannot create a map with ${keys.length} keys and ${values.length} values!`);
+    }
+    if (keys.length !== new Set(keys).size) {
+        throw new Error(`Cannot create a map with duplicate keys!`);
+    }
+    const result = {};
+    for (let i = 0; i < keys.length; i++) {
+        result[keys[i]] = values[i];
+    }
+    return result;
+}
+exports.toMap = toMap;
 //# sourceMappingURL=misc.js.map

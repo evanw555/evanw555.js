@@ -63,4 +63,12 @@ export declare function getRankString(rank: number): string;
  * @param blacklistedValue value used to determine which entries to omit
  */
 export declare function filterValueFromMap<T>(input: Record<string, T>, blacklistedValue: T): Record<string, T>;
+/**
+ * For some list of keys and some list of values of equal length, returns
+ * a map with each key mapped to its respective value.
+ * @param keys List of unique keys of length N
+ * @param values List of values of length N
+ * @returns The constructed map
+ */
+export declare function toMap<T>(keys: string[], values: T[]): Record<string, T>;
 //# sourceMappingURL=misc.d.ts.map
