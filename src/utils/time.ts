@@ -5,8 +5,16 @@ export function sleep(milliseconds: number): Promise<void> {
 /**
  * @returns e.g. "12/25/2020"
  */
- export function getTodayDateString(): string {
-    return new Date().toLocaleDateString('en-US');
+export function getTodayDateString(): string {
+    return toDateString(new Date());
+}
+
+/**
+ * @param date input date
+ * @returns e.g. "12/25/2020"
+ */
+export function toDateString(date: Date): string {
+    return date.toLocaleDateString('en-US', { dateStyle: 'short' });
 }
 
 /**
@@ -43,6 +51,23 @@ export function getNumberOfDaysSince(start: string): number {
 export function getClockTime(): string {
     const now: Date = new Date();
     return now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+}
+
+/**
+ * @param date input date
+ * @returns The 12-hour time of the date (e.g. "5:40 PM")
+ */
+export function toTimeString(date: Date): string {
+    return date.toLocaleTimeString('en-US', { hour12: true, timeStyle: 'short' });
+}
+
+/**
+ * @param date input date
+ * @returns The day of the week (e.g. "Tuesday")
+ */
+export function toDayOfWeekString(date: Date): string {
+    const weekday: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return weekday[date.getDay()];
 }
 
 /**
@@ -83,4 +108,36 @@ export function getDurationString(milliseconds: number) {
     }
     const days = Math.floor(hours / 24);
     return `${days} days`;
+}
+
+/**
+ * Creates a human-readable representation of the given date compared to right now.
+ * (e.g. "5:40 PM", "tomorrow at 5:40 PM", "Tuesday at 5:40 PM", "12/25/2020 at 5:40 PM")
+ */
+export function getRelativeDateTimeString(date: Date): string {
+    const now: Date = new Date();
+
+    // If the provided date is in the past, show something dumb
+    if (date.getTime() < now.getTime()) {
+        return 'in the past';
+    }
+
+    // If the provided date is more than a week away (or in a different month), render the whole date (to keep things simple)
+    const daysUntilDate: number = (date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysUntilDate >= 6 || now.getMonth() !== date.getMonth()) {
+        return `${toDateString(date)} at ${toTimeString(date)}`;
+    }
+
+    // If the provided date is today, render only the time
+    if (now.getDate() === date.getDate()) {
+        return toTimeString(date);
+    }
+
+    // If the provided date is tomorrow, render it as such
+    if (date.getDate() === now.getDate() + 1) {
+        return `tomorrow at ${toTimeString(date)}`;
+    }
+
+    // Otherwise, render the DOW
+    return `${toDayOfWeekString(date)} at ${toTimeString(date)}`;
 }
