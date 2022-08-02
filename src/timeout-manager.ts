@@ -169,7 +169,7 @@ export class TimeoutManager<T extends string> {
         return Object.values(this.timeouts)
             .sort((x, y) => new Date(x.date).getTime() - new Date(y.date).getTime())
             .map(timeout => {
-                return `**${getRelativeDateTimeString(new Date(timeout.date))}:** \`${timeout.type}(${JSON.stringify(timeout.options.arg)}) -> ${timeout.options.pastStrategy}\``;
+                return `**${getRelativeDateTimeString(new Date(timeout.date))}:** \`${timeout.type}(${JSON.stringify(timeout.options.arg) ?? ''}) -> ${timeout.options.pastStrategy}\``;
             });
     }
 }

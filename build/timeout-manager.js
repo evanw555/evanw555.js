@@ -156,7 +156,8 @@ class TimeoutManager {
         return Object.values(this.timeouts)
             .sort((x, y) => new Date(x.date).getTime() - new Date(y.date).getTime())
             .map(timeout => {
-            return `**${(0, time_1.getRelativeDateTimeString)(new Date(timeout.date))}:** \`${timeout.type}(${JSON.stringify(timeout.options.arg)}) -> ${timeout.options.pastStrategy}\``;
+            var _a;
+            return `**${(0, time_1.getRelativeDateTimeString)(new Date(timeout.date))}:** \`${timeout.type}(${(_a = JSON.stringify(timeout.options.arg)) !== null && _a !== void 0 ? _a : ''}) -> ${timeout.options.pastStrategy}\``;
         });
     }
 }
