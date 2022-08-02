@@ -1,4 +1,5 @@
 import { FileStorage } from "./file-storage";
+import { getRelativeDateTimeString } from "./utils/time";
 
 /**
  * How to handle a timeout which is registered for sometime in the past.
@@ -168,7 +169,7 @@ export class TimeoutManager<T extends string> {
         return Object.values(this.timeouts)
             .sort((x, y) => new Date(x.date).getTime() - new Date(y.date).getTime())
             .map(timeout => {
-            return `\`${timeout.type}\`: ${new Date(timeout.date).toLocaleString()} (\`${JSON.stringify(timeout.options)}\`)`
-        });
+                return `**${getRelativeDateTimeString(new Date(timeout.date))}:** \`${timeout.type}(${JSON.stringify(timeout.options.arg)}) -> ${timeout.options.pastStrategy}\``;
+            });
     }
 }
