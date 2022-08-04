@@ -46,6 +46,19 @@ export function getNumberOfDaysSince(start: string): number {
 }
 
 /**
+ * Computes a date between the two provided dates, as specified by the optional "along" factor.
+ * If the user wants a date 0.5 "along", it will return a date exactly halfway between the two.
+ * If the user wants a date 0.25 "along", it will return a date a quarter of the way between the two.
+ * @param start the min date
+ * @param end the max date
+ * @param along the "along" factor specifying where the "between" point is (defaults to 0.5)
+ * @returns a date between the provided dates
+ */
+export function getDateBetween(start: Date, end: Date, along: number = 0.5): Date {
+    return new Date(start.getTime() + along * (end.getTime() - start.getTime()));
+}
+
+/**
  * @returns The current 24-hour time in the "HH:MM" format (e.g. "06:30", "17:14")
  */
 export function getClockTime(): string {

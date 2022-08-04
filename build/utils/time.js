@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getDateBetween = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 function sleep(milliseconds) {
     return new Promise(r => setTimeout(r, milliseconds));
 }
@@ -48,6 +48,19 @@ function getNumberOfDaysSince(start) {
     return Math.round((todayDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 }
 exports.getNumberOfDaysSince = getNumberOfDaysSince;
+/**
+ * Computes a date between the two provided dates, as specified by the optional "along" factor.
+ * If the user wants a date 0.5 "along", it will return a date exactly halfway between the two.
+ * If the user wants a date 0.25 "along", it will return a date a quarter of the way between the two.
+ * @param start the min date
+ * @param end the max date
+ * @param along the "along" factor specifying where the "between" point is (defaults to 0.5)
+ * @returns a date between the provided dates
+ */
+function getDateBetween(start, end, along = 0.5) {
+    return new Date(start.getTime() + along * (end.getTime() - start.getTime()));
+}
+exports.getDateBetween = getDateBetween;
 /**
  * @returns The current 24-hour time in the "HH:MM" format (e.g. "06:30", "17:14")
  */
