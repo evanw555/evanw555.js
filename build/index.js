@@ -16,6 +16,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./circular-queue"), exports);
+__exportStar(require("./discord/messenger"), exports);
 __exportStar(require("./file-storage"), exports);
 __exportStar(require("./language-generator"), exports);
 __exportStar(require("./r9k"), exports);

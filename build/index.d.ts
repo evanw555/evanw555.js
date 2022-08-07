@@ -1,4 +1,5 @@
 export * from './circular-queue';
+export * from './discord/messenger';
 export * from './file-storage';
 export * from './language-generator';
 export * from './r9k';
