@@ -25,6 +25,7 @@ __exportStar(require("./utils/discord"), exports);
 __exportStar(require("./utils/k-means"), exports);
 __exportStar(require("./utils/load-json"), exports);
 __exportStar(require("./utils/misc"), exports);
+__exportStar(require("./utils/pretty"), exports);
 __exportStar(require("./utils/random"), exports);
 __exportStar(require("./utils/time"), exports);
 //# sourceMappingURL=index.js.map

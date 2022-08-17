@@ -10,5 +10,6 @@ export * from './utils/discord';
 export * from './utils/k-means';
 export * from './utils/load-json';
 export * from './utils/misc';
+export * from './utils/pretty';
 export * from './utils/random';
 export * from './utils/time';
