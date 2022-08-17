@@ -8,7 +8,8 @@
         "sourceMap": true,
         "strict": true,
         "types": [
-            "node"
+            "node",
+            "mocha"
         ],
         // Generate d.ts files
         "declaration": true,
@@ -21,6 +22,7 @@
     ],
     "exclude": [
         "node_modules",
-        "build"
+        "build",
+        "tests"
     ]
 }

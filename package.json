@@ -6,20 +6,26 @@
     "main": "./build/index.js",
     "types": "./build/index.d.ts",
     "scripts": {
-        "build": "rm -rf ./build && rm ./src/index.ts && cti entrypoint -n ./src -o index.ts && tsc --build"
+        "build": "rm -rf ./build && rm ./src/index.ts && cti entrypoint -n ./src -o index.ts && tsc --build",
+        "test": "mocha -r ts-node/register 'tests/**/*.ts'"
     },
     "engines": {
         "node": ">=16.9.0"
     },
     "dependencies": {
+        "chai": "4.3.6",
         "discord.js": "13.*",
         "stable": "^0.1.8"
     },
     "devDependencies": {
+        "@types/chai": "4.3.3",
+        "@types/mocha": "9.1.1",
         "@types/node": "^17.0.35",
         "@typescript-eslint/eslint-plugin": "^4.15.2",
         "@typescript-eslint/parser": "^4.15.2",
         "eslint": "^7.0.0",
+        "mocha": "10.0.0",
+        "ts-node": "10.9.1",
         "typescript": "^4.5.2",
         "create-ts-index": "^1.14.0"
     }
