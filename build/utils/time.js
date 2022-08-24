@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getDateBetween = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+const random_1 = require("./random");
 function sleep(milliseconds) {
     return new Promise(r => setTimeout(r, milliseconds));
 }
@@ -61,6 +62,17 @@ function getDateBetween(start, end, along = 0.5) {
     return new Date(start.getTime() + along * (end.getTime() - start.getTime()));
 }
 exports.getDateBetween = getDateBetween;
+/**
+ * Gets a random date between the two provided dates, with an optional Bates distribution.
+ * @param start the min date
+ * @param end the max date
+ * @param bates Bates distribution value
+ * @returns a date between the provided dates
+ */
+function getRandomDateBetween(start, end, bates = 1) {
+    return new Date((0, random_1.randInt)(start.getTime(), end.getTime(), bates));
+}
+exports.getRandomDateBetween = getRandomDateBetween;
 /**
  * @returns The current 24-hour time in the "HH:MM" format (e.g. "06:30", "17:14")
  */

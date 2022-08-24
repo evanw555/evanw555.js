@@ -34,6 +34,14 @@ export declare function getNumberOfDaysSince(start: string): number;
  */
 export declare function getDateBetween(start: Date, end: Date, along?: number): Date;
 /**
+ * Gets a random date between the two provided dates, with an optional Bates distribution.
+ * @param start the min date
+ * @param end the max date
+ * @param bates Bates distribution value
+ * @returns a date between the provided dates
+ */
+export declare function getRandomDateBetween(start: Date, end: Date, bates?: number): Date;
+/**
  * @returns The current 24-hour time in the "HH:MM" format (e.g. "06:30", "17:14")
  */
 export declare function getClockTime(): string;

@@ -1,10 +1,16 @@
 /**
  * @param lo Lower bound (inclusive)
  * @param hi Upper bound (exclusive)
+ * @param bates Bates distribution value
  * @return integer in the range [lo, hi)
  */
- export function randInt(lo: number, hi: number): number {
-    return Math.floor(Math.random() * (hi - lo)) + lo;
+ export function randInt(lo: number, hi: number, bates: number = 1): number {
+    let total: number = 0;
+    const b = Math.floor(bates);
+    for (let i = 0; i < b; i++) {
+        total += Math.floor(Math.random() * (hi - lo)) + lo;
+    }
+    return total / b;
 };
 
 /**

@@ -4,10 +4,16 @@ exports.shuffle = exports.randChoice = exports.randInt = void 0;
 /**
  * @param lo Lower bound (inclusive)
  * @param hi Upper bound (exclusive)
+ * @param bates Bates distribution value
  * @return integer in the range [lo, hi)
  */
-function randInt(lo, hi) {
-    return Math.floor(Math.random() * (hi - lo)) + lo;
+function randInt(lo, hi, bates = 1) {
+    let total = 0;
+    const b = Math.floor(bates);
+    for (let i = 0; i < b; i++) {
+        total += Math.floor(Math.random() * (hi - lo)) + lo;
+    }
+    return total / b;
 }
 exports.randInt = randInt;
 ;

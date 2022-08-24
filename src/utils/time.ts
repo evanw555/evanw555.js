@@ -1,3 +1,5 @@
+import { randInt } from "./random";
+
 export function sleep(milliseconds: number): Promise<void> {
     return new Promise(r => setTimeout(r, milliseconds));
 }
@@ -56,6 +58,17 @@ export function getNumberOfDaysSince(start: string): number {
  */
 export function getDateBetween(start: Date, end: Date, along: number = 0.5): Date {
     return new Date(start.getTime() + along * (end.getTime() - start.getTime()));
+}
+
+/**
+ * Gets a random date between the two provided dates, with an optional Bates distribution.
+ * @param start the min date
+ * @param end the max date
+ * @param bates Bates distribution value
+ * @returns a date between the provided dates
+ */
+ export function getRandomDateBetween(start: Date, end: Date, bates: number = 1): Date {
+    return new Date(randInt(start.getTime(), end.getTime(), bates));
 }
 
 /**
