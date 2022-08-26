@@ -79,7 +79,20 @@ class TimeoutManager {
         return __awaiter(this, void 0, void 0, function* () {
             const pastStrategy = (_a = options.pastStrategy) !== null && _a !== void 0 ? _a : TimeoutManager.DEFAULT_PAST_STRATEGY;
             const millisUntilMessage = date.getTime() - new Date().getTime();
-            if (millisUntilMessage > 0) {
+            if (millisUntilMessage > 2147483647) {
+                // If the timeout is too far in the future (more than 24 days, max 32-bit signed int), save it but don't schedule timeout
+                this.timeouts[id] = {
+                    type,
+                    date: date.toJSON(),
+                    options
+                };
+                // Schedule a timeout to try again in 10 days
+                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                    yield this.addTimeoutForId(id, type, date, options);
+                }), 1000 * 60 * 60 * 24 * 10);
+                console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
+            }
+            else if (millisUntilMessage > 0) {
                 // If timeout is in the future, then set a timeout for it as per usual
                 this.timeouts[id] = {
                     type,
