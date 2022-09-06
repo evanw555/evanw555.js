@@ -13,7 +13,7 @@ function randInt(lo, hi, bates = 1) {
     for (let i = 0; i < b; i++) {
         total += Math.floor(Math.random() * (hi - lo)) + lo;
     }
-    return total / b;
+    return Math.floor(total / b);
 }
 exports.randInt = randInt;
 ;
