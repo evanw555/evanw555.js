@@ -16,13 +16,17 @@ class AStarPathFinder {
             heuristicCost: heuristicFn(options.start, options.goal),
             previous: null
         };
+        const visitedLocations = new Set();
+        const toLocationString = (_r, _c) => {
+            return `${_r},${_c}`;
+        };
         const queue = [firstNode];
         while (queue.length !== 0) {
             const node = queue.pop();
             if (!node) {
                 break;
             }
-            // console.log(`pop node at ${node.location.r},${node.location.c}`);
+            visitedLocations.add(toLocationString(node.location.r, node.location.c));
             if (node.location.r === options.goal.r && node.location.c === options.goal.c) {
                 return this.constructResult(node);
             }
@@ -44,8 +48,8 @@ class AStarPathFinder {
                 if (tileCost === null) {
                     continue;
                 }
-                // Don't visit this location if this node has already visited it
-                if (this.hasVisitedLocation(node, newLocation)) {
+                // Don't visit this location if it's already been visited by any path (this only works because our heuristics are consistent)
+                if (visitedLocations.has(toLocationString(nr, nc))) {
                     continue;
                 }
                 queue.push({
