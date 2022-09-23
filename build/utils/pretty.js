@@ -53,7 +53,6 @@ function prettyPrint(node) {
             return JSON.stringify(thing);
         }
     };
-    console.log(print(node));
     return print(node);
 }
 exports.prettyPrint = prettyPrint;

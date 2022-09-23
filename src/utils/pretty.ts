@@ -52,6 +52,5 @@ export function prettyPrint(node: any): string {
         }
     };
 
-    console.log(print(node));
     return print(node);
 }

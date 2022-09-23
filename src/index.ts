@@ -1,5 +1,6 @@
 // created from 'create-ts-index'
 
+export * from './a-star';
 export * from './circular-queue';
 export * from './discord/messenger';
 export * from './file-storage';
