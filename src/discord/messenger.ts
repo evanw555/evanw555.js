@@ -6,7 +6,14 @@ interface MessengerBacklogEntry {
     channel: TextBasedChannel,
     message?: Message,
     text: string,
+    options?: MessengerOptions
     resolve?: () => void
+}
+interface MessengerOptions {
+    /**
+     * Whether to skip the typing delay and send immediately.
+     */
+    immediate?: boolean
 }
 
 export class Messenger {
@@ -23,18 +30,18 @@ export class Messenger {
         this.logger = logger;
     }
 
-    async send(channel: TextBasedChannel, text: string): Promise<void> {
-        await this._send({ channel, text });
+    async send(channel: TextBasedChannel, text: string, options?: MessengerOptions): Promise<void> {
+        await this._send({ channel, text, options });
     }
 
-    async reply(message: Message, text: string): Promise<void> {
-        await this._send({ channel: message.channel, message, text });
+    async reply(message: Message, text: string, options?: MessengerOptions): Promise<void> {
+        await this._send({ channel: message.channel, message, text, options });
     }
 
-    async dm(member: GuildMember, text: string): Promise<void> {
+    async dm(member: GuildMember, text: string, options?: MessengerOptions): Promise<void> {
         try {
             const dmChannel: DMChannel = await member.createDM();
-            await this._send({ channel: dmChannel, text });
+            await this._send({ channel: dmChannel, text, options });
         } catch (err) {
             if (this.logger) {
                 this.logger(`Unable to create DM channel for user \`${member.id}\`: \`${err}\``);
@@ -57,14 +64,17 @@ export class Messenger {
             while (this._backlog.length > 0) {
                 const { channel, message, text, resolve } = this._backlog.shift() as MessengerBacklogEntry;
                 try {
-                    // Take a brief pause
-                    await sleep(randInt(100, 1500));
-                    // Send the typing event and wait based on the length of the message
-                    try {
-                        await channel.sendTyping();
-                        await sleep(randInt(45, 55) * text.length);
-                    } catch (err) {
-                        // Typing events are non-critical, so allow them to fail silently...
+                    // Unless the options specify to send immediately, add an artificial delay
+                    if (!entry.options?.immediate) {
+                        // Take a brief pause
+                        await sleep(randInt(100, 1500));
+                        // Send the typing event and wait based on the length of the message
+                        try {
+                            await channel.sendTyping();
+                            await sleep(randInt(45, 55) * text.length);
+                        } catch (err) {
+                            // Typing events are non-critical, so allow them to fail silently...
+                        }
                     }
                     // Now actually reply/send the message
                     if (message) {

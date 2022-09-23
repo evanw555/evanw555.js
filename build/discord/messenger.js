@@ -20,21 +20,21 @@ class Messenger {
     setLogger(logger) {
         this.logger = logger;
     }
-    send(channel, text) {
+    send(channel, text, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this._send({ channel, text });
+            yield this._send({ channel, text, options });
         });
     }
-    reply(message, text) {
+    reply(message, text, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this._send({ channel: message.channel, message, text });
+            yield this._send({ channel: message.channel, message, text, options });
         });
     }
-    dm(member, text) {
+    dm(member, text, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const dmChannel = yield member.createDM();
-                yield this._send({ channel: dmChannel, text });
+                yield this._send({ channel: dmChannel, text, options });
             }
             catch (err) {
                 if (this.logger) {
@@ -52,6 +52,7 @@ class Messenger {
         });
     }
     _processEntry(entry) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this._busy) {
                 // If the messenger isn't typing/waiting/sending, then go ahead and process the message now
@@ -60,15 +61,18 @@ class Messenger {
                 while (this._backlog.length > 0) {
                     const { channel, message, text, resolve } = this._backlog.shift();
                     try {
-                        // Take a brief pause
-                        yield (0, time_1.sleep)((0, random_1.randInt)(100, 1500));
-                        // Send the typing event and wait based on the length of the message
-                        try {
-                            yield channel.sendTyping();
-                            yield (0, time_1.sleep)((0, random_1.randInt)(45, 55) * text.length);
-                        }
-                        catch (err) {
-                            // Typing events are non-critical, so allow them to fail silently...
+                        // Unless the options specify to send immediately, add an artificial delay
+                        if (!((_a = entry.options) === null || _a === void 0 ? void 0 : _a.immediate)) {
+                            // Take a brief pause
+                            yield (0, time_1.sleep)((0, random_1.randInt)(100, 1500));
+                            // Send the typing event and wait based on the length of the message
+                            try {
+                                yield channel.sendTyping();
+                                yield (0, time_1.sleep)((0, random_1.randInt)(45, 55) * text.length);
+                            }
+                            catch (err) {
+                                // Typing events are non-critical, so allow them to fail silently...
+                            }
                         }
                         // Now actually reply/send the message
                         if (message) {

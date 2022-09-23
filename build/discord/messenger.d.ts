@@ -1,13 +1,19 @@
 import { GuildMember, Message, TextBasedChannel } from "discord.js";
+interface MessengerOptions {
+    /**
+     * Whether to skip the typing delay and send immediately.
+     */
+    immediate?: boolean;
+}
 export declare class Messenger {
     private _busy;
     private readonly _backlog;
     private logger?;
     constructor();
     setLogger(logger: (message: string) => void): void;
-    send(channel: TextBasedChannel, text: string): Promise<void>;
-    reply(message: Message, text: string): Promise<void>;
-    dm(member: GuildMember, text: string): Promise<void>;
+    send(channel: TextBasedChannel, text: string, options?: MessengerOptions): Promise<void>;
+    reply(message: Message, text: string, options?: MessengerOptions): Promise<void>;
+    dm(member: GuildMember, text: string, options?: MessengerOptions): Promise<void>;
     private _send;
     private _processEntry;
     /**
@@ -21,4 +27,5 @@ export declare class Messenger {
      */
     sendLargeMonospaced(channel: TextBasedChannel, text: string): Promise<void>;
 }
+export {};
 //# sourceMappingURL=messenger.d.ts.map
