@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.naturalJoin = void 0;
+exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.naturalJoin = void 0;
 /**
  * @param input List of strings
  * @returns The given list of strings joined in a way that is grammatically correct in English
@@ -96,6 +96,24 @@ function toLetterId(input) {
     return (input < 26 ? '' : toLetterId(Math.floor(input / 26) - 1)) + String.fromCharCode((input % 26) + 65);
 }
 exports.toLetterId = toLetterId;
+/**
+ * Given an alphabetical encoding of some number, return the parsed value (e.g. "A" is 0, "B" is 1, "Z" is 25, "AA" is 26)
+ * @param input the input string
+ * @returns the input string decoded into the number it represents
+ */
+function fromLetterId(input) {
+    if (!input.match(/^[a-zA-Z]+$/g)) {
+        throw new Error(`Cannot parse letter ID "${input}"`);
+    }
+    const lastDigitValue = input.toUpperCase().charCodeAt(input.length - 1) - 65;
+    if (input.length === 1) {
+        return lastDigitValue;
+    }
+    else {
+        return lastDigitValue + 26 * (fromLetterId(input.slice(0, -1)) + 1);
+    }
+}
+exports.fromLetterId = fromLetterId;
 /**
  * For some input string, attempt to pluralize it.
  * Cannot handle complex pluralizations or phrases with verbs.

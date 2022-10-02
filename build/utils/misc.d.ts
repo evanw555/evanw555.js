@@ -41,6 +41,12 @@ export declare function capitalize(input: string): string;
  */
 export declare function toLetterId(input: number): string;
 /**
+ * Given an alphabetical encoding of some number, return the parsed value (e.g. "A" is 0, "B" is 1, "Z" is 25, "AA" is 26)
+ * @param input the input string
+ * @returns the input string decoded into the number it represents
+ */
+export declare function fromLetterId(input: string): number;
+/**
  * For some input string, attempt to pluralize it.
  * Cannot handle complex pluralizations or phrases with verbs.
  *

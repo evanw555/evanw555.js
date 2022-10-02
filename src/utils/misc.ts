@@ -94,6 +94,23 @@ export function toLetterId(input: number): string {
 }
 
 /**
+ * Given an alphabetical encoding of some number, return the parsed value (e.g. "A" is 0, "B" is 1, "Z" is 25, "AA" is 26)
+ * @param input the input string
+ * @returns the input string decoded into the number it represents
+ */
+ export function fromLetterId(input: string): number {
+    if (!input.match(/^[a-zA-Z]+$/g)) {
+        throw new Error(`Cannot parse letter ID "${input}"`);
+    }
+    const lastDigitValue = input.toUpperCase().charCodeAt(input.length - 1) - 65;
+    if (input.length === 1) {
+        return lastDigitValue;
+    } else {
+        return lastDigitValue + 26 * (fromLetterId(input.slice(0, -1)) + 1);
+    }
+}
+
+/**
  * For some input string, attempt to pluralize it.
  * Cannot handle complex pluralizations or phrases with verbs.
  * 
