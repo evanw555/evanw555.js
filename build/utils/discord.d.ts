@@ -28,4 +28,28 @@ export declare function deleteMessagesBeforeMessage(channel: TextBasedChannel, m
     batchSize?: number;
     delay?: number;
 }): Promise<number>;
+/**
+ * For a list of poll choice values, return an appropriate list of choice key emojis corresponding to the value list.
+ * Note: the overrides option only applies to keys (or consecutive keys) at the beginning or end of the list.
+ *
+ * @param choices list of poll choice values
+ * @param options.overrides a of poll choice keys that can be used if a particular choice value is encountered
+ * @returns list of choice key emojis corresponding to the provided choice values
+ */
+export declare function getPollChoiceKeys(choices: string[], options?: {
+    overrides: Record<string, string[]>;
+}): string[];
+/**
+ * Adds the list of reacts in-order, taking a delay between each.
+ * Handles failures gracefully by extending the delay between each react.
+ *
+ * @param message the message to which we are reacting
+ * @param reacts the ordered list of emojis to react with
+ * @param options.delay the base delay between each message (will grow on failure)
+ * @param options.retries number of failed reacts to allow before aborting with an error
+ */
+export declare function addReactsSync(message: Message, reacts: string[], options?: {
+    delay?: number;
+    retries?: number;
+}): Promise<void>;
 //# sourceMappingURL=discord.d.ts.map

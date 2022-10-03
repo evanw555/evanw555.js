@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteMessagesBeforeMessage = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = void 0;
+exports.addReactsSync = exports.getPollChoiceKeys = exports.deleteMessagesBeforeMessage = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = void 0;
 const misc_1 = require("./misc");
+const random_1 = require("./random");
 const time_1 = require("./time");
 function getJoinedMentions(userIds, conjunction = 'and') {
     return (0, misc_1.naturalJoin)(userIds.map(userId => `<@${userId}>`), conjunction);
@@ -120,4 +121,95 @@ function deleteMessagesBeforeMessage(channel, messageId, options) {
     });
 }
 exports.deleteMessagesBeforeMessage = deleteMessagesBeforeMessage;
+/**
+ * For a list of poll choice values, return an appropriate list of choice key emojis corresponding to the value list.
+ * Note: the overrides option only applies to keys (or consecutive keys) at the beginning or end of the list.
+ *
+ * @param choices list of poll choice values
+ * @param options.overrides a of poll choice keys that can be used if a particular choice value is encountered
+ * @returns list of choice key emojis corresponding to the provided choice values
+ */
+function getPollChoiceKeys(choices, options) {
+    const n = choices.length;
+    // Recursively handle overrides
+    // TODO: Can we handle overrides for a key that's not first or last?
+    if (options === null || options === void 0 ? void 0 : options.overrides) {
+        // Override the first choice key
+        const firstKey = choices[0];
+        if (firstKey in options.overrides) {
+            return [(0, random_1.randChoice)(...options.overrides[firstKey]), ...getPollChoiceKeys(choices.slice(1), options)];
+        }
+        // Override the last choice key
+        const lastKey = choices[n - 1];
+        if (lastKey in options.overrides) {
+            return [...getPollChoiceKeys(choices.slice(0, -1), options), (0, random_1.randChoice)(...options.overrides[lastKey])];
+        }
+    }
+    // Specially handle 2-choice polls
+    if (n === 2) {
+        if (choices[0].toLowerCase() === 'yes' && choices[1].toLowerCase() === 'no') {
+            return (0, random_1.randChoice)(['✅', '❌'], ['👍', '👎']);
+        }
+        else {
+            return (0, random_1.randChoice)(['🅰️', '🅱️'], (0, random_1.shuffle)(['🏳️', '🏴']));
+        }
+    }
+    // For all other cases, just shuffle some array of symbols and slice it
+    if (n === 3) {
+        return (0, random_1.shuffle)((0, random_1.randChoice)(['🔴', '⚫', '⚪'], ['🏴', '🏳️', '🏁']));
+    }
+    else if (n === 4) {
+        return (0, random_1.shuffle)(['♠️', '♥️', '♦️', '♣️']);
+    }
+    else if (n <= 6) {
+        // Keep colors in order
+        return ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣'].slice(0, n);
+    }
+    else if (n <= 20) {
+        // Slice to the right size
+        return (0, random_1.shuffle)(['🍒', '🍉', '🍌', '🍎', '🥕', '🏐', '🏀', '🏈', '🌲', '🎱', '🎲', '💎', '💰', '🪐', '☘️', '🌻', '🍄', '🌎', '🌙', '🔥']).slice(0, n);
+    }
+    else {
+        throw new Error('Cannot have more than 20 poll choices!');
+    }
+}
+exports.getPollChoiceKeys = getPollChoiceKeys;
+/**
+ * Adds the list of reacts in-order, taking a delay between each.
+ * Handles failures gracefully by extending the delay between each react.
+ *
+ * @param message the message to which we are reacting
+ * @param reacts the ordered list of emojis to react with
+ * @param options.delay the base delay between each message (will grow on failure)
+ * @param options.retries number of failed reacts to allow before aborting with an error
+ */
+function addReactsSync(message, reacts, options) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        let delay = (_a = options === null || options === void 0 ? void 0 : options.delay) !== null && _a !== void 0 ? _a : 1000;
+        let retriesLeft = (_b = options === null || options === void 0 ? void 0 : options.retries) !== null && _b !== void 0 ? _b : 3;
+        // Add all emojis to the queue
+        const queue = [];
+        queue.push(...reacts);
+        // For each emoji in the queue, attempt to react to the message with it
+        while (queue.length > 0) {
+            const react = queue[0];
+            yield (0, time_1.sleep)(delay);
+            try {
+                yield message.react(react);
+            }
+            catch (err) {
+                // If the react failed, increase the delay, consume one retry, and try again
+                delay = Math.floor(delay * 1.5);
+                retriesLeft--;
+                if (retriesLeft === 0) {
+                    throw new Error(`Ran out of retries while adding reacts to message, aborting: \`${err}\``);
+                }
+                continue;
+            }
+            queue.shift();
+        }
+    });
+}
+exports.addReactsSync = addReactsSync;
 //# sourceMappingURL=discord.js.map

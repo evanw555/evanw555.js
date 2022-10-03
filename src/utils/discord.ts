@@ -1,6 +1,7 @@
 
 import { ChannelLogsQueryOptions, Message, Snowflake, TextBasedChannel } from "discord.js";
 import { naturalJoin } from "./misc";
+import { randChoice, shuffle } from "./random";
 import { sleep } from "./time";
 
 export function getJoinedMentions(userIds: Snowflake[], conjunction: string = 'and'): string {
@@ -101,5 +102,90 @@ export async function deleteMessagesBeforeMessage(channel: TextBasedChannel, mes
             await sleep(delay);
         }
         process.stdout.write('✔️\n');
+    }
+}
+
+/**
+ * For a list of poll choice values, return an appropriate list of choice key emojis corresponding to the value list.
+ * Note: the overrides option only applies to keys (or consecutive keys) at the beginning or end of the list.
+ *
+ * @param choices list of poll choice values
+ * @param options.overrides a of poll choice keys that can be used if a particular choice value is encountered
+ * @returns list of choice key emojis corresponding to the provided choice values
+ */
+export function getPollChoiceKeys(choices: string[], options?: { overrides: Record<string, string[]> }): string[] {
+    const n: number = choices.length;
+
+    // Recursively handle overrides
+    // TODO: Can we handle overrides for a key that's not first or last?
+    if (options?.overrides) {
+        // Override the first choice key
+        const firstKey: string = choices[0];
+        if (firstKey in options.overrides) {
+            return [randChoice(...options.overrides[firstKey]), ...getPollChoiceKeys(choices.slice(1), options)];
+        }
+        // Override the last choice key
+        const lastKey: string = choices[n - 1];
+        if (lastKey in options.overrides) {
+            return [...getPollChoiceKeys(choices.slice(0, -1), options), randChoice(...options.overrides[lastKey])];
+        }
+    }
+
+    // Specially handle 2-choice polls
+    if (n === 2) {
+        if (choices[0].toLowerCase() === 'yes' && choices[1].toLowerCase() === 'no') {
+            return randChoice(['✅', '❌'], ['👍', '👎']);
+        } else {
+            return randChoice(['🅰️', '🅱️'], shuffle(['🏳️', '🏴']));
+        }
+    }
+    // For all other cases, just shuffle some array of symbols and slice it
+    if (n === 3) {
+        return shuffle(randChoice(['🔴', '⚫', '⚪'], ['🏴', '🏳️', '🏁']));
+    } else if (n === 4) {
+        return shuffle(['♠️', '♥️', '♦️', '♣️']);
+    } else if (n <= 6) {
+        // Keep colors in order
+        return ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣'].slice(0, n);
+    } else if (n <= 20) {
+        // Slice to the right size
+        return shuffle(['🍒', '🍉', '🍌', '🍎', '🥕', '🏐', '🏀', '🏈', '🌲', '🎱', '🎲', '💎', '💰', '🪐', '☘️', '🌻', '🍄', '🌎', '🌙', '🔥']).slice(0, n);
+    } else {
+        throw new Error('Cannot have more than 20 poll choices!');
+    }
+}
+
+
+    /**
+     * Adds the list of reacts in-order, taking a delay between each.
+     * Handles failures gracefully by extending the delay between each react.
+     *
+     * @param message the message to which we are reacting
+     * @param reacts the ordered list of emojis to react with
+     * @param options.delay the base delay between each message (will grow on failure)
+     * @param options.retries number of failed reacts to allow before aborting with an error
+     */
+export async function addReactsSync(message: Message, reacts: string[], options?: { delay?: number, retries?: number }): Promise<void> {
+    let delay: number = options?.delay ?? 1000;
+    let retriesLeft: number = options?.retries ?? 3;
+    // Add all emojis to the queue
+    const queue: string[] = [];
+    queue.push(...reacts);
+    // For each emoji in the queue, attempt to react to the message with it
+    while (queue.length > 0) {
+        const react: string = queue[0];
+        await sleep(delay);
+        try {
+            await message.react(react);
+        } catch (err) {
+            // If the react failed, increase the delay, consume one retry, and try again
+            delay = Math.floor(delay * 1.5);
+            retriesLeft--;
+            if (retriesLeft === 0) {
+                throw new Error(`Ran out of retries while adding reacts to message, aborting: \`${err}\``);
+            }
+            continue;
+        }
+        queue.shift();
     }
 }
