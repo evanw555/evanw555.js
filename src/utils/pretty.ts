@@ -7,10 +7,13 @@ export function prettyPrint(node: any): string {
     }
 
     const printMap = (map: Record<string, any>): string => {
-        const keys = Object.keys(map);
+        // Don't serialize entries where the value is undefined
+        const keys: string[] = Object.keys(map).filter(k => map[k] !== undefined);
+        // Short-circuit empty maps
         if (keys.length === 0) {
             return '{}';
         }
+        // Recursively serialize the map and its values
         let s = '{';
         indentLevel++;
         for (let i = 0; i < keys.length; i++) {
