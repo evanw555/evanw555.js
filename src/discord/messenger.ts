@@ -17,6 +17,9 @@ interface MessengerOptions {
 }
 
 export class Messenger {
+    // The Discord API will automatically stop typing events after 10 seconds
+    private static MAX_TYPING_DURATION: number = 10000;
+
     private _busy: boolean;
     private readonly _backlog: MessengerBacklogEntry[];
     private logger?: (message: string) => void;
@@ -68,10 +71,12 @@ export class Messenger {
                     if (!entry.options?.immediate) {
                         // Take a brief pause
                         await sleep(randInt(100, 1500));
-                        // Send the typing event and wait based on the length of the message
+                        // Send the typing event and wait a bit
                         try {
                             await channel.sendTyping();
-                            await sleep(randInt(45, 55) * text.length);
+                            // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
+                            const typingDuration: number = Math.min(randInt(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
+                            await sleep(typingDuration);
                         } catch (err) {
                             // Typing events are non-critical, so allow them to fail silently...
                         }
@@ -107,10 +112,12 @@ export class Messenger {
     async sendAndGet(channel: TextBasedChannel, text: string): Promise<Message> {
         // Take a brief pause
         await sleep(randInt(100, 1500));
-        // Send the typing event and wait based on the length of the message
+        // Send the typing event and wait a bit
         try {
             await channel.sendTyping();
-            await sleep(randInt(45, 55) * text.length);
+            // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
+            const typingDuration: number = Math.min(randInt(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
+            await sleep(typingDuration);
         } catch (err) {
             // Typing events are non-critical, so allow them to fail silently...
         }

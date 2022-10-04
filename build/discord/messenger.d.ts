@@ -6,6 +6,7 @@ interface MessengerOptions {
     immediate?: boolean;
 }
 export declare class Messenger {
+    private static MAX_TYPING_DURATION;
     private _busy;
     private readonly _backlog;
     private logger?;

@@ -65,10 +65,12 @@ class Messenger {
                         if (!((_a = entry.options) === null || _a === void 0 ? void 0 : _a.immediate)) {
                             // Take a brief pause
                             yield (0, time_1.sleep)((0, random_1.randInt)(100, 1500));
-                            // Send the typing event and wait based on the length of the message
+                            // Send the typing event and wait a bit
                             try {
                                 yield channel.sendTyping();
-                                yield (0, time_1.sleep)((0, random_1.randInt)(45, 55) * text.length);
+                                // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
+                                const typingDuration = Math.min((0, random_1.randInt)(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
+                                yield (0, time_1.sleep)(typingDuration);
                             }
                             catch (err) {
                                 // Typing events are non-critical, so allow them to fail silently...
@@ -110,10 +112,12 @@ class Messenger {
         return __awaiter(this, void 0, void 0, function* () {
             // Take a brief pause
             yield (0, time_1.sleep)((0, random_1.randInt)(100, 1500));
-            // Send the typing event and wait based on the length of the message
+            // Send the typing event and wait a bit
             try {
                 yield channel.sendTyping();
-                yield (0, time_1.sleep)((0, random_1.randInt)(45, 55) * text.length);
+                // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
+                const typingDuration = Math.min((0, random_1.randInt)(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
+                yield (0, time_1.sleep)(typingDuration);
             }
             catch (err) {
                 // Typing events are non-critical, so allow them to fail silently...
@@ -150,4 +154,6 @@ class Messenger {
     }
 }
 exports.Messenger = Messenger;
+// The Discord API will automatically stop typing events after 10 seconds
+Messenger.MAX_TYPING_DURATION = 10000;
 //# sourceMappingURL=messenger.js.map
