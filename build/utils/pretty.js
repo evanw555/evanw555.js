@@ -2,7 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prettyPrint = void 0;
 // TODO: Clean this up...
-function prettyPrint(node) {
+/**
+ * Pretty-print the given value into JSON.
+ * @param node The value to serialize
+ * @param options.overrides A mapping keyed by JSON path (e.g. "x.y.z") used to replace certain elements (doesn't work for primitive arrays).
+ *                          Wildcards may be used as the last segment in the path string.
+ * @returns The serialized string
+ */
+function prettyPrint(node, options) {
+    var _a;
+    const overrides = (_a = options === null || options === void 0 ? void 0 : options.overrides) !== null && _a !== void 0 ? _a : {};
+    const path = [];
     let indentLevel = 0;
     const getIndent = () => {
         return ' '.repeat(indentLevel * 2);
@@ -18,7 +28,11 @@ function prettyPrint(node) {
         let s = '{';
         indentLevel++;
         for (let i = 0; i < keys.length; i++) {
-            s += '\n' + getIndent() + `"${keys[i]}": ${print(map[keys[i]])}`;
+            const key = keys[i];
+            const value = map[key];
+            path.push(key);
+            s += '\n' + getIndent() + `"${key}": ${print(value)}`;
+            path.pop();
             if (i !== keys.length - 1) {
                 s += ',';
             }
@@ -35,7 +49,9 @@ function prettyPrint(node) {
             let s = '[';
             indentLevel++;
             for (let i = 0; i < array.length; i++) {
+                path.push(i.toString());
                 s += '\n' + getIndent() + print(array[i]);
+                path.pop();
                 if (i !== array.length - 1) {
                     s += ',';
                 }
@@ -45,7 +61,7 @@ function prettyPrint(node) {
             return s;
         }
     };
-    const print = (thing) => {
+    const printWithoutOverride = (thing) => {
         if (thing && thing.constructor === Object) {
             return printMap(thing);
         }
@@ -55,6 +71,24 @@ function prettyPrint(node) {
         else {
             return JSON.stringify(thing);
         }
+    };
+    const print = (thing) => {
+        // Check for explicit path overrides
+        const currentPathString = path.join('.');
+        if (currentPathString in overrides) {
+            return printWithoutOverride(overrides[currentPathString]);
+        }
+        // Check for wildcard matches if not at the root node
+        if (path.length > 0) {
+            // Replace the last component with a wildcard
+            // TODO: Can we support wildcards anywhere in the path? Would it require regex logic?
+            const wildcardPathString = path.slice(0, -1).concat('*').join('.');
+            if (wildcardPathString in overrides) {
+                return printWithoutOverride(overrides[wildcardPathString]);
+            }
+        }
+        // Else, serialize as normal
+        return printWithoutOverride(thing);
     };
     return print(node);
 }
