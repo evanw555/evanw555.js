@@ -6,6 +6,7 @@ export * from './language-generator';
 export * from './multi-logger';
 export * from './r9k';
 export * from './timeout-manager';
+export * from './utils/dag';
 export * from './utils/discord';
 export * from './utils/k-means';
 export * from './utils/load-json';

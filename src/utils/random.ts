@@ -1,3 +1,5 @@
+import { flattenDAG } from "./dag";
+
 /**
  * @param lo Lower bound (inclusive)
  * @param hi Upper bound (exclusive)
@@ -28,4 +30,55 @@ export function randChoice<T>(...choices: T[]): T {
  */
 export function shuffle<T>(input: T[]): T[] {
     return input.sort((x, y) => Math.random() - Math.random());
+}
+
+/**
+ * @returns True with probability p
+ */
+export function chance(p: number): boolean {
+    return Math.random() < p;
+}
+
+export function shuffleWithDependencies(input: string[], dependencies: Record<string, string>): string[] {
+    const edges: Record<string, string[]> = {};
+    const addEdge = (from: string, to: string) => {
+        if (!edges[from]) {
+            edges[from] = [];
+        }
+        if (!edges[to]) {
+            edges[to] = [];
+        }
+        edges[from]?.push(to);
+    };
+    const existingNodes: Set<string> = new Set();
+    for (const [ key, value ] of Object.entries(dependencies)) {
+        if (value && input.includes(key) && input.includes(value)) {
+            addEdge(value, key);
+            existingNodes.add(key);
+            existingNodes.add(value);
+        }
+    }
+    // Add the remaining elements to the DAG
+    for (const element of input) {
+        if (!existingNodes.has(element)) {
+            const randomNode = randChoice(...Array.from(existingNodes));
+            existingNodes.add(element);
+            if (chance(0.5)) {
+                addEdge(randomNode, element);
+            } else {
+                addEdge(element, randomNode);
+            }
+        }
+    }
+    // console.log(JSON.stringify(edges, null, 2));
+    const result = flattenDAG(edges, { randomize: true });
+    return result;
+    // return input.sort((x, y) => {
+    //     if (dependencies[x] === y) {
+    //         return 1;
+    //     } else if (dependencies[y] === x) {
+    //         return -1;
+    //     }
+    //     else return Math.random() - Math.random();
+    // })
 }

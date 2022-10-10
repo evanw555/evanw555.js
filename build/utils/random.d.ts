@@ -16,4 +16,9 @@ export declare function randChoice<T>(...choices: T[]): T;
  * @returns Shuffled array
  */
 export declare function shuffle<T>(input: T[]): T[];
+/**
+ * @returns True with probability p
+ */
+export declare function chance(p: number): boolean;
+export declare function shuffleWithDependencies(input: string[], dependencies: Record<string, string>): string[];
 //# sourceMappingURL=random.d.ts.map
