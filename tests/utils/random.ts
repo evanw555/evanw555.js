@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { shuffleWithDependencies } from '../../src/utils/random';
 
 describe('Random Utils tests', () => {
-    it('randomizes with order dependences', () => {
+    it('shuffles with dependencies', () => {
         const data = ['second', 'third', 'first', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'three', 'two', 'one', 'second2', 'third2'];
         const dependencies = {
             third: 'second',
@@ -37,4 +37,10 @@ describe('Random Utils tests', () => {
             expect(data.every(x => result.includes(x))).true;
         }
     });
+    
+    it('shuffles with empty dependencies', () => {
+        expect(shuffleWithDependencies(['hello'], {}).join('')).to.equal('hello');
+        // Ensure it contains exactly three elements with no "undefined"
+        expect(shuffleWithDependencies(['a','b','c'], {}).join('').length).to.equal(3);
+    })
 });

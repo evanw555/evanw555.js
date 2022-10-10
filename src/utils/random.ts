@@ -41,28 +41,32 @@ export function chance(p: number): boolean {
 
 export function shuffleWithDependencies(input: string[], dependencies: Record<string, string>): string[] {
     const edges: Record<string, string[]> = {};
+    const initializeEdge = (node: string) => {
+        if (!edges[node]) {
+            edges[node] = [];
+        }
+        existingNodes.add(node);
+    };
     const addEdge = (from: string, to: string) => {
-        if (!edges[from]) {
-            edges[from] = [];
-        }
-        if (!edges[to]) {
-            edges[to] = [];
-        }
+        initializeEdge(from);
+        initializeEdge(to);
         edges[from]?.push(to);
     };
     const existingNodes: Set<string> = new Set();
     for (const [ key, value ] of Object.entries(dependencies)) {
         if (value && input.includes(key) && input.includes(value)) {
             addEdge(value, key);
-            existingNodes.add(key);
-            existingNodes.add(value);
         }
     }
     // Add the remaining elements to the DAG
     for (const element of input) {
-        if (!existingNodes.has(element)) {
+        // If there were no dependencies to prime the graph, prime it with this element
+        if (existingNodes.size === 0) {
+            initializeEdge(element);
+        }
+        // If the graph is already primed, add this element somewhere random
+        else if (!existingNodes.has(element)) {
             const randomNode = randChoice(...Array.from(existingNodes));
-            existingNodes.add(element);
             if (chance(0.5)) {
                 addEdge(randomNode, element);
             } else {
