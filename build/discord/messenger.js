@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Messenger = void 0;
+const discord_js_1 = require("discord.js");
 const random_1 = require("../utils/random");
 const time_1 = require("../utils/time");
 class Messenger {
@@ -19,6 +20,9 @@ class Messenger {
     }
     setLogger(logger) {
         this.logger = logger;
+    }
+    setMemberResolver(memberResolver) {
+        this.memberResolver = memberResolver;
     }
     send(channel, text, options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,16 +34,38 @@ class Messenger {
             yield this._send({ channel: message.channel, message, text, options });
         });
     }
+    _resolveMember(member) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (member instanceof discord_js_1.GuildMember) {
+                return member;
+            }
+            else if (typeof member === 'string') {
+                if (this.memberResolver) {
+                    try {
+                        return yield this.memberResolver(member);
+                    }
+                    catch (err) {
+                        throw new Error(`Unable to resolve member with ID ${member}: ${err}`);
+                    }
+                }
+                else {
+                    throw new Error('No memberResolver set');
+                }
+            }
+            else {
+                throw new Error(`Expected member argument to be GuildMember or Snowflake but found ${member}`);
+            }
+        });
+    }
     dm(member, text, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const dmChannel = yield member.createDM();
+                const resolvedMember = yield this._resolveMember(member);
+                const dmChannel = yield resolvedMember.createDM();
                 yield this._send({ channel: dmChannel, text, options });
             }
             catch (err) {
-                if (this.logger) {
-                    this.logger(`Unable to create DM channel for user \`${member.id}\`: \`${err}\``);
-                }
+                this.log(`Unable to send DM via \`Messenger.dm\`: \`${err}\``);
             }
         });
     }
@@ -85,16 +111,14 @@ class Messenger {
                         }
                     }
                     catch (err) {
-                        if (this.logger) {
-                            this.logger(`Failed to send message: \`${err}\``);
-                        }
+                        this.log(`Failed to send message: \`${err}\``);
                     }
                     // Resolve the promise for this message
                     if (resolve) {
                         resolve();
                     }
-                    else if (this.logger) {
-                        this.logger(`No resolve function found for messenger backlog entry to ${channel}`);
+                    else {
+                        this.log(`No resolve function found for messenger backlog entry to ${channel}`);
                     }
                 }
                 this._busy = false;
@@ -151,6 +175,11 @@ class Messenger {
                 }
             }
         });
+    }
+    log(text) {
+        if (this.logger) {
+            this.logger(text);
+        }
     }
 }
 exports.Messenger = Messenger;

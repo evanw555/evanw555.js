@@ -1,4 +1,4 @@
-import { DMChannel, GuildMember, Message, TextBasedChannel } from "discord.js";
+import { DMChannel, GuildMember, Message, Snowflake, TextBasedChannel } from "discord.js";
 import { randInt } from "../utils/random";
 import { sleep } from "../utils/time";
 
@@ -23,6 +23,7 @@ export class Messenger {
     private _busy: boolean;
     private readonly _backlog: MessengerBacklogEntry[];
     private logger?: (message: string) => void;
+    private memberResolver?: (id: Snowflake) => Promise<GuildMember>;
 
     constructor() {
         this._busy = false;
@@ -33,6 +34,10 @@ export class Messenger {
         this.logger = logger;
     }
 
+    setMemberResolver(memberResolver: (id: Snowflake) => Promise<GuildMember>): void {
+        this.memberResolver = memberResolver;
+    }
+
     async send(channel: TextBasedChannel, text: string, options?: MessengerOptions): Promise<void> {
         await this._send({ channel, text, options });
     }
@@ -41,14 +46,31 @@ export class Messenger {
         await this._send({ channel: message.channel, message, text, options });
     }
 
-    async dm(member: GuildMember, text: string, options?: MessengerOptions): Promise<void> {
+    private async _resolveMember(member: GuildMember | Snowflake): Promise<GuildMember> {
+        if (member instanceof GuildMember) {
+            return member;
+        } else if (typeof member === 'string') {
+            if (this.memberResolver) {
+                try {
+                    return await this.memberResolver(member);
+                } catch (err) {
+                    throw new Error(`Unable to resolve member with ID ${member}: ${err}`);
+                }
+            } else {
+                throw new Error('No memberResolver set');
+            }
+        } else {
+            throw new Error(`Expected member argument to be GuildMember or Snowflake but found ${member}`);
+        }
+    }
+
+    async dm(member: GuildMember | Snowflake, text: string, options?: MessengerOptions): Promise<void> {
         try {
-            const dmChannel: DMChannel = await member.createDM();
+            const resolvedMember: GuildMember = await this._resolveMember(member);
+            const dmChannel: DMChannel = await resolvedMember.createDM();
             await this._send({ channel: dmChannel, text, options });
         } catch (err) {
-            if (this.logger) {
-                this.logger(`Unable to create DM channel for user \`${member.id}\`: \`${err}\``);
-            }
+            this.log(`Unable to send DM via \`Messenger.dm\`: \`${err}\``);
         }
     }
 
@@ -88,15 +110,13 @@ export class Messenger {
                         await channel.send(text);
                     }
                 } catch (err) {
-                    if (this.logger) {
-                        this.logger(`Failed to send message: \`${err}\``);
-                    }
+                    this.log(`Failed to send message: \`${err}\``);
                 }
                 // Resolve the promise for this message
                 if (resolve) {
                     resolve();
-                } else if (this.logger) {
-                    this.logger(`No resolve function found for messenger backlog entry to ${channel}`);
+                } else {
+                    this.log(`No resolve function found for messenger backlog entry to ${channel}`);
                 }
             }
             this._busy = false;
@@ -146,6 +166,12 @@ export class Messenger {
                 buffer = '';
                 segmentIndex++;
             }
+        }
+    }
+
+    private log(text: string): void {
+        if (this.logger) {
+            this.logger(text);
         }
     }
 }

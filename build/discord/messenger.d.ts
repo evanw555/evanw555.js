@@ -1,4 +1,4 @@
-import { GuildMember, Message, TextBasedChannel } from "discord.js";
+import { GuildMember, Message, Snowflake, TextBasedChannel } from "discord.js";
 interface MessengerOptions {
     /**
      * Whether to skip the typing delay and send immediately.
@@ -10,11 +10,14 @@ export declare class Messenger {
     private _busy;
     private readonly _backlog;
     private logger?;
+    private memberResolver?;
     constructor();
     setLogger(logger: (message: string) => void): void;
+    setMemberResolver(memberResolver: (id: Snowflake) => Promise<GuildMember>): void;
     send(channel: TextBasedChannel, text: string, options?: MessengerOptions): Promise<void>;
     reply(message: Message, text: string, options?: MessengerOptions): Promise<void>;
-    dm(member: GuildMember, text: string, options?: MessengerOptions): Promise<void>;
+    private _resolveMember;
+    dm(member: GuildMember | Snowflake, text: string, options?: MessengerOptions): Promise<void>;
     private _send;
     private _processEntry;
     /**
@@ -27,6 +30,7 @@ export declare class Messenger {
      * @param text the text to send
      */
     sendLargeMonospaced(channel: TextBasedChannel, text: string): Promise<void>;
+    private log;
 }
 export {};
 //# sourceMappingURL=messenger.d.ts.map
