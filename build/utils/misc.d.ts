@@ -4,6 +4,14 @@
  */
 export declare function naturalJoin(input: string[], conjunction?: string): string;
 /**
+ * For a given list of strings, return a list representing this list with identical consecutive elements collapsed.
+ *
+ * @param input list of strings
+ * @param transformer function that returns the representation of some list element given the number of times it appears consecutively
+ * @returns a new list of strings with identical consecutive strings collapsed
+ */
+export declare function collapseRedundantStrings(input: string[], transformer: (element: string, n: number) => string): string[];
+/**
  * For some object, return some particular subnode specified by the provided selector.
  *
  * e.g. getSelectedNode({'someArray': ['a', 'b', 'c']}, 'someArray.1') === 'b'

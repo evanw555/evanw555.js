@@ -26,6 +26,30 @@ export function naturalJoin(input: string[], conjunction: string = 'and'): strin
 }
 
 /**
+ * For a given list of strings, return a list representing this list with identical consecutive elements collapsed.
+ * 
+ * @param input list of strings
+ * @param transformer function that returns the representation of some list element given the number of times it appears consecutively
+ * @returns a new list of strings with identical consecutive strings collapsed
+ */
+export function collapseRedundantStrings(input: string[], transformer: (element: string, n: number) => string): string[] {
+    const result: string[] = [];
+
+    let n = 0;
+    for (let i = 0; i < input.length; i++) {
+        n++;
+        const current: string = input[i];
+        const next: string = input[i + 1];
+        if (current !== next) {
+            result.push(transformer(current, n));
+            n = 0;
+        }
+    }
+
+    return result;
+}
+
+/**
  * For some object, return some particular subnode specified by the provided selector.
  * 
  * e.g. getSelectedNode({'someArray': ['a', 'b', 'c']}, 'someArray.1') === 'b'

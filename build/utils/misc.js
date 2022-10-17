@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.naturalJoin = void 0;
+exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.collapseRedundantStrings = exports.naturalJoin = void 0;
 /**
  * @param input List of strings
  * @returns The given list of strings joined in a way that is grammatically correct in English
@@ -28,6 +28,28 @@ function naturalJoin(input, conjunction = 'and') {
     return result;
 }
 exports.naturalJoin = naturalJoin;
+/**
+ * For a given list of strings, return a list representing this list with identical consecutive elements collapsed.
+ *
+ * @param input list of strings
+ * @param transformer function that returns the representation of some list element given the number of times it appears consecutively
+ * @returns a new list of strings with identical consecutive strings collapsed
+ */
+function collapseRedundantStrings(input, transformer) {
+    const result = [];
+    let n = 0;
+    for (let i = 0; i < input.length; i++) {
+        n++;
+        const current = input[i];
+        const next = input[i + 1];
+        if (current !== next) {
+            result.push(transformer(current, n));
+            n = 0;
+        }
+    }
+    return result;
+}
+exports.collapseRedundantStrings = collapseRedundantStrings;
 /**
  * For some object, return some particular subnode specified by the provided selector.
  *
