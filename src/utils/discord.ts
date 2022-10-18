@@ -1,5 +1,5 @@
 
-import { ChannelLogsQueryOptions, Message, Snowflake, TextBasedChannel } from "discord.js";
+import { FetchMessagesOptions, Message, Snowflake, TextBasedChannel } from "discord.js";
 import { naturalJoin } from "./misc";
 import { randChoice, shuffle } from "./random";
 import { sleep } from "./time";
@@ -44,7 +44,7 @@ export async function findLatestMessageBeforeDate(channel: TextBasedChannel, dat
 
     let beforeMessageId: Snowflake | undefined = undefined;
     while (true) {
-        const options: ChannelLogsQueryOptions = { limit: batchSize };
+        const options: FetchMessagesOptions = { limit: batchSize };
         if (beforeMessageId) {
             options.before = beforeMessageId;
         }

@@ -1,6 +1,6 @@
 {
     "name": "evanw555.js",
-    "version": "0.0.31",
+    "version": "0.1.0",
     "description": "Various JavaScript utilities",
     "author": "Evan Williams",
     "main": "./build/index.js",
@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "chai": "4.3.6",
-        "discord.js": "13.*",
+        "discord.js": "14.6.0",
         "stable": "^0.1.8"
     },
     "devDependencies": {
