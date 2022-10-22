@@ -94,8 +94,12 @@ export class CircularQueue<T> {
         return this.set.has(value);
     }
 
+    size(): number {
+        return this.list.length;
+    }
+
     isEmpty(): boolean {
-        return this.list.length === 0;
+        return this.size() === 0;
     }
 
     toSortedArray(): T[] {

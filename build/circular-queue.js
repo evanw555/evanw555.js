@@ -80,8 +80,11 @@ class CircularQueue {
     contains(value) {
         return this.set.has(value);
     }
+    size() {
+        return this.list.length;
+    }
     isEmpty() {
-        return this.list.length === 0;
+        return this.size() === 0;
     }
     toSortedArray() {
         const array = Array.from(this.set);

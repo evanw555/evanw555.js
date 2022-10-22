@@ -32,6 +32,7 @@ export declare class CircularQueue<T> {
      */
     get(): T | undefined;
     contains(value: T): boolean;
+    size(): number;
     isEmpty(): boolean;
     toSortedArray(): T[];
     toString(): string;
