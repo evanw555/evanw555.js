@@ -9,32 +9,47 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MultiLogger = void 0;
+exports.MultiLogger = exports.MultiLoggerLevel = void 0;
+var MultiLoggerLevel;
+(function (MultiLoggerLevel) {
+    MultiLoggerLevel[MultiLoggerLevel["All"] = 0] = "All";
+    MultiLoggerLevel[MultiLoggerLevel["Trace"] = 1] = "Trace";
+    MultiLoggerLevel[MultiLoggerLevel["Debug"] = 2] = "Debug";
+    MultiLoggerLevel[MultiLoggerLevel["Info"] = 3] = "Info";
+    MultiLoggerLevel[MultiLoggerLevel["Warn"] = 4] = "Warn";
+    MultiLoggerLevel[MultiLoggerLevel["Error"] = 5] = "Error";
+    MultiLoggerLevel[MultiLoggerLevel["Fatal"] = 6] = "Fatal";
+    MultiLoggerLevel[MultiLoggerLevel["Off"] = 7] = "Off";
+})(MultiLoggerLevel = exports.MultiLoggerLevel || (exports.MultiLoggerLevel = {}));
 /**
  * Unified logger for logging to multiple destinations.
  */
 class MultiLogger {
     constructor(options) {
-        var _a;
+        var _a, _b, _c;
         this.outputs = [];
         this.maxLength = (_a = options === null || options === void 0 ? void 0 : options.maxLength) !== null && _a !== void 0 ? _a : 1990; // Discord's limit is 2000
+        this.defaultLoggerLevel = (_b = options === null || options === void 0 ? void 0 : options.defaultLoggerLevel) !== null && _b !== void 0 ? _b : MultiLoggerLevel.All;
+        this.defaultLogLevel = (_c = options === null || options === void 0 ? void 0 : options.defaultLogLevel) !== null && _c !== void 0 ? _c : MultiLoggerLevel.Off;
     }
-    addOutput(output) {
-        this.outputs.push(output);
+    addOutput(output, level = this.defaultLoggerLevel) {
+        this.outputs.push({ output, level });
     }
-    log(text) {
+    log(text, level = this.defaultLogLevel) {
         return __awaiter(this, void 0, void 0, function* () {
             // Truncate text if necessary
             if (text.length > this.maxLength) {
                 text = text.substring(0, this.maxLength) + '...';
             }
             // Send the text to each output
-            for (const output of this.outputs) {
-                try {
-                    yield output(text);
-                }
-                catch (err) {
-                    // TODO: Should we do something rather than failing silently?
+            for (const entry of this.outputs) {
+                if (level >= entry.level) {
+                    try {
+                        yield entry.output(text);
+                    }
+                    catch (err) {
+                        // TODO: Should we do something rather than failing silently?
+                    }
                 }
             }
         });

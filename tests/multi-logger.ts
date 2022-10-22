@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { MultiLogger } from '../src/multi-logger';
+import { MultiLogger, MultiLoggerLevel } from '../src/multi-logger';
 
 describe('MultiLogger Tests', () => {
     it('can log to multiple places', async () => {
@@ -76,5 +76,63 @@ describe('MultiLogger Tests', () => {
         expect(processed.has('foo')).is.true;
 
         expect(processed.has('I do not exist')).is.false;
+    });
+
+    it('observes logger and log levels', async () => {
+        // Override the default logger/log level options
+        const logger = new MultiLogger({ defaultLoggerLevel: MultiLoggerLevel.Info, defaultLogLevel: MultiLoggerLevel.Debug });
+        const processed = new Set();
+
+        logger.addOutput(async (x) => {
+            processed.add(x + '_default');
+        });
+
+        logger.addOutput(async (x) => {
+            processed.add(x + '_all');
+        }, MultiLoggerLevel.All);
+
+        logger.addOutput(async (x) => {
+            processed.add(x + '_debug');
+        }, MultiLoggerLevel.Debug);
+
+        logger.addOutput(async (x) => {
+            processed.add(x + '_error');
+        }, MultiLoggerLevel.Error);
+
+        logger.addOutput(async (x) => {
+            processed.add(x + '_off');
+        }, MultiLoggerLevel.Off);
+
+        // A "trace" log should not be logged to the default "info" logger
+        await logger.log('trace', MultiLoggerLevel.Trace);
+        expect(processed.has('trace_all')).is.true;
+        expect(processed.has('trace_debug')).is.false;
+        expect(processed.has('trace_default')).is.false;
+        expect(processed.has('trace_error')).is.false;
+        expect(processed.has('trace_off')).is.false;
+
+        // A default log ("debug" level) should not be logged to the default "info" logger
+        await logger.log('default');
+        expect(processed.has('default_all')).is.true;
+        expect(processed.has('default_debug')).is.true;
+        expect(processed.has('default_default')).is.false;
+        expect(processed.has('default_error')).is.false;
+        expect(processed.has('default_off')).is.false;
+
+        // A "warn" log should be logged to the default "info" logger
+        await logger.log('warn', MultiLoggerLevel.Warn);
+        expect(processed.has('warn_all')).is.true;
+        expect(processed.has('warn_debug')).is.true;
+        expect(processed.has('warn_default')).is.true;
+        expect(processed.has('warn_error')).is.false;
+        expect(processed.has('warn_off')).is.false;
+
+        // Anything logged with the level "off" should be logged to all outputs
+        await logger.log('off', MultiLoggerLevel.Off);
+        expect(processed.has('off_all')).is.true;
+        expect(processed.has('off_debug')).is.true;
+        expect(processed.has('off_default')).is.true;
+        expect(processed.has('off_error')).is.true;
+        expect(processed.has('off_off')).is.true;
     });
 });
