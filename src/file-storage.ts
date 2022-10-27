@@ -1,6 +1,12 @@
 import fs from 'fs';
 
-export class FileStorage {
+export interface AsyncStorageInterface {
+    read(id: string): Promise<string>
+    readJson(id: string): Promise<any>
+    write(id: string, value: any): Promise<void>
+}
+
+export class FileStorage implements AsyncStorageInterface {
     private readonly _ENCODING = 'utf8';
     private readonly _basePath: string;
 

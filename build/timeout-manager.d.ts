@@ -1,4 +1,4 @@
-import { FileStorage } from "./file-storage";
+import { AsyncStorageInterface } from "./file-storage";
 /**
  * How to handle a timeout which is registered for sometime in the past.
  * The action will be taken on timeout registration (e.g. when the timeouts are loaded).
@@ -45,7 +45,7 @@ export declare class TimeoutManager<T extends string> {
     private readonly timeouts;
     private readonly timeoutFileName;
     private previousTimeoutId;
-    constructor(storage: FileStorage, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: {
+    constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: {
         fileName?: string;
     });
     private getNextTimeoutId;

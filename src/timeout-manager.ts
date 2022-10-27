@@ -1,4 +1,4 @@
-import { FileStorage } from "./file-storage";
+import { AsyncStorageInterface } from "./file-storage";
 import { getRelativeDateTimeString } from "./utils/time";
 
 /**
@@ -51,13 +51,13 @@ export class TimeoutManager<T extends string> {
     private static readonly DEFAULT_PAST_STRATEGY: PastTimeoutStrategy = PastTimeoutStrategy.Delete;
     private static readonly DEFAULT_FILE_NAME = 'timeouts.json';
 
-    private readonly storage: FileStorage;
+    private readonly storage: AsyncStorageInterface;
     private readonly callbacks: Record<T, (arg?: any) => Promise<void>>;
     private readonly timeouts: Record<string, Timeout<T>>;
     private readonly timeoutFileName: string;
     private previousTimeoutId: number;
 
-    constructor(storage: FileStorage, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: { fileName?: string }) {
+    constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: { fileName?: string }) {
         this.storage = storage;
         this.callbacks = callbacks;
         this.timeouts = {};
