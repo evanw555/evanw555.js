@@ -5,7 +5,7 @@ import { randChoice, shuffle } from "./random";
 import { sleep } from "./time";
 
 export function getJoinedMentions(userIds: Snowflake[], conjunction: string = 'and'): string {
-    return naturalJoin(userIds.map(userId => `<@${userId}>`), conjunction);
+    return naturalJoin(userIds.map(userId => `<@${userId}>`), { conjunction });
 }
 
 /**

@@ -1,7 +1,26 @@
 import { expect } from 'chai';
-import { toLetterId, fromLetterId, collapseRedundantStrings } from '../../src/utils/misc';
+import { toLetterId, fromLetterId, collapseRedundantStrings, naturalJoin } from '../../src/utils/misc';
 
 describe('Misc. Utility tests', () => {
+    it ('can naturally join strings', () => {
+        expect(naturalJoin(['x'])).equals('x');
+        expect(naturalJoin(['x', 'y'])).equals('x and y');
+        expect(naturalJoin(['x', 'y', 'z'])).equals('x, y, and z');
+
+        // Handle overridden conjunctions
+        expect(naturalJoin(['x'], { conjunction: '&'})).equals('x');
+        expect(naturalJoin(['x', 'y'], { conjunction: '&'})).equals('x & y');
+        expect(naturalJoin(['x', 'y', 'z'], { conjunction: '&'})).equals('x, y, & z');
+
+        // Handle boldness
+        expect(naturalJoin(['x'], { bold: true})).equals('**x**');
+        expect(naturalJoin(['x', 'y'], { bold: true})).equals('**x** and **y**');
+        expect(naturalJoin(['x', 'y', 'z'], { bold: true})).equals('**x**, **y**, and **z**');
+
+        // Handle a mix of options
+        expect(naturalJoin(['x', 'y', 'z', '123'], { conjunction: 'then', bold: true})).equals('**x**, **y**, **z**, then **123**');
+    });
+
     it('can encode a number to a letter ID', () => {
         expect(toLetterId(0)).to.equal('A');
         expect(toLetterId(1)).to.equal('B');

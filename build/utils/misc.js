@@ -3,17 +3,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.collapseRedundantStrings = exports.naturalJoin = void 0;
 /**
  * @param input List of strings
+ * @param options.conjunction The conjunction to use for lists of 3 or more (default: "and")
+ * @param options.bold Whether each element in the list should be bolded (using Discord message styling)
  * @returns The given list of strings joined in a way that is grammatically correct in English
  */
-function naturalJoin(input, conjunction = 'and') {
+function naturalJoin(input, options) {
+    var _a;
+    const conjunction = (_a = options === null || options === void 0 ? void 0 : options.conjunction) !== null && _a !== void 0 ? _a : 'and';
+    const mapper = (options === null || options === void 0 ? void 0 : options.bold)
+        ? (x) => `**${x}**`
+        : (x) => x;
     if (!input || input.length === 0) {
         return '';
     }
     if (input.length === 1) {
-        return input[0];
+        return mapper(input[0]);
     }
     if (input.length === 2) {
-        return `${input[0]} ${conjunction} ${input[1]}`;
+        return `${mapper(input[0])} ${conjunction} ${mapper(input[1])}`;
     }
     let result = '';
     for (let i = 0; i < input.length; i++) {
@@ -23,7 +30,7 @@ function naturalJoin(input, conjunction = 'and') {
         if (i === input.length - 1) {
             result += `${conjunction} `;
         }
-        result += input[i];
+        result += mapper(input[i]);
     }
     return result;
 }

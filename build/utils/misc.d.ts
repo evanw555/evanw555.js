@@ -1,8 +1,13 @@
 /**
  * @param input List of strings
+ * @param options.conjunction The conjunction to use for lists of 3 or more (default: "and")
+ * @param options.bold Whether each element in the list should be bolded (using Discord message styling)
  * @returns The given list of strings joined in a way that is grammatically correct in English
  */
-export declare function naturalJoin(input: string[], conjunction?: string): string;
+export declare function naturalJoin(input: string[], options?: {
+    conjunction?: string;
+    bold?: boolean;
+}): string;
 /**
  * For a given list of strings, return a list representing this list with identical consecutive elements collapsed.
  *

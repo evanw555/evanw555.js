@@ -14,7 +14,7 @@ const misc_1 = require("./misc");
 const random_1 = require("./random");
 const time_1 = require("./time");
 function getJoinedMentions(userIds, conjunction = 'and') {
-    return (0, misc_1.naturalJoin)(userIds.map(userId => `<@${userId}>`), conjunction);
+    return (0, misc_1.naturalJoin)(userIds.map(userId => `<@${userId}>`), { conjunction });
 }
 exports.getJoinedMentions = getJoinedMentions;
 /**
