@@ -137,6 +137,49 @@ export function getDurationString(milliseconds: number) {
 }
 
 /**
+ * For some duration value, return a succint string representation of that exact duration.
+ *
+ * TODO: Should we show ms?
+ *
+ * @param milliseconds the duration in milliseconds
+ * @returns a string representing the precise time in a succint format (without ms)
+ */
+export function getPreciseDurationString(milliseconds: number): string {
+    if (milliseconds < 1000) {
+        return '0s';
+    }
+
+    let result = '';
+
+    const seconds = Math.floor(milliseconds / 1000);
+    if (seconds % 60 !== 0) {
+        result = `${seconds % 60}s`;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes % 60 !== 0) {
+        result = `${minutes % 60}m${result}`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours % 24 !== 0) {
+        result = `${hours % 24}h${result}`;
+    }
+
+    const days = Math.floor(hours / 24);
+    if (days % 7 !== 0) {
+        result = `${days % 7}d${result}`;
+    }
+
+    const weeks = Math.floor(days / 7);
+    if (weeks !== 0) {
+        result = `${weeks}w${result}`;
+    }
+
+    return result;
+}
+
+/**
  * Creates a human-readable representation of the given date compared to right now.
  * (e.g. "5:40 PM", "tomorrow at 5:40 PM", "Tuesday at 5:40 PM", "12/25/2020 at 5:40 PM")
  */

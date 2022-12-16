@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 const random_1 = require("./random");
 function sleep(milliseconds) {
     return new Promise(r => setTimeout(r, milliseconds));
@@ -138,6 +138,42 @@ function getDurationString(milliseconds) {
     return `${days} days`;
 }
 exports.getDurationString = getDurationString;
+/**
+ * For some duration value, return a succint string representation of that exact duration.
+ *
+ * TODO: Should we show ms?
+ *
+ * @param milliseconds the duration in milliseconds
+ * @returns a string representing the precise time in a succint format (without ms)
+ */
+function getPreciseDurationString(milliseconds) {
+    if (milliseconds < 1000) {
+        return '0s';
+    }
+    let result = '';
+    const seconds = Math.floor(milliseconds / 1000);
+    if (seconds % 60 !== 0) {
+        result = `${seconds % 60}s`;
+    }
+    const minutes = Math.floor(seconds / 60);
+    if (minutes % 60 !== 0) {
+        result = `${minutes % 60}m${result}`;
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours % 24 !== 0) {
+        result = `${hours % 24}h${result}`;
+    }
+    const days = Math.floor(hours / 24);
+    if (days % 7 !== 0) {
+        result = `${days % 7}d${result}`;
+    }
+    const weeks = Math.floor(days / 7);
+    if (weeks !== 0) {
+        result = `${weeks}w${result}`;
+    }
+    return result;
+}
+exports.getPreciseDurationString = getPreciseDurationString;
 /**
  * Creates a human-readable representation of the given date compared to right now.
  * (e.g. "5:40 PM", "tomorrow at 5:40 PM", "Tuesday at 5:40 PM", "12/25/2020 at 5:40 PM")

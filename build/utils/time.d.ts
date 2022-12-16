@@ -62,6 +62,15 @@ export declare function toDayOfWeekString(date: Date): string;
  */
 export declare function getDurationString(milliseconds: number): string;
 /**
+ * For some duration value, return a succint string representation of that exact duration.
+ *
+ * TODO: Should we show ms?
+ *
+ * @param milliseconds the duration in milliseconds
+ * @returns a string representing the precise time in a succint format (without ms)
+ */
+export declare function getPreciseDurationString(milliseconds: number): string;
+/**
  * Creates a human-readable representation of the given date compared to right now.
  * (e.g. "5:40 PM", "tomorrow at 5:40 PM", "Tuesday at 5:40 PM", "12/25/2020 at 5:40 PM")
  */
