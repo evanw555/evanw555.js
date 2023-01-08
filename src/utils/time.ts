@@ -1,3 +1,4 @@
+import { getNumberBetween } from "./misc";
 import { randInt } from "./random";
 
 export function sleep(milliseconds: number): Promise<void> {
@@ -57,7 +58,7 @@ export function getNumberOfDaysSince(start: string): number {
  * @returns a date between the provided dates
  */
 export function getDateBetween(start: Date, end: Date, along: number = 0.5): Date {
-    return new Date(start.getTime() + along * (end.getTime() - start.getTime()));
+    return new Date(getNumberBetween(start.getTime(), end.getTime(), along));
 }
 
 /**

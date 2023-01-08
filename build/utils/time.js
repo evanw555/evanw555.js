@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+const misc_1 = require("./misc");
 const random_1 = require("./random");
 function sleep(milliseconds) {
     return new Promise(r => setTimeout(r, milliseconds));
@@ -59,7 +60,7 @@ exports.getNumberOfDaysSince = getNumberOfDaysSince;
  * @returns a date between the provided dates
  */
 function getDateBetween(start, end, along = 0.5) {
-    return new Date(start.getTime() + along * (end.getTime() - start.getTime()));
+    return new Date((0, misc_1.getNumberBetween)(start.getTime(), end.getTime(), along));
 }
 exports.getDateBetween = getDateBetween;
 /**

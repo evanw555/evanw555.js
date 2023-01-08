@@ -214,3 +214,16 @@ export function toMap<T>(keys: string[], values: T[]): Record<string, T> {
     }
     return result;
 }
+
+/**
+ * Computes a number between the two provided numbers, as specified by the optional "along" factor.
+ * If the user wants a number 0.5 "along", it will return a number exactly halfway between the two.
+ * If the user wants a number 0.25 "along", it will return a number a quarter of the way between the two.
+ * @param a the low number
+ * @param b the high number
+ * @param along the "along" factor specifying where the "between" point is (defaults to 0.5)
+ * @returns a number between the provided number
+ */
+export function getNumberBetween(a: number, b: number, along: number = 0.5): number {
+    return a + along * (b - a);
+}

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { toLetterId, fromLetterId, collapseRedundantStrings, naturalJoin } from '../../src/utils/misc';
+import { toLetterId, fromLetterId, collapseRedundantStrings, naturalJoin, getNumberBetween } from '../../src/utils/misc';
 
 describe('Misc. Utility tests', () => {
     it ('can naturally join strings', () => {
@@ -55,5 +55,19 @@ describe('Misc. Utility tests', () => {
         expect(collapseRedundantStrings(['a', 'b', 'a', 'b'], transformer).join(',')).to.equal('a,b,a,b');
         expect(collapseRedundantStrings(['a', 'a', 'a', 'b', 'a', 'a'], transformer).join(',')).to.equal('a (x3),b,a (x2)');
         expect(collapseRedundantStrings(['a', 'b', 'c', 'c', 'c', 'd'], transformer).join(',')).to.equal('a,b,c (x3),d');
+    });
+
+    it('can get numbers between two numbers', () => {
+        expect(getNumberBetween(0, 100)).to.equal(50);
+        expect(getNumberBetween(0, 100, 0)).to.equal(0);
+        expect(getNumberBetween(0, 100, 1)).to.equal(100);
+        expect(getNumberBetween(90, 190, 0.75)).to.equal(165);
+        expect(getNumberBetween(1111, 1112, 0.1)).to.equal(1111.1);
+        expect(getNumberBetween(0.2, 0.45)).to.equal(0.325);
+
+        // Handle weird cases
+        expect(getNumberBetween(0, 100, -1)).to.equal(-100);
+        expect(getNumberBetween(0, 100, 2)).to.equal(200);
+        expect(getNumberBetween(1000, 900, 0.1)).to.equal(990);
     });
 });

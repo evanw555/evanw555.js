@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.collapseRedundantStrings = exports.naturalJoin = void 0;
+exports.getNumberBetween = exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.collapseRedundantStrings = exports.naturalJoin = void 0;
 /**
  * @param input List of strings
  * @param options.conjunction The conjunction to use for lists of 3 or more (default: "and")
@@ -219,4 +219,17 @@ function toMap(keys, values) {
     return result;
 }
 exports.toMap = toMap;
+/**
+ * Computes a number between the two provided numbers, as specified by the optional "along" factor.
+ * If the user wants a number 0.5 "along", it will return a number exactly halfway between the two.
+ * If the user wants a number 0.25 "along", it will return a number a quarter of the way between the two.
+ * @param a the low number
+ * @param b the high number
+ * @param along the "along" factor specifying where the "between" point is (defaults to 0.5)
+ * @returns a number between the provided number
+ */
+function getNumberBetween(a, b, along = 0.5) {
+    return a + along * (b - a);
+}
+exports.getNumberBetween = getNumberBetween;
 //# sourceMappingURL=misc.js.map

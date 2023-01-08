@@ -90,4 +90,14 @@ export declare function filterValueFromMap<T>(input: Record<string, T>, blacklis
  * @returns The constructed map
  */
 export declare function toMap<T>(keys: string[], values: T[]): Record<string, T>;
+/**
+ * Computes a number between the two provided numbers, as specified by the optional "along" factor.
+ * If the user wants a number 0.5 "along", it will return a number exactly halfway between the two.
+ * If the user wants a number 0.25 "along", it will return a number a quarter of the way between the two.
+ * @param a the low number
+ * @param b the high number
+ * @param along the "along" factor specifying where the "between" point is (defaults to 0.5)
+ * @returns a number between the provided number
+ */
+export declare function getNumberBetween(a: number, b: number, along?: number): number;
 //# sourceMappingURL=misc.d.ts.map
