@@ -52,15 +52,35 @@ export class TimeoutManager<T extends string> {
     private static readonly DEFAULT_FILE_NAME = 'timeouts.json';
 
     private readonly storage: AsyncStorageInterface;
+
+    /**
+     * The actual callback that should be invoked when a particular timeout's time has arrived.
+     */
     private readonly callbacks: Record<T, (arg?: any) => Promise<void>>;
+
+    /**
+     * The timeout data for a particular ID. This data should always be in-sync with what's serialized and written to storage.
+     */
     private readonly timeouts: Record<string, Timeout<T>>;
+
+    /**
+     * The instances of the actual scheduled timeout in the Node runtime for a particular ID.
+     */
+    private readonly instances: Record<string, NodeJS.Timeout>;
+
+    /**
+     * The "file name" to be used when writing to storage.
+     * TODO: This can be PG, so perhaps it should be renamed?
+     */
     private readonly timeoutFileName: string;
+
     private previousTimeoutId: number;
 
     constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: { fileName?: string }) {
         this.storage = storage;
         this.callbacks = callbacks;
         this.timeouts = {};
+        this.instances = {};
         this.timeoutFileName = options?.fileName ?? TimeoutManager.DEFAULT_FILE_NAME;
         this.previousTimeoutId = 0;
     }
@@ -103,7 +123,10 @@ export class TimeoutManager<T extends string> {
                 options
             };
             // Schedule a timeout to try again in 10 days
-            setTimeout(async () => {
+            this.instances[id] = setTimeout(async () => {
+                // First, un-associate this ID with this timeout instance
+                delete this.instances[id];
+                // Then, try to add the timeout again
                 await this.addTimeoutForId(id, type, date, options);
             }, 1000 * 60 * 60 * 24 * 10);
             console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
@@ -114,7 +137,10 @@ export class TimeoutManager<T extends string> {
                 date: date.toJSON(),
                 options
             };
-            setTimeout(async () => {
+            // Schedule and save the actual timeout
+            this.instances[id] = setTimeout(async () => {
+                // First, un-associate this ID with this timeout instance
+                delete this.instances[id];
                 // Perform the actual callback
                 await this.callbacks[type](options.arg);
                 // Clear the timeout info
@@ -145,21 +171,78 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
-     * Registers a timeout 
+     * Registers a timeout.
      * @param type 
      * @param date 
      * @param options
+     * @returns The ID of the newly scheduled timeout
      */
-    async registerTimeout(type: T, date: Date, options: TimeoutOptions = {}): Promise<void> {
+    async registerTimeout(type: T, date: Date, options: TimeoutOptions = {}): Promise<string> {
         const id = this.getNextTimeoutId();
         await this.addTimeoutForId(id, type, date, options);
         await this.dumpTimeouts();
+        return id;
+    }
+
+    /**
+     * Cancels an existing timeout.
+     * @param id ID of the timeout to be canceled
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    async cancelTimeout(id: string): Promise<void> {
+        if (!this.instances[id] || !this.timeouts[id]) {
+            throw new Error(`Cannot cancel non-existent timeout with ID ${id}`);
+        }
+        // Actually cancel the timeout in the Node runtime
+        clearTimeout(this.instances[id]);
+        // Delete it from the revelant maps
+        delete this.instances[id];
+        delete this.timeouts[id];
+        // Dump the timeouts
+        await this.dumpTimeouts();
+    }
+
+    /**
+     * Postpones an existing timeout to a later date.
+     * @param id ID of the timeout to be postponed
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    async postponeTimeout(id: string, value: Date | number): Promise<void> {
+        if (!this.instances[id] || !this.timeouts[id]) {
+            throw new Error(`Cannot postpone non-existent timeout with ID ${id}`);
+        }
+        const timeout = this.timeouts[id];
+        // Cancel the existing timeout
+        await this.cancelTimeout(id);
+        // Determine the new date
+        const previousDate = new Date(timeout.date);
+        let newDate: Date;
+        if (value instanceof Date) {
+            newDate = value;
+        } else {
+            newDate = new Date(previousDate.getTime() + value);
+        }
+        // Add and schedule the new timeout
+        await this.addTimeoutForId(id, timeout.type, newDate, timeout.options);
+        // Dump the updated timeouts
+        await this.dumpTimeouts();
+    }
+
+    hasTimeoutWithId(id: string): boolean {
+        return id in this.timeouts && id in this.instances;
+    }
+
+    getDateForTimeoutWithId(id: string): Date | undefined {
+        if (id in this.timeouts) {
+            return new Date(this.timeouts[id].date);
+        }
     }
 
     /**
      * @returns the date of some currently scheduled timeout of the given type, or undefined if none exists.
      */
-    getDate(type: T): Date | undefined {
+    getDateForTimeoutWithType(type: T): Date | undefined {
         for (const timeoutInfo of Object.values(this.timeouts)) {
             if (timeoutInfo.type === type) {
                 return new Date(timeoutInfo.date.trim());
@@ -170,7 +253,7 @@ export class TimeoutManager<T extends string> {
     /**
      * @returns true if a timeout with the given type is currently scheduled.
      */
-    hasTimeout(type: T): boolean {
+    hasTimeoutWithType(type: T): boolean {
         return Object.values(this.timeouts).some(t => t.type === type);
     }
 

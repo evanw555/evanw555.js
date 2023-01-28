@@ -41,8 +41,22 @@ export declare class TimeoutManager<T extends string> {
     private static readonly DEFAULT_PAST_STRATEGY;
     private static readonly DEFAULT_FILE_NAME;
     private readonly storage;
+    /**
+     * The actual callback that should be invoked when a particular timeout's time has arrived.
+     */
     private readonly callbacks;
+    /**
+     * The timeout data for a particular ID. This data should always be in-sync with what's serialized and written to storage.
+     */
     private readonly timeouts;
+    /**
+     * The instances of the actual scheduled timeout in the Node runtime for a particular ID.
+     */
+    private readonly instances;
+    /**
+     * The "file name" to be used when writing to storage.
+     * TODO: This can be PG, so perhaps it should be renamed?
+     */
     private readonly timeoutFileName;
     private previousTimeoutId;
     constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: {
@@ -53,20 +67,36 @@ export declare class TimeoutManager<T extends string> {
     private dumpTimeouts;
     private addTimeoutForId;
     /**
-     * Registers a timeout
+     * Registers a timeout.
      * @param type
      * @param date
      * @param options
+     * @returns The ID of the newly scheduled timeout
      */
-    registerTimeout(type: T, date: Date, options?: TimeoutOptions): Promise<void>;
+    registerTimeout(type: T, date: Date, options?: TimeoutOptions): Promise<string>;
+    /**
+     * Cancels an existing timeout.
+     * @param id ID of the timeout to be canceled
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    cancelTimeout(id: string): Promise<void>;
+    /**
+     * Postpones an existing timeout to a later date.
+     * @param id ID of the timeout to be postponed
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    postponeTimeout(id: string, value: Date | number): Promise<void>;
+    hasTimeoutWithId(id: string): boolean;
+    getDateForTimeoutWithId(id: string): Date | undefined;
     /**
      * @returns the date of some currently scheduled timeout of the given type, or undefined if none exists.
      */
-    getDate(type: T): Date | undefined;
+    getDateForTimeoutWithType(type: T): Date | undefined;
     /**
      * @returns true if a timeout with the given type is currently scheduled.
      */
-    hasTimeout(type: T): boolean;
+    hasTimeoutWithType(type: T): boolean;
     /**
      * @returns list of human-readable strings representing each timeout (in ascending date order)
      */

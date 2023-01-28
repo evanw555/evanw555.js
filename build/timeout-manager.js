@@ -43,6 +43,7 @@ class TimeoutManager {
         this.storage = storage;
         this.callbacks = callbacks;
         this.timeouts = {};
+        this.instances = {};
         this.timeoutFileName = (_a = options === null || options === void 0 ? void 0 : options.fileName) !== null && _a !== void 0 ? _a : TimeoutManager.DEFAULT_FILE_NAME;
         this.previousTimeoutId = 0;
     }
@@ -87,7 +88,10 @@ class TimeoutManager {
                     options
                 };
                 // Schedule a timeout to try again in 10 days
-                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                this.instances[id] = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                    // First, un-associate this ID with this timeout instance
+                    delete this.instances[id];
+                    // Then, try to add the timeout again
                     yield this.addTimeoutForId(id, type, date, options);
                 }), 1000 * 60 * 60 * 24 * 10);
                 console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
@@ -99,7 +103,10 @@ class TimeoutManager {
                     date: date.toJSON(),
                     options
                 };
-                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                // Schedule and save the actual timeout
+                this.instances[id] = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                    // First, un-associate this ID with this timeout instance
+                    delete this.instances[id];
                     // Perform the actual callback
                     yield this.callbacks[type](options.arg);
                     // Clear the timeout info
@@ -134,22 +141,80 @@ class TimeoutManager {
         });
     }
     /**
-     * Registers a timeout
+     * Registers a timeout.
      * @param type
      * @param date
      * @param options
+     * @returns The ID of the newly scheduled timeout
      */
     registerTimeout(type, date, options = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const id = this.getNextTimeoutId();
             yield this.addTimeoutForId(id, type, date, options);
             yield this.dumpTimeouts();
+            return id;
         });
+    }
+    /**
+     * Cancels an existing timeout.
+     * @param id ID of the timeout to be canceled
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    cancelTimeout(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.instances[id] || !this.timeouts[id]) {
+                throw new Error(`Cannot cancel non-existent timeout with ID ${id}`);
+            }
+            // Actually cancel the timeout in the Node runtime
+            clearTimeout(this.instances[id]);
+            // Delete it from the revelant maps
+            delete this.instances[id];
+            delete this.timeouts[id];
+            // Dump the timeouts
+            yield this.dumpTimeouts();
+        });
+    }
+    /**
+     * Postpones an existing timeout to a later date.
+     * @param id ID of the timeout to be postponed
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    postponeTimeout(id, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.instances[id] || !this.timeouts[id]) {
+                throw new Error(`Cannot postpone non-existent timeout with ID ${id}`);
+            }
+            const timeout = this.timeouts[id];
+            // Cancel the existing timeout
+            yield this.cancelTimeout(id);
+            // Determine the new date
+            const previousDate = new Date(timeout.date);
+            let newDate;
+            if (value instanceof Date) {
+                newDate = value;
+            }
+            else {
+                newDate = new Date(previousDate.getTime() + value);
+            }
+            // Add and schedule the new timeout
+            yield this.addTimeoutForId(id, timeout.type, newDate, timeout.options);
+            // Dump the updated timeouts
+            yield this.dumpTimeouts();
+        });
+    }
+    hasTimeoutWithId(id) {
+        return id in this.timeouts && id in this.instances;
+    }
+    getDateForTimeoutWithId(id) {
+        if (id in this.timeouts) {
+            return new Date(this.timeouts[id].date);
+        }
     }
     /**
      * @returns the date of some currently scheduled timeout of the given type, or undefined if none exists.
      */
-    getDate(type) {
+    getDateForTimeoutWithType(type) {
         for (const timeoutInfo of Object.values(this.timeouts)) {
             if (timeoutInfo.type === type) {
                 return new Date(timeoutInfo.date.trim());
@@ -159,7 +224,7 @@ class TimeoutManager {
     /**
      * @returns true if a timeout with the given type is currently scheduled.
      */
-    hasTimeout(type) {
+    hasTimeoutWithType(type) {
         return Object.values(this.timeouts).some(t => t.type === type);
     }
     /**
