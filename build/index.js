@@ -27,6 +27,7 @@ __exportStar(require("./tile-map"), exports);
 __exportStar(require("./timeout-manager"), exports);
 __exportStar(require("./utils/dag"), exports);
 __exportStar(require("./utils/discord"), exports);
+__exportStar(require("./utils/edit-distance"), exports);
 __exportStar(require("./utils/k-means"), exports);
 __exportStar(require("./utils/load-json"), exports);
 __exportStar(require("./utils/misc"), exports);
