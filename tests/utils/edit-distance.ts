@@ -3,6 +3,9 @@ import { getEditDistance, getMostSimilarByNormalizedEditDistance, getNormalizedE
 
 describe('Edit Distance Utility tests', () => {
     it('can compute the edit distance between two strings', () => {
+        expect(getEditDistance('', '')).equals(0);
+        expect(getEditDistance('', 'foo')).equals(3);
+        expect(getEditDistance('foo', '')).equals(3);
         expect(getEditDistance('hello', 'hello')).equals(0);
         expect(getEditDistance('hello', 'henlo')).equals(1);
         expect(getEditDistance('hello', 'hellow')).equals(1);
@@ -15,6 +18,9 @@ describe('Edit Distance Utility tests', () => {
     });
 
     it('can compute the edit distance between two arrays', () => {
+        expect(getEditDistance([], [])).equals(0);
+        expect(getEditDistance([], ['foo', 'bar'])).equals(2);
+        expect(getEditDistance(['foo', 'bar'], [])).equals(2);
         expect(getEditDistance(['a'], ['a'])).equals(0);
         expect(getEditDistance(['one', 'fine', 'day'], ['one', 'bad', 'day'])).equals(1);
         expect(getEditDistance(['hello', 'my', 'friend'], ['hello', 'my', 'friend', 'once', 'again'])).equals(2);
@@ -49,5 +55,12 @@ describe('Edit Distance Utility tests', () => {
         expect(result3?.value).equals('Tuesday');
         expect(result3?.distance).equals(0.25);
         expect(result3?.index).equals(2);
+
+        // Compare an array with a list containing only an empty array
+        const result4 = getMostSimilarByNormalizedEditDistance(['a', 'b', 'c'], [[]]);
+        expect(result4).is.not.undefined;
+        expect(JSON.stringify(result4?.value)).equals('[]');
+        expect(result4?.distance).equals(1);
+        expect(result4?.index).equals(0);
     });
 });
