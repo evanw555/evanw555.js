@@ -45,6 +45,69 @@ describe('TimeoutManager Tests', () => {
         expect(manager.hasTimeoutWithId(id)).false;
     });
 
+
+    it('can cancel timeouts by type', async () => {
+        expect(manager.hasTimeoutWithType('cancelA')).false;
+        expect(manager.hasTimeoutWithType('cancelB')).false;
+        expect(manager.hasTimeoutWithType('cancelC')).false;
+
+        const id1 = await manager.registerTimeout('cancelA', in10Minutes);
+        const id2 = await manager.registerTimeout('cancelB', in10Minutes);
+        const id3 = await manager.registerTimeout('cancelA', in10Minutes);
+        const id4 = await manager.registerTimeout('cancelB', in10Minutes);
+        const id5 = await manager.registerTimeout('cancelC', in10Minutes);
+
+        expect(manager.hasTimeoutWithType('cancelA')).true;
+        expect(manager.hasTimeoutWithType('cancelB')).true;
+        expect(manager.hasTimeoutWithType('cancelC')).true;
+        expect(manager.hasTimeoutWithId(id1)).true;
+        expect(manager.hasTimeoutWithId(id2)).true;
+        expect(manager.hasTimeoutWithId(id3)).true;
+        expect(manager.hasTimeoutWithId(id4)).true;
+        expect(manager.hasTimeoutWithId(id5)).true;
+
+        const canceledIdsB = await manager.cancelTimeoutsWithType('cancelB');
+        expect(canceledIdsB.length).equals(2);
+        expect(canceledIdsB).includes(id2);
+        expect(canceledIdsB).includes(id4);
+
+        expect(manager.hasTimeoutWithType('cancelA')).true;
+        expect(manager.hasTimeoutWithType('cancelB')).false;
+        expect(manager.hasTimeoutWithType('cancelC')).true;
+        expect(manager.hasTimeoutWithId(id1)).true;
+        expect(manager.hasTimeoutWithId(id2)).false;
+        expect(manager.hasTimeoutWithId(id3)).true;
+        expect(manager.hasTimeoutWithId(id4)).false;
+        expect(manager.hasTimeoutWithId(id5)).true;
+
+        const canceledIdsC = await manager.cancelTimeoutsWithType('cancelC');
+        expect(canceledIdsC.length).equals(1);
+        expect(canceledIdsC).includes(id5);
+
+        expect(manager.hasTimeoutWithType('cancelA')).true;
+        expect(manager.hasTimeoutWithType('cancelB')).false;
+        expect(manager.hasTimeoutWithType('cancelC')).false;
+        expect(manager.hasTimeoutWithId(id1)).true;
+        expect(manager.hasTimeoutWithId(id2)).false;
+        expect(manager.hasTimeoutWithId(id3)).true;
+        expect(manager.hasTimeoutWithId(id4)).false;
+        expect(manager.hasTimeoutWithId(id5)).false;
+
+        const canceledIdsA = await manager.cancelTimeoutsWithType('cancelA');
+        expect(canceledIdsA.length).equals(2);
+        expect(canceledIdsA).includes(id1);
+        expect(canceledIdsA).includes(id3);
+
+        expect(manager.hasTimeoutWithType('cancelA')).false;
+        expect(manager.hasTimeoutWithType('cancelB')).false;
+        expect(manager.hasTimeoutWithType('cancelC')).false;
+        expect(manager.hasTimeoutWithId(id1)).false;
+        expect(manager.hasTimeoutWithId(id2)).false;
+        expect(manager.hasTimeoutWithId(id3)).false;
+        expect(manager.hasTimeoutWithId(id4)).false;
+        expect(manager.hasTimeoutWithId(id5)).false;
+    });
+
     it('can postpone a timeout by date', async () => {
         const id = await manager.registerTimeout('bar', in10Minutes);
 

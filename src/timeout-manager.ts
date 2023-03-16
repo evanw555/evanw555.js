@@ -203,6 +203,19 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
+     * Cancels all the timeouts of a given type.
+     * @param type Type of timeouts to cancel
+     * @returns The IDs of all canceled timeouts
+     */
+    async cancelTimeoutsWithType(type: T): Promise<string[]> {
+        const ids: string[] = this.getTimeoutIdsWithType(type);
+        for (const id of ids) {
+            await this.cancelTimeout(id);
+        }
+        return ids;
+    }
+
+    /**
      * Postpones an existing timeout to a later date.
      * @param id ID of the timeout to be postponed
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
@@ -243,10 +256,8 @@ export class TimeoutManager<T extends string> {
      * @returns the date of some currently scheduled timeout of the given type, or undefined if none exists.
      */
     getDateForTimeoutWithType(type: T): Date | undefined {
-        for (const timeoutInfo of Object.values(this.timeouts)) {
-            if (timeoutInfo.type === type) {
-                return new Date(timeoutInfo.date.trim());
-            }
+        for (const id of this.getTimeoutIdsWithType(type)) {
+            return new Date(this.timeouts[id].date.trim());
         }
     }
 
@@ -254,7 +265,11 @@ export class TimeoutManager<T extends string> {
      * @returns true if a timeout with the given type is currently scheduled.
      */
     hasTimeoutWithType(type: T): boolean {
-        return Object.values(this.timeouts).some(t => t.type === type);
+        return this.getTimeoutIdsWithType(type).length > 0;
+    }
+
+    private getTimeoutIdsWithType(type: T): string[] {
+        return Object.keys(this.timeouts).filter(id => this.timeouts[id].type === type);
     }
 
     /**

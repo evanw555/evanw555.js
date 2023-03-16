@@ -175,6 +175,20 @@ class TimeoutManager {
         });
     }
     /**
+     * Cancels all the timeouts of a given type.
+     * @param type Type of timeouts to cancel
+     * @returns The IDs of all canceled timeouts
+     */
+    cancelTimeoutsWithType(type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ids = this.getTimeoutIdsWithType(type);
+            for (const id of ids) {
+                yield this.cancelTimeout(id);
+            }
+            return ids;
+        });
+    }
+    /**
      * Postpones an existing timeout to a later date.
      * @param id ID of the timeout to be postponed
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
@@ -215,17 +229,18 @@ class TimeoutManager {
      * @returns the date of some currently scheduled timeout of the given type, or undefined if none exists.
      */
     getDateForTimeoutWithType(type) {
-        for (const timeoutInfo of Object.values(this.timeouts)) {
-            if (timeoutInfo.type === type) {
-                return new Date(timeoutInfo.date.trim());
-            }
+        for (const id of this.getTimeoutIdsWithType(type)) {
+            return new Date(this.timeouts[id].date.trim());
         }
     }
     /**
      * @returns true if a timeout with the given type is currently scheduled.
      */
     hasTimeoutWithType(type) {
-        return Object.values(this.timeouts).some(t => t.type === type);
+        return this.getTimeoutIdsWithType(type).length > 0;
+    }
+    getTimeoutIdsWithType(type) {
+        return Object.keys(this.timeouts).filter(id => this.timeouts[id].type === type);
     }
     /**
      * @returns list of human-readable strings representing each timeout (in ascending date order)

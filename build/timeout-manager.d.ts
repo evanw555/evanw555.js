@@ -81,6 +81,12 @@ export declare class TimeoutManager<T extends string> {
      */
     cancelTimeout(id: string): Promise<void>;
     /**
+     * Cancels all the timeouts of a given type.
+     * @param type Type of timeouts to cancel
+     * @returns The IDs of all canceled timeouts
+     */
+    cancelTimeoutsWithType(type: T): Promise<string[]>;
+    /**
      * Postpones an existing timeout to a later date.
      * @param id ID of the timeout to be postponed
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
@@ -97,6 +103,7 @@ export declare class TimeoutManager<T extends string> {
      * @returns true if a timeout with the given type is currently scheduled.
      */
     hasTimeoutWithType(type: T): boolean;
+    private getTimeoutIdsWithType;
     /**
      * @returns list of human-readable strings representing each timeout (in ascending date order)
      */
