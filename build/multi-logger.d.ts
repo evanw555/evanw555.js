@@ -22,7 +22,19 @@ export declare class MultiLogger {
         defaultLoggerLevel?: MultiLoggerLevel;
         defaultLogLevel?: MultiLoggerLevel;
     });
-    addOutput(output: MultiLoggerOutput, level?: MultiLoggerLevel): void;
+    /**
+     * Adds a new output for this logger.
+     * @param output The actual logger callback
+     * @param level Optional logging level of this output (defaults to this logger's default)
+     * @returns The index of this output (used to configure this output at a later time)
+     */
+    addOutput(output: MultiLoggerOutput, level?: MultiLoggerLevel): number;
+    /**
+     * Adjust the logging level of an existing output.
+     * @param index The index of the output to be reconfigured
+     * @param level The new level of this output
+     */
+    setOutputLevel(index: number, level: MultiLoggerLevel): void;
     log(text: string, level?: MultiLoggerLevel): Promise<void>;
 }
 export {};

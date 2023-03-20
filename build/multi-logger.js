@@ -32,8 +32,26 @@ class MultiLogger {
         this.defaultLoggerLevel = (_b = options === null || options === void 0 ? void 0 : options.defaultLoggerLevel) !== null && _b !== void 0 ? _b : MultiLoggerLevel.All;
         this.defaultLogLevel = (_c = options === null || options === void 0 ? void 0 : options.defaultLogLevel) !== null && _c !== void 0 ? _c : MultiLoggerLevel.Off;
     }
+    /**
+     * Adds a new output for this logger.
+     * @param output The actual logger callback
+     * @param level Optional logging level of this output (defaults to this logger's default)
+     * @returns The index of this output (used to configure this output at a later time)
+     */
     addOutput(output, level = this.defaultLoggerLevel) {
         this.outputs.push({ output, level });
+        return this.outputs.length - 1;
+    }
+    /**
+     * Adjust the logging level of an existing output.
+     * @param index The index of the output to be reconfigured
+     * @param level The new level of this output
+     */
+    setOutputLevel(index, level) {
+        if (index < 0 || index >= this.outputs.length) {
+            throw new Error(`Expected index in the range [0, ${this.outputs.length - 1}] but got ${index}`);
+        }
+        this.outputs[index].level = level;
     }
     log(text, level = this.defaultLogLevel) {
         return __awaiter(this, void 0, void 0, function* () {

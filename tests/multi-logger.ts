@@ -135,4 +135,41 @@ describe('MultiLogger Tests', () => {
         expect(processed.has('off_error')).is.true;
         expect(processed.has('off_off')).is.true;
     });
+
+    it('allows reconfiguration of logger levels', async () => {
+        // Override the default logger/log level options
+        const logger = new MultiLogger({ defaultLoggerLevel: MultiLoggerLevel.Info, defaultLogLevel: MultiLoggerLevel.Debug });
+        const processed = new Set();
+
+        const index = logger.addOutput(async (x) => {
+            processed.add(x);
+        }, MultiLoggerLevel.Info);
+
+        // Test initial level
+        await logger.log('a', MultiLoggerLevel.Debug);
+        expect(processed.has('a')).is.false;
+        await logger.log('b', MultiLoggerLevel.Info);
+        expect(processed.has('b')).is.true;
+        await logger.log('c', MultiLoggerLevel.Error);
+        expect(processed.has('c')).is.true;
+
+        // Change it to all
+        logger.setOutputLevel(index, MultiLoggerLevel.All);
+        await logger.log('d', MultiLoggerLevel.Debug);
+        expect(processed.has('d')).is.true;
+
+        // Change it to error
+        logger.setOutputLevel(index, MultiLoggerLevel.Error);
+        await logger.log('e', MultiLoggerLevel.Warn);
+        expect(processed.has('e')).is.false;
+        await logger.log('f', MultiLoggerLevel.Fatal);
+        expect(processed.has('f')).is.true;
+
+        // Change it to off
+        logger.setOutputLevel(index, MultiLoggerLevel.Off);
+        await logger.log('g', MultiLoggerLevel.Debug);
+        expect(processed.has('g')).is.false;
+        await logger.log('h', MultiLoggerLevel.Fatal);
+        expect(processed.has('h')).is.false;
+    });
 });
