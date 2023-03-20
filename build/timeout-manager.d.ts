@@ -34,6 +34,7 @@ export interface TimeoutOptions {
      */
     pastStrategy?: PastTimeoutStrategy;
 }
+declare type ErrorCallback<T> = (id: string, type: T, err: any) => Promise<void>;
 /**
  * T represents the timeout type. Can either be a generic string or a string-backed enum.
  */
@@ -45,6 +46,10 @@ export declare class TimeoutManager<T extends string> {
      * The actual callback that should be invoked when a particular timeout's time has arrived.
      */
     private readonly callbacks;
+    /**
+     * Optional callback to invoke if an unhandled exception is encountered during the invocation of any timeout callback.
+     */
+    private readonly onError;
     /**
      * The timeout data for a particular ID. This data should always be in-sync with what's serialized and written to storage.
      */
@@ -61,11 +66,13 @@ export declare class TimeoutManager<T extends string> {
     private previousTimeoutId;
     constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: {
         fileName?: string;
+        onError?: ErrorCallback<T>;
     });
     private getNextTimeoutId;
     loadTimeouts(): Promise<void>;
     private dumpTimeouts;
     private addTimeoutForId;
+    private invokeTimeout;
     /**
      * Registers a timeout.
      * @param type
@@ -109,4 +116,5 @@ export declare class TimeoutManager<T extends string> {
      */
     toStrings(): string[];
 }
+export {};
 //# sourceMappingURL=timeout-manager.d.ts.map

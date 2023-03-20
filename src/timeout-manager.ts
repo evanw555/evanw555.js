@@ -44,6 +44,8 @@ interface Timeout<T> {
     options: TimeoutOptions
 }
 
+type ErrorCallback<T> = (id: string, type: T, err: any) => Promise<void>;
+
 /**
  * T represents the timeout type. Can either be a generic string or a string-backed enum.
  */
@@ -57,6 +59,11 @@ export class TimeoutManager<T extends string> {
      * The actual callback that should be invoked when a particular timeout's time has arrived.
      */
     private readonly callbacks: Record<T, (arg?: any) => Promise<void>>;
+
+    /**
+     * Optional callback to invoke if an unhandled exception is encountered during the invocation of any timeout callback.
+     */
+    private readonly onError: ErrorCallback<T>;
 
     /**
      * The timeout data for a particular ID. This data should always be in-sync with what's serialized and written to storage.
@@ -76,9 +83,10 @@ export class TimeoutManager<T extends string> {
 
     private previousTimeoutId: number;
 
-    constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: { fileName?: string }) {
+    constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: { fileName?: string, onError?: ErrorCallback<T> }) {
         this.storage = storage;
         this.callbacks = callbacks;
+        this.onError = options?.onError ?? (async () => {});
         this.timeouts = {};
         this.instances = {};
         this.timeoutFileName = options?.fileName ?? TimeoutManager.DEFAULT_FILE_NAME;
@@ -142,7 +150,7 @@ export class TimeoutManager<T extends string> {
                 // First, un-associate this ID with this timeout instance
                 delete this.instances[id];
                 // Perform the actual callback
-                await this.callbacks[type](options.arg);
+                await this.invokeTimeout(id, type, options);
                 // Clear the timeout info
                 delete this.timeouts[id];
                 // Dump the timeouts
@@ -151,7 +159,7 @@ export class TimeoutManager<T extends string> {
             console.log(`Added timeout for \`${type}\` at ${date.toLocaleString()}`);
         } else if (pastStrategy === PastTimeoutStrategy.Invoke) {
             // Timeout is in the past, so just invoke the callback now
-            await this.callbacks[type](options.arg);
+            await this.invokeTimeout(id, type, options);
         } else if (pastStrategy === PastTimeoutStrategy.IncrementDay) {
             // Timeout is in the past, so try again with the day incremented
             const tomorrow: Date = new Date(date);
@@ -167,6 +175,14 @@ export class TimeoutManager<T extends string> {
         } else if (pastStrategy === PastTimeoutStrategy.Delete) {
             // Timeout is in the past, so just delete the timeout altogether
             console.log(`Deleted timeout for \`${type}\` at ${date.toLocaleString()}`);
+        }
+    }
+
+    private async invokeTimeout(id: string, type: T, options: TimeoutOptions): Promise<void> {
+        try {
+            await this.callbacks[type](options.arg);
+        } catch (err) {
+            await this.onError(id, type, err);
         }
     }
 

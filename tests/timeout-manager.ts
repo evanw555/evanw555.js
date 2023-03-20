@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { AsyncStorageInterface } from '../src/file-storage';
-import { TimeoutManager } from '../src/timeout-manager';
+import { PastTimeoutStrategy, TimeoutManager } from '../src/timeout-manager';
 
 // TODO: Needs to actually test that the timeout will be invoked!
 
@@ -14,11 +14,22 @@ describe('TimeoutManager Tests', () => {
         },
         write: async (id: string, value: any): Promise<void> => {}
     };
-    const manager: TimeoutManager<string> = new TimeoutManager(dummyStorage, {});
+    let recentError: string = '';
+    const manager = new TimeoutManager<string>(dummyStorage, {
+        'fail': async () => {
+            throw new Error('FAILED!');
+        }
+    }, {
+        onError: async (id: string, type: string, err: any) => {
+            recentError = `Timeout ${id} with type ${type} failed: ${err}`;
+        }
+    });
 
-    // Sample date
+    // Sample dates
     const in10Minutes = new Date();
     in10Minutes.setMinutes(in10Minutes.getMinutes() + 10);
+    const oneSecondAgo = new Date();
+    oneSecondAgo.setSeconds(oneSecondAgo.getSeconds() - 1);
 
     it('can schedule a timeout', async () => {
         expect(manager.hasTimeoutWithType('foo')).false;
@@ -138,5 +149,18 @@ describe('TimeoutManager Tests', () => {
 
         const expectedDate = new Date(in10Minutes.getTime() + milliDelta)
         expect(manager.getDateForTimeoutWithId(id)?.toJSON()).to.equal(expectedDate.toJSON());
+    });
+
+    it('can handle errors gracefully', async () => {
+        expect(manager.hasTimeoutWithType('fail')).false;
+        expect(recentError).equals('');
+
+        // The timeout is in the past, so it should be invoked in the same thread
+        const id = await manager.registerTimeout('fail', oneSecondAgo, { pastStrategy: PastTimeoutStrategy.Invoke });
+        expect(recentError).equals('Timeout 10 with type fail failed: Error: FAILED!');
+
+        // Since it was in the past, it should've been invoked without saving
+        expect(manager.hasTimeoutWithId(id)).false;
+        expect(manager.hasTimeoutWithType('fail')).false;
     });
 });

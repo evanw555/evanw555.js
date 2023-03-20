@@ -39,12 +39,13 @@ var PastTimeoutStrategy;
  */
 class TimeoutManager {
     constructor(storage, callbacks, options) {
-        var _a;
+        var _a, _b;
         this.storage = storage;
         this.callbacks = callbacks;
+        this.onError = (_a = options === null || options === void 0 ? void 0 : options.onError) !== null && _a !== void 0 ? _a : (() => __awaiter(this, void 0, void 0, function* () { }));
         this.timeouts = {};
         this.instances = {};
-        this.timeoutFileName = (_a = options === null || options === void 0 ? void 0 : options.fileName) !== null && _a !== void 0 ? _a : TimeoutManager.DEFAULT_FILE_NAME;
+        this.timeoutFileName = (_b = options === null || options === void 0 ? void 0 : options.fileName) !== null && _b !== void 0 ? _b : TimeoutManager.DEFAULT_FILE_NAME;
         this.previousTimeoutId = 0;
     }
     getNextTimeoutId() {
@@ -108,7 +109,7 @@ class TimeoutManager {
                     // First, un-associate this ID with this timeout instance
                     delete this.instances[id];
                     // Perform the actual callback
-                    yield this.callbacks[type](options.arg);
+                    yield this.invokeTimeout(id, type, options);
                     // Clear the timeout info
                     delete this.timeouts[id];
                     // Dump the timeouts
@@ -118,7 +119,7 @@ class TimeoutManager {
             }
             else if (pastStrategy === PastTimeoutStrategy.Invoke) {
                 // Timeout is in the past, so just invoke the callback now
-                yield this.callbacks[type](options.arg);
+                yield this.invokeTimeout(id, type, options);
             }
             else if (pastStrategy === PastTimeoutStrategy.IncrementDay) {
                 // Timeout is in the past, so try again with the day incremented
@@ -137,6 +138,16 @@ class TimeoutManager {
             else if (pastStrategy === PastTimeoutStrategy.Delete) {
                 // Timeout is in the past, so just delete the timeout altogether
                 console.log(`Deleted timeout for \`${type}\` at ${date.toLocaleString()}`);
+            }
+        });
+    }
+    invokeTimeout(id, type, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.callbacks[type](options.arg);
+            }
+            catch (err) {
+                yield this.onError(id, type, err);
             }
         });
     }
