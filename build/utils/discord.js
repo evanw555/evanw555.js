@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addReactsSync = exports.getPollChoiceKeys = exports.deleteMessagesBeforeMessage = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = void 0;
+exports.addReactsSync = exports.getPollChoiceKeys = exports.deleteMessagesBeforeMessage = exports.countMessagesSinceDate = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 const time_1 = require("./time");
@@ -89,6 +89,50 @@ function findLatestMessageBeforeDate(channel, date, options) {
     });
 }
 exports.findLatestMessageBeforeDate = findLatestMessageBeforeDate;
+/**
+ * For some text channel, count the messages since some specified date.
+ * @param channel the text channel in which to count
+ * @param date the specified date
+ * @param options.batchSize how many messages to fetch per batch
+ * @returns the number of messages in the channel since the specified date
+ */
+function countMessagesSinceDate(channel, date, options) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const batchSize = (_a = options === null || options === void 0 ? void 0 : options.batchSize) !== null && _a !== void 0 ? _a : 25;
+        let count = 0;
+        let beforeMessageId = undefined;
+        while (true) {
+            const options = { limit: batchSize };
+            if (beforeMessageId) {
+                options.before = beforeMessageId;
+            }
+            const messages = yield channel.messages.fetch(options);
+            messages.sort((x, y) => x.createdTimestamp - y.createdTimestamp);
+            if (messages.size === 0) {
+                return count;
+            }
+            const earliestMessage = messages.first();
+            // If the earliest message if still after the specified date, query messages before this
+            if (earliestMessage.createdAt.getTime() >= date.getTime()) {
+                beforeMessageId = earliestMessage.id;
+                count += messages.size;
+                continue;
+            }
+            // Count all messages from latest to earliest until one is found before the date, then return the total count
+            for (let i = messages.size - 1; i >= 0; i--) {
+                const message = messages.at(i);
+                if (message.createdAt.getTime() < date.getTime()) {
+                    return count;
+                }
+                count++;
+            }
+            // If none are before the specified date (this shouldn't happen), then just return the count
+            return count;
+        }
+    });
+}
+exports.countMessagesSinceDate = countMessagesSinceDate;
 /**
  * For some text channel, delete all messages predating some particular message specified by a provided ID.
  * @param channel the channel in which to delete messages

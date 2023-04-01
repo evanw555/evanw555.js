@@ -76,6 +76,48 @@ export async function findLatestMessageBeforeDate(channel: TextBasedChannel, dat
 }
 
 /**
+ * For some text channel, count the messages since some specified date.
+ * @param channel the text channel in which to count
+ * @param date the specified date
+ * @param options.batchSize how many messages to fetch per batch
+ * @returns the number of messages in the channel since the specified date
+ */
+export async function countMessagesSinceDate(channel: TextBasedChannel, date: Date, options?: { batchSize?: number }): Promise<number> {
+    const batchSize: number = options?.batchSize ?? 25;
+
+    let count = 0;
+    let beforeMessageId: Snowflake | undefined = undefined;
+    while (true) {
+        const options: FetchMessagesOptions = { limit: batchSize };
+        if (beforeMessageId) {
+            options.before = beforeMessageId;
+        }
+        const messages = await channel.messages.fetch(options);
+        messages.sort((x, y) => x.createdTimestamp - y.createdTimestamp);
+        if (messages.size === 0) {
+            return count;
+        }
+        const earliestMessage: Message = messages.first() as Message;
+        // If the earliest message if still after the specified date, query messages before this
+        if (earliestMessage.createdAt.getTime() >= date.getTime()) {
+            beforeMessageId = earliestMessage.id;
+            count += messages.size;
+            continue;
+        }
+        // Count all messages from latest to earliest until one is found before the date, then return the total count
+        for (let i = messages.size - 1; i >= 0; i--) {
+            const message: Message = messages.at(i) as Message;
+            if (message.createdAt.getTime() < date.getTime()) {
+                return count;
+            }
+            count++;
+        }
+        // If none are before the specified date (this shouldn't happen), then just return the count
+        return count;
+    }
+}
+
+/**
  * For some text channel, delete all messages predating some particular message specified by a provided ID.
  * @param channel the channel in which to delete messages
  * @param messageId the ID of the message before which all messages should be deleted

@@ -17,6 +17,16 @@ export declare function findLatestMessageBeforeDate(channel: TextBasedChannel, d
     batchSize?: number;
 }): Promise<Message | undefined>;
 /**
+ * For some text channel, count the messages since some specified date.
+ * @param channel the text channel in which to count
+ * @param date the specified date
+ * @param options.batchSize how many messages to fetch per batch
+ * @returns the number of messages in the channel since the specified date
+ */
+export declare function countMessagesSinceDate(channel: TextBasedChannel, date: Date, options?: {
+    batchSize?: number;
+}): Promise<number>;
+/**
  * For some text channel, delete all messages predating some particular message specified by a provided ID.
  * @param channel the channel in which to delete messages
  * @param messageId the ID of the message before which all messages should be deleted
