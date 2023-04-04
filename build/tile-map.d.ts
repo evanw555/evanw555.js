@@ -20,8 +20,8 @@ export declare class TileMapLocation {
     toString(): string;
     private static parse;
 }
-export declare type TileMapVector = [number, number];
-export declare type Direction = 'up' | 'down' | 'left' | 'right';
+export type TileMapVector = [number, number];
+export type Direction = 'up' | 'down' | 'left' | 'right';
 export declare class TileMap {
     private static readonly VECTORS_BY_DIRECTION;
     private static readonly DIRECTIONS;

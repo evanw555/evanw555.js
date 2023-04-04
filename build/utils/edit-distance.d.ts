@@ -1,4 +1,4 @@
-declare type Indexable = string | any[];
+type Indexable = string | any[];
 export declare function getEditDistance(a: Indexable, b: Indexable): number;
 export declare function getNormalizedEditDistance(a: Indexable, b: Indexable): number;
 export declare function getMostSimilarByNormalizedEditDistance(input: Indexable, values: Indexable[]): {

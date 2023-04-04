@@ -1,4 +1,4 @@
-declare type GridElement = number | null;
+type GridElement = number | null;
 interface Location {
     r: number;
     c: number;
@@ -13,7 +13,7 @@ interface SearchOptions {
     heuristic: 'manhattan' | 'euclidean';
     randomize?: boolean;
 }
-declare type SemanticStep = 'up' | 'down' | 'left' | 'right';
+type SemanticStep = 'up' | 'down' | 'left' | 'right';
 interface SearchResult {
     success: boolean;
     cost: number;

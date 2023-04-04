@@ -34,7 +34,7 @@ export interface TimeoutOptions {
      */
     pastStrategy?: PastTimeoutStrategy;
 }
-declare type ErrorCallback<T> = (id: string, type: T, err: any) => Promise<void>;
+type ErrorCallback<T> = (id: string, type: T, err: any) => Promise<void>;
 /**
  * T represents the timeout type. Can either be a generic string or a string-backed enum.
  */

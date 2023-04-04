@@ -1,4 +1,4 @@
-declare type MultiLoggerOutput = (text: string) => Promise<void>;
+type MultiLoggerOutput = (text: string) => Promise<void>;
 export declare enum MultiLoggerLevel {
     All = 0,
     Trace = 1,
