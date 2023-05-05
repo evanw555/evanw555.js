@@ -1,4 +1,20 @@
 import { Message, Snowflake, TextBasedChannel } from "discord.js";
+export declare enum DiscordTimestampFormat {
+    ShortTime = "t",
+    LongTime = "T",
+    ShortDate = "d",
+    LongDate = "D",
+    ShortDateTime = "f",
+    LongDateTime = "F",
+    Relative = "R"
+}
+/**
+ * Given some date/time, returns a Discord timestamp string in some particular format.
+ * @param date The provided date
+ * @param format The format of the output timestamp
+ * @returns Discord timestamp string
+ */
+export declare function toDiscordTimestamp(date: Date, format?: DiscordTimestampFormat): string;
 export declare function getJoinedMentions(userIds: Snowflake[], conjunction?: string): string;
 /**
  * Send the provided text as a series of boxed (monospaced) messages limited to no more than 2000 characters each.

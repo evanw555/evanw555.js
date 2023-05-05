@@ -1,7 +1,15 @@
 import { expect } from 'chai';
-import { getPollChoiceKeys } from '../../src/utils/discord';
+import { toDiscordTimestamp, getPollChoiceKeys, DiscordTimestampFormat } from '../../src/utils/discord';
 
 describe('Discord Utils tests', () => {
+    it('converts dates to timestamp strings', () => {
+        const d = new Date(1234567890123);
+        expect(toDiscordTimestamp(d)).to.equal('<t:1234567890:f>');
+        expect(toDiscordTimestamp(d, DiscordTimestampFormat.ShortDateTime)).to.equal('<t:1234567890:f>');
+        expect(toDiscordTimestamp(d, DiscordTimestampFormat.LongTime)).to.equal('<t:1234567890:T>');
+        expect(toDiscordTimestamp(d, DiscordTimestampFormat.Relative)).to.equal('<t:1234567890:R>');
+    });
+
     it('gets poll choice keys for basic cases', () => {
         const values: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
         expect(getPollChoiceKeys(values.slice(0, 1)).join(',')).to.equal('🔴');

@@ -9,10 +9,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addReactsSync = exports.getPollChoiceKeys = exports.deleteMessagesBeforeMessage = exports.countMessagesSinceDate = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = void 0;
+exports.addReactsSync = exports.getPollChoiceKeys = exports.deleteMessagesBeforeMessage = exports.countMessagesSinceDate = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = exports.toDiscordTimestamp = exports.DiscordTimestampFormat = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 const time_1 = require("./time");
+var DiscordTimestampFormat;
+(function (DiscordTimestampFormat) {
+    DiscordTimestampFormat["ShortTime"] = "t";
+    DiscordTimestampFormat["LongTime"] = "T";
+    DiscordTimestampFormat["ShortDate"] = "d";
+    DiscordTimestampFormat["LongDate"] = "D";
+    DiscordTimestampFormat["ShortDateTime"] = "f";
+    DiscordTimestampFormat["LongDateTime"] = "F";
+    DiscordTimestampFormat["Relative"] = "R";
+})(DiscordTimestampFormat = exports.DiscordTimestampFormat || (exports.DiscordTimestampFormat = {}));
+;
+/**
+ * Given some date/time, returns a Discord timestamp string in some particular format.
+ * @param date The provided date
+ * @param format The format of the output timestamp
+ * @returns Discord timestamp string
+ */
+function toDiscordTimestamp(date, format = DiscordTimestampFormat.ShortDateTime) {
+    return `<t:${Math.round(date.getTime() / 1000)}:${format}>`;
+}
+exports.toDiscordTimestamp = toDiscordTimestamp;
 function getJoinedMentions(userIds, conjunction = 'and') {
     return (0, misc_1.naturalJoin)(userIds.map(userId => `<@${userId}>`), { conjunction });
 }

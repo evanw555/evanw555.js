@@ -4,6 +4,26 @@ import { naturalJoin } from "./misc";
 import { randChoice, shuffle } from "./random";
 import { sleep } from "./time";
 
+export enum DiscordTimestampFormat {
+    ShortTime = 't',
+    LongTime = 'T',
+    ShortDate = 'd',
+    LongDate = 'D',
+    ShortDateTime = 'f',
+    LongDateTime = 'F',
+    Relative = 'R'
+};
+
+/**
+ * Given some date/time, returns a Discord timestamp string in some particular format.
+ * @param date The provided date
+ * @param format The format of the output timestamp
+ * @returns Discord timestamp string
+ */
+export function toDiscordTimestamp(date: Date, format: DiscordTimestampFormat = DiscordTimestampFormat.ShortDateTime): string {
+    return `<t:${Math.round(date.getTime() / 1000)}:${format}>`;
+}
+
 export function getJoinedMentions(userIds: Snowflake[], conjunction: string = 'and'): string {
     return naturalJoin(userIds.map(userId => `<@${userId}>`), { conjunction });
 }
