@@ -100,7 +100,7 @@ export class TimeoutManager<T extends string> {
     }
 
     async loadTimeouts(): Promise<void> {
-        console.log('Loading up timeouts...');
+        // console.log('Loading up timeouts...');
         
         let timeouts: Record<string, any> = {};
         try {
@@ -117,7 +117,7 @@ export class TimeoutManager<T extends string> {
 
     private async dumpTimeouts(): Promise<void> {
         await this.storage.write(this.timeoutFileName, JSON.stringify(this.timeouts, null, 2));
-        console.log(`Dumped timeouts as ${JSON.stringify(this.timeouts)}`);
+        // console.log(`Dumped timeouts as ${JSON.stringify(this.timeouts)}`);
     }
 
     private async addTimeoutForId(id: string, type: T, date: Date, options: TimeoutOptions): Promise<void> {
@@ -137,7 +137,7 @@ export class TimeoutManager<T extends string> {
                 // Then, try to add the timeout again
                 await this.addTimeoutForId(id, type, date, options);
             }, 1000 * 60 * 60 * 24 * 10);
-            console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
+            // console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
         } else if (millisUntilMessage > 0) {
             // If timeout is in the future, then set a timeout for it as per usual
             this.timeouts[id] = {
@@ -156,7 +156,7 @@ export class TimeoutManager<T extends string> {
                 // Dump the timeouts
                 await this.dumpTimeouts();
             }, millisUntilMessage);
-            console.log(`Added timeout for \`${type}\` at ${date.toLocaleString()}`);
+            // console.log(`Added timeout for \`${type}\` at ${date.toLocaleString()}`);
         } else if (pastStrategy === PastTimeoutStrategy.Invoke) {
             // Timeout is in the past, so just invoke the callback now
             await this.invokeTimeout(id, type, options);
@@ -164,17 +164,17 @@ export class TimeoutManager<T extends string> {
             // Timeout is in the past, so try again with the day incremented
             const tomorrow: Date = new Date(date);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 day`);
+            // console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 day`);
             await this.addTimeoutForId(id, type, tomorrow, options);
         } else if (pastStrategy === PastTimeoutStrategy.IncrementHour) {
             // Timeout is in the past, so try again with the hour incremented
             const nextHour: Date = new Date(date);
             nextHour.setHours(nextHour.getHours() + 1);
-            console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 hour`);
+            // console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 hour`);
             await this.addTimeoutForId(id, type, nextHour, options);
         } else if (pastStrategy === PastTimeoutStrategy.Delete) {
             // Timeout is in the past, so just delete the timeout altogether
-            console.log(`Deleted timeout for \`${type}\` at ${date.toLocaleString()}`);
+            // console.log(`Deleted timeout for \`${type}\` at ${date.toLocaleString()}`);
         }
     }
 
@@ -256,6 +256,20 @@ export class TimeoutManager<T extends string> {
         await this.addTimeoutForId(id, timeout.type, newDate, timeout.options);
         // Dump the updated timeouts
         await this.dumpTimeouts();
+    }
+
+    /**
+     * Postpones all existing timeouts of a given type to a later date.
+     * @param type Type of timeouts to postpone
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @returns The IDs of all postpones timeouts
+     */
+    async postponeTimeoutsWithType(type: T, value: Date | number): Promise<string[]> {
+        const ids: string[] = this.getTimeoutIdsWithType(type);
+        for (const id of ids) {
+            await this.postponeTimeout(id, value);
+        }
+        return ids;
     }
 
     hasTimeoutWithId(id: string): boolean {

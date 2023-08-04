@@ -100,6 +100,13 @@ export declare class TimeoutManager<T extends string> {
      * @throws Error if no timeout with this ID is currently scheduled
      */
     postponeTimeout(id: string, value: Date | number): Promise<void>;
+    /**
+     * Postpones all existing timeouts of a given type to a later date.
+     * @param type Type of timeouts to postpone
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @returns The IDs of all postpones timeouts
+     */
+    postponeTimeoutsWithType(type: T, value: Date | number): Promise<string[]>;
     hasTimeoutWithId(id: string): boolean;
     getDateForTimeoutWithId(id: string): Date | undefined;
     /**

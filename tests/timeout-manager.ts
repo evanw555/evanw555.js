@@ -28,6 +28,8 @@ describe('TimeoutManager Tests', () => {
     // Sample dates
     const in10Minutes = new Date();
     in10Minutes.setMinutes(in10Minutes.getMinutes() + 10);
+    const in15Minutes = new Date();
+    in15Minutes.setMinutes(in15Minutes.getMinutes() + 15);
     const oneSecondAgo = new Date();
     oneSecondAgo.setSeconds(oneSecondAgo.getSeconds() - 1);
 
@@ -151,13 +153,55 @@ describe('TimeoutManager Tests', () => {
         expect(manager.getDateForTimeoutWithId(id)?.toJSON()).to.equal(expectedDate.toJSON());
     });
 
+    it('can postpone timeouts by type', async () => {
+        expect(manager.hasTimeoutWithType('postponeA')).false;
+        expect(manager.hasTimeoutWithType('postponeB')).false;
+        expect(manager.hasTimeoutWithType('postponeC')).false;
+
+        const id1 = await manager.registerTimeout('postponeA', in10Minutes);
+        const id2 = await manager.registerTimeout('postponeB', in10Minutes);
+        const id3 = await manager.registerTimeout('postponeA', in10Minutes);
+        const id4 = await manager.registerTimeout('postponeB', in10Minutes);
+        const id5 = await manager.registerTimeout('postponeC', in10Minutes);
+
+        expect(manager.hasTimeoutWithType('postponeA')).true;
+        expect(manager.hasTimeoutWithType('postponeB')).true;
+        expect(manager.hasTimeoutWithType('postponeC')).true;
+        expect(manager.hasTimeoutWithId(id1)).true;
+        expect(manager.hasTimeoutWithId(id2)).true;
+        expect(manager.hasTimeoutWithId(id3)).true;
+        expect(manager.hasTimeoutWithId(id4)).true;
+        expect(manager.hasTimeoutWithId(id5)).true;
+
+        // Postpone A timeouts to a concrete date
+        const postponedIdsA = await manager.postponeTimeoutsWithType('postponeA', in15Minutes);
+        expect(postponedIdsA.length).equals(2);
+        expect(postponedIdsA).includes(id1);
+        expect(postponedIdsA).includes(id3);
+
+        // Postpone B timeouts by a delta
+        const milliDelta = 123456;
+        const postponedIdsB = await manager.postponeTimeoutsWithType('postponeB', milliDelta);
+        expect(postponedIdsB.length).equals(2);
+        expect(postponedIdsB).includes(id2);
+        expect(postponedIdsB).includes(id4);
+
+        // Assert all timeouts have been updated accordingly (C timeout was not affected)
+        const expectedDate = new Date(in10Minutes.getTime() + milliDelta)
+        expect(manager.getDateForTimeoutWithId(id1)?.toJSON()).to.equal(in15Minutes.toJSON());
+        expect(manager.getDateForTimeoutWithId(id2)?.toJSON()).to.equal(expectedDate.toJSON());
+        expect(manager.getDateForTimeoutWithId(id3)?.toJSON()).to.equal(in15Minutes.toJSON());
+        expect(manager.getDateForTimeoutWithId(id4)?.toJSON()).to.equal(expectedDate.toJSON());
+        expect(manager.getDateForTimeoutWithId(id5)?.toJSON()).to.equal(in10Minutes.toJSON());
+    });
+
     it('can handle errors gracefully', async () => {
         expect(manager.hasTimeoutWithType('fail')).false;
         expect(recentError).equals('');
 
         // The timeout is in the past, so it should be invoked in the same thread
         const id = await manager.registerTimeout('fail', oneSecondAgo, { pastStrategy: PastTimeoutStrategy.Invoke });
-        expect(recentError).equals('Timeout 10 with type fail failed: Error: FAILED!');
+        expect(recentError).equals(`Timeout ${id} with type fail failed: Error: FAILED!`);
 
         // Since it was in the past, it should've been invoked without saving
         expect(manager.hasTimeoutWithId(id)).false;

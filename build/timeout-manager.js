@@ -55,7 +55,7 @@ class TimeoutManager {
     }
     loadTimeouts() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('Loading up timeouts...');
+            // console.log('Loading up timeouts...');
             let timeouts = {};
             try {
                 timeouts = yield this.storage.readJson(this.timeoutFileName);
@@ -73,7 +73,7 @@ class TimeoutManager {
     dumpTimeouts() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.storage.write(this.timeoutFileName, JSON.stringify(this.timeouts, null, 2));
-            console.log(`Dumped timeouts as ${JSON.stringify(this.timeouts)}`);
+            // console.log(`Dumped timeouts as ${JSON.stringify(this.timeouts)}`);
         });
     }
     addTimeoutForId(id, type, date, options) {
@@ -95,7 +95,7 @@ class TimeoutManager {
                     // Then, try to add the timeout again
                     yield this.addTimeoutForId(id, type, date, options);
                 }), 1000 * 60 * 60 * 24 * 10);
-                console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
+                // console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
             }
             else if (millisUntilMessage > 0) {
                 // If timeout is in the future, then set a timeout for it as per usual
@@ -115,7 +115,7 @@ class TimeoutManager {
                     // Dump the timeouts
                     yield this.dumpTimeouts();
                 }), millisUntilMessage);
-                console.log(`Added timeout for \`${type}\` at ${date.toLocaleString()}`);
+                // console.log(`Added timeout for \`${type}\` at ${date.toLocaleString()}`);
             }
             else if (pastStrategy === PastTimeoutStrategy.Invoke) {
                 // Timeout is in the past, so just invoke the callback now
@@ -125,19 +125,19 @@ class TimeoutManager {
                 // Timeout is in the past, so try again with the day incremented
                 const tomorrow = new Date(date);
                 tomorrow.setDate(tomorrow.getDate() + 1);
-                console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 day`);
+                // console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 day`);
                 yield this.addTimeoutForId(id, type, tomorrow, options);
             }
             else if (pastStrategy === PastTimeoutStrategy.IncrementHour) {
                 // Timeout is in the past, so try again with the hour incremented
                 const nextHour = new Date(date);
                 nextHour.setHours(nextHour.getHours() + 1);
-                console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 hour`);
+                // console.log(`Incrementing timeout for \`${type}\` at ${date.toLocaleString()} by 1 hour`);
                 yield this.addTimeoutForId(id, type, nextHour, options);
             }
             else if (pastStrategy === PastTimeoutStrategy.Delete) {
                 // Timeout is in the past, so just delete the timeout altogether
-                console.log(`Deleted timeout for \`${type}\` at ${date.toLocaleString()}`);
+                // console.log(`Deleted timeout for \`${type}\` at ${date.toLocaleString()}`);
             }
         });
     }
@@ -226,6 +226,21 @@ class TimeoutManager {
             yield this.addTimeoutForId(id, timeout.type, newDate, timeout.options);
             // Dump the updated timeouts
             yield this.dumpTimeouts();
+        });
+    }
+    /**
+     * Postpones all existing timeouts of a given type to a later date.
+     * @param type Type of timeouts to postpone
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @returns The IDs of all postpones timeouts
+     */
+    postponeTimeoutsWithType(type, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ids = this.getTimeoutIdsWithType(type);
+            for (const id of ids) {
+                yield this.postponeTimeout(id, value);
+            }
+            return ids;
         });
     }
     hasTimeoutWithId(id) {
