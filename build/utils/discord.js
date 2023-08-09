@@ -160,6 +160,7 @@ exports.countMessagesSinceDate = countMessagesSinceDate;
  * @param messageId the ID of the message before which all messages should be deleted
  * @param options.batchSize how many messages to fetch per batch
  * @param options.delay how many milliseconds to delay between each message deletion operation
+ * @param options.beforeDelete some callback to invoke immediately before deleting a message
  * @returns how many messages were deleted by this operation
  */
 function deleteMessagesBeforeMessage(channel, messageId, options) {
@@ -176,6 +177,9 @@ function deleteMessagesBeforeMessage(channel, messageId, options) {
             }
             console.log(`Found ${messages.size} messages, deleting all...`);
             for (let message of messages.values()) {
+                if (options === null || options === void 0 ? void 0 : options.beforeDelete) {
+                    yield options.beforeDelete(message);
+                }
                 yield message.delete();
                 numMessagesDeleted++;
                 process.stdout.write('.');

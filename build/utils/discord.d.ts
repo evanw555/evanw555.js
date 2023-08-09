@@ -48,11 +48,13 @@ export declare function countMessagesSinceDate(channel: TextBasedChannel, date: 
  * @param messageId the ID of the message before which all messages should be deleted
  * @param options.batchSize how many messages to fetch per batch
  * @param options.delay how many milliseconds to delay between each message deletion operation
+ * @param options.beforeDelete some callback to invoke immediately before deleting a message
  * @returns how many messages were deleted by this operation
  */
 export declare function deleteMessagesBeforeMessage(channel: TextBasedChannel, messageId: Snowflake, options?: {
     batchSize?: number;
     delay?: number;
+    beforeDelete?: (message: Message) => Promise<void>;
 }): Promise<number>;
 /**
  * For a list of poll choice values, return an appropriate list of choice key emojis corresponding to the value list.

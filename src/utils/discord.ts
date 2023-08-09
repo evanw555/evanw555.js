@@ -143,9 +143,10 @@ export async function countMessagesSinceDate(channel: TextBasedChannel, date: Da
  * @param messageId the ID of the message before which all messages should be deleted
  * @param options.batchSize how many messages to fetch per batch
  * @param options.delay how many milliseconds to delay between each message deletion operation
+ * @param options.beforeDelete some callback to invoke immediately before deleting a message
  * @returns how many messages were deleted by this operation
  */
-export async function deleteMessagesBeforeMessage(channel: TextBasedChannel, messageId: Snowflake, options?: { batchSize?: number, delay?: number}): Promise<number> {
+export async function deleteMessagesBeforeMessage(channel: TextBasedChannel, messageId: Snowflake, options?: { batchSize?: number, delay?: number, beforeDelete?: (message: Message) => Promise<void>}): Promise<number> {
     const batchSize: number = options?.batchSize ?? 50;
     const delay: number = options?.delay ?? 1000;
 
@@ -158,6 +159,9 @@ export async function deleteMessagesBeforeMessage(channel: TextBasedChannel, mes
         }
         console.log(`Found ${messages.size} messages, deleting all...`);
         for (let message of messages.values()) {
+            if (options?.beforeDelete) {
+                await options.beforeDelete(message);
+            }
             await message.delete();
             numMessagesDeleted++;
             process.stdout.write('.');
