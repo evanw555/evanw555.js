@@ -43,6 +43,15 @@ export declare function countMessagesSinceDate(channel: TextBasedChannel, date: 
     batchSize?: number;
 }): Promise<number>;
 /**
+ * For some text channel, perform a callback for each message in the channel, starting with newest messages first.
+ * @param channel the text channel in which to count
+ * @param callback function to perform for each message
+ * @param options.batchSize how many messages to fetch per batch
+ */
+export declare function forEachMessage(channel: TextBasedChannel, callback: (message: Message) => Promise<void>, options?: {
+    batchSize?: number;
+}): Promise<void>;
+/**
  * For some text channel, delete all messages predating some particular message specified by a provided ID.
  * @param channel the channel in which to delete messages
  * @param messageId the ID of the message before which all messages should be deleted

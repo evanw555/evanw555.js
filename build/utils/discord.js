@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addReactsSync = exports.getPollChoiceKeys = exports.deleteMessagesBeforeMessage = exports.countMessagesSinceDate = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = exports.toDiscordTimestamp = exports.DiscordTimestampFormat = void 0;
+exports.addReactsSync = exports.getPollChoiceKeys = exports.deleteMessagesBeforeMessage = exports.forEachMessage = exports.countMessagesSinceDate = exports.findLatestMessageBeforeDate = exports.sendLargeMonospaced = exports.getJoinedMentions = exports.toDiscordTimestamp = exports.DiscordTimestampFormat = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 const time_1 = require("./time");
@@ -154,6 +154,38 @@ function countMessagesSinceDate(channel, date, options) {
     });
 }
 exports.countMessagesSinceDate = countMessagesSinceDate;
+/**
+ * For some text channel, perform a callback for each message in the channel, starting with newest messages first.
+ * @param channel the text channel in which to count
+ * @param callback function to perform for each message
+ * @param options.batchSize how many messages to fetch per batch
+ */
+function forEachMessage(channel, callback, options) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const batchSize = (_a = options === null || options === void 0 ? void 0 : options.batchSize) !== null && _a !== void 0 ? _a : 25;
+        let beforeMessageId = undefined;
+        while (true) {
+            const options = { limit: batchSize };
+            if (beforeMessageId) {
+                options.before = beforeMessageId;
+            }
+            const messages = yield channel.messages.fetch(options);
+            messages.sort((x, y) => x.createdTimestamp - y.createdTimestamp);
+            if (messages.size === 0) {
+                return;
+            }
+            // The oldest message in this batch will be used as the "earliest message" in the next batch
+            const earliestMessage = messages.first();
+            beforeMessageId = earliestMessage.id;
+            // Invoke the callback for each message
+            for (const message of messages.toJSON()) {
+                yield callback(message);
+            }
+        }
+    });
+}
+exports.forEachMessage = forEachMessage;
 /**
  * For some text channel, delete all messages predating some particular message specified by a provided ID.
  * @param channel the channel in which to delete messages

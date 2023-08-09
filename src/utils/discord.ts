@@ -138,6 +138,36 @@ export async function countMessagesSinceDate(channel: TextBasedChannel, date: Da
 }
 
 /**
+ * For some text channel, perform a callback for each message in the channel, starting with newest messages first.
+ * @param channel the text channel in which to count
+ * @param callback function to perform for each message
+ * @param options.batchSize how many messages to fetch per batch
+ */
+export async function forEachMessage(channel: TextBasedChannel, callback: (message: Message) => Promise<void>, options?: { batchSize?: number }): Promise<void> {
+    const batchSize: number = options?.batchSize ?? 25;
+
+    let beforeMessageId: Snowflake | undefined = undefined;
+    while (true) {
+        const options: FetchMessagesOptions = { limit: batchSize };
+        if (beforeMessageId) {
+            options.before = beforeMessageId;
+        }
+        const messages = await channel.messages.fetch(options);
+        messages.sort((x, y) => x.createdTimestamp - y.createdTimestamp);
+        if (messages.size === 0) {
+            return;
+        }
+        // The oldest message in this batch will be used as the "earliest message" in the next batch
+        const earliestMessage: Message = messages.first() as Message;
+        beforeMessageId = earliestMessage.id;
+        // Invoke the callback for each message
+        for (const message of messages.toJSON()) {
+            await callback(message);
+        }
+    }
+}
+
+/**
  * For some text channel, delete all messages predating some particular message specified by a provided ID.
  * @param channel the channel in which to delete messages
  * @param messageId the ID of the message before which all messages should be deleted
