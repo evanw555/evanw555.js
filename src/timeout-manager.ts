@@ -46,6 +46,9 @@ interface Timeout<T> {
 
 type ErrorCallback<T> = (id: string, type: T, err: any) => Promise<void>;
 
+type MappedCallbacks<T extends string> = Record<T, (arg?: any) => Promise<void>>;
+type MasterCallback<T> = (type: T, arg?: any) => Promise<void>;
+
 /**
  * T represents the timeout type. Can either be a generic string or a string-backed enum.
  */
@@ -58,7 +61,7 @@ export class TimeoutManager<T extends string> {
     /**
      * The actual callback that should be invoked when a particular timeout's time has arrived.
      */
-    private readonly callbacks: Record<T, (arg?: any) => Promise<void>>;
+    private readonly callbacks: MasterCallback<T>;
 
     /**
      * Optional callback to invoke if an unhandled exception is encountered during the invocation of any timeout callback.
@@ -83,9 +86,16 @@ export class TimeoutManager<T extends string> {
 
     private previousTimeoutId: number;
 
-    constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: { fileName?: string, onError?: ErrorCallback<T> }) {
+    constructor(storage: AsyncStorageInterface, callbacks: MasterCallback<T> | MappedCallbacks<T>, options?: { fileName?: string, onError?: ErrorCallback<T> }) {
         this.storage = storage;
-        this.callbacks = callbacks;
+        // Allow the user to pass in a map-of-callbacks, but transform it to a master typed callback for internal use
+        if (callbacks instanceof Function) {
+            this.callbacks = callbacks;
+        } else {
+            this.callbacks = async (_type: T, _arg?: any) => {
+                await callbacks[_type](_arg);
+            };
+        }
         this.onError = options?.onError ?? (async () => {});
         this.timeouts = {};
         this.instances = {};
@@ -180,7 +190,7 @@ export class TimeoutManager<T extends string> {
 
     private async invokeTimeout(id: string, type: T, options: TimeoutOptions): Promise<void> {
         try {
-            await this.callbacks[type](options.arg);
+            await this.callbacks(type, options.arg);
         } catch (err) {
             await this.onError(id, type, err);
         }

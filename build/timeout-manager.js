@@ -41,7 +41,15 @@ class TimeoutManager {
     constructor(storage, callbacks, options) {
         var _a, _b;
         this.storage = storage;
-        this.callbacks = callbacks;
+        // Allow the user to pass in a map-of-callbacks, but transform it to a master typed callback for internal use
+        if (callbacks instanceof Function) {
+            this.callbacks = callbacks;
+        }
+        else {
+            this.callbacks = (_type, _arg) => __awaiter(this, void 0, void 0, function* () {
+                yield callbacks[_type](_arg);
+            });
+        }
         this.onError = (_a = options === null || options === void 0 ? void 0 : options.onError) !== null && _a !== void 0 ? _a : (() => __awaiter(this, void 0, void 0, function* () { }));
         this.timeouts = {};
         this.instances = {};
@@ -144,7 +152,7 @@ class TimeoutManager {
     invokeTimeout(id, type, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.callbacks[type](options.arg);
+                yield this.callbacks(type, options.arg);
             }
             catch (err) {
                 yield this.onError(id, type, err);

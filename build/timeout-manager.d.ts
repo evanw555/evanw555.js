@@ -35,6 +35,8 @@ export interface TimeoutOptions {
     pastStrategy?: PastTimeoutStrategy;
 }
 type ErrorCallback<T> = (id: string, type: T, err: any) => Promise<void>;
+type MappedCallbacks<T extends string> = Record<T, (arg?: any) => Promise<void>>;
+type MasterCallback<T> = (type: T, arg?: any) => Promise<void>;
 /**
  * T represents the timeout type. Can either be a generic string or a string-backed enum.
  */
@@ -64,7 +66,7 @@ export declare class TimeoutManager<T extends string> {
      */
     private readonly timeoutFileName;
     private previousTimeoutId;
-    constructor(storage: AsyncStorageInterface, callbacks: Record<T, (arg?: any) => Promise<void>>, options?: {
+    constructor(storage: AsyncStorageInterface, callbacks: MasterCallback<T> | MappedCallbacks<T>, options?: {
         fileName?: string;
         onError?: ErrorCallback<T>;
     });
