@@ -67,11 +67,19 @@ exports.getDateBetween = getDateBetween;
  * Gets a random date between the two provided dates, with an optional Bates distribution.
  * @param start the min date
  * @param end the max date
- * @param bates Bates distribution value
+ * @param options.minAlong min "along" factor where the "between" point can be (defaults to 0)
+ * @param options.maxAlong max "along" factor where the "between" point can be (defaults to 1)
+ * @param options.bates Bates distribution value (defaults to 1)
  * @returns a date between the provided dates
  */
-function getRandomDateBetween(start, end, bates = 1) {
-    return new Date((0, random_1.randInt)(start.getTime(), end.getTime(), bates));
+function getRandomDateBetween(start, end, options) {
+    var _a, _b, _c;
+    const minAlong = (_a = options === null || options === void 0 ? void 0 : options.minAlong) !== null && _a !== void 0 ? _a : 0;
+    const maxAlong = (_b = options === null || options === void 0 ? void 0 : options.maxAlong) !== null && _b !== void 0 ? _b : 1;
+    const bates = (_c = options === null || options === void 0 ? void 0 : options.bates) !== null && _c !== void 0 ? _c : 1;
+    const loTime = (0, misc_1.getNumberBetween)(start.getTime(), end.getTime(), minAlong);
+    const hiTime = (0, misc_1.getNumberBetween)(start.getTime(), end.getTime(), maxAlong);
+    return new Date((0, random_1.randInt)(loTime, hiTime, bates));
 }
 exports.getRandomDateBetween = getRandomDateBetween;
 /**
