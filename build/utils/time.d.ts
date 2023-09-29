@@ -18,11 +18,24 @@ export declare function toCalendarDate(date: Date): string;
  */
 export declare function getTomorrow(): Date;
 /**
- * Gets the number of days since the provided date string (e.g. 1/20/2022)
- * @param start date string
+ * Gets the number of days since the provided date or date string (e.g. 1/20/2022)
+ * @param start date or date string
  * @returns number of days since that date
  */
-export declare function getNumberOfDaysSince(start: string): number;
+export declare function getNumberOfDaysSince(start: string | Date): number;
+/**
+ * Gets the number of days until the provided date or date string (e.g. 1/20/2022)
+ * @param end date or date string
+ * @returns number of days until that date
+ */
+export declare function getNumberOfDaysUntil(end: string | Date): number;
+/**
+ * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
+ * @param start date or date string
+ * @param end date or date string
+ * @returns number of days between those dates
+ */
+export declare function getNumberOfDaysBetween(start: string | Date, end: string | Date): number;
 /**
  * Computes a date between the two provided dates, as specified by the optional "along" factor.
  * If the user wants a date 0.5 "along", it will return a date exactly halfway between the two.

@@ -38,14 +38,35 @@ export function getTomorrow(): Date {
 }
 
 /**
- * Gets the number of days since the provided date string (e.g. 1/20/2022)
- * @param start date string
+ * Gets the number of days since the provided date or date string (e.g. 1/20/2022)
+ * @param start date or date string
  * @returns number of days since that date
  */
-export function getNumberOfDaysSince(start: string): number {
-    const startDate: Date = new Date(start);
-    const todayDate: Date = new Date(getTodayDateString());
-    return Math.round((todayDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+export function getNumberOfDaysSince(start: string | Date): number {
+    return getNumberOfDaysBetween(start, new Date());
+}
+
+/**
+ * Gets the number of days until the provided date or date string (e.g. 1/20/2022)
+ * @param end date or date string
+ * @returns number of days until that date
+ */
+export function getNumberOfDaysUntil(end: string | Date): number {
+    return getNumberOfDaysBetween(new Date(), end);
+}
+
+/**
+ * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
+ * @param start date or date string
+ * @param end date or date string
+ * @returns number of days between those dates
+ */
+export function getNumberOfDaysBetween(start: string | Date, end: string | Date): number {
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(end);
+    endDate.setHours(0, 0, 0, 0);
+    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 /**

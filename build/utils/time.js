@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 function sleep(milliseconds) {
@@ -40,16 +40,37 @@ function getTomorrow() {
 }
 exports.getTomorrow = getTomorrow;
 /**
- * Gets the number of days since the provided date string (e.g. 1/20/2022)
- * @param start date string
+ * Gets the number of days since the provided date or date string (e.g. 1/20/2022)
+ * @param start date or date string
  * @returns number of days since that date
  */
 function getNumberOfDaysSince(start) {
-    const startDate = new Date(start);
-    const todayDate = new Date(getTodayDateString());
-    return Math.round((todayDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    return getNumberOfDaysBetween(start, new Date());
 }
 exports.getNumberOfDaysSince = getNumberOfDaysSince;
+/**
+ * Gets the number of days until the provided date or date string (e.g. 1/20/2022)
+ * @param end date or date string
+ * @returns number of days until that date
+ */
+function getNumberOfDaysUntil(end) {
+    return getNumberOfDaysBetween(new Date(), end);
+}
+exports.getNumberOfDaysUntil = getNumberOfDaysUntil;
+/**
+ * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
+ * @param start date or date string
+ * @param end date or date string
+ * @returns number of days between those dates
+ */
+function getNumberOfDaysBetween(start, end) {
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(end);
+    endDate.setHours(0, 0, 0, 0);
+    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+}
+exports.getNumberOfDaysBetween = getNumberOfDaysBetween;
 /**
  * Computes a date between the two provided dates, as specified by the optional "along" factor.
  * If the user wants a date 0.5 "along", it will return a date exactly halfway between the two.

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getPreciseDurationString } from '../../src/utils/time';
+import { getNumberOfDaysBetween, getNumberOfDaysUntil, getPreciseDurationString } from '../../src/utils/time';
 
 describe('Time Utility tests', () => {
     it ('can create precise duration strings', () => {
@@ -22,5 +22,12 @@ describe('Time Utility tests', () => {
         expect(getPreciseDurationString(604800000)).equals('1w');
         expect(getPreciseDurationString(6048000000)).equals('10w');
         expect(getPreciseDurationString(31449600000)).equals('52w');
+    });
+
+    it ('can count the number of days between two dates', () => {
+        expect(getNumberOfDaysBetween('9/1/2020', '9/1/2020')).equals(0);
+        expect(getNumberOfDaysBetween('10/31/2021', '11/1/2021')).equals(1);
+        expect(getNumberOfDaysBetween('1/15/2013', '1/15/2014')).equals(365);
+        expect(getNumberOfDaysBetween('9/28/2023', '10/1/2023')).equals(3);
     });
 });
