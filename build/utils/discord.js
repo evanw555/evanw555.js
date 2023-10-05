@@ -159,11 +159,13 @@ exports.countMessagesSinceDate = countMessagesSinceDate;
  * @param channel the text channel in which to count
  * @param callback function to perform for each message
  * @param options.batchSize how many messages to fetch per batch
+ * @param options.count how many messages to visit total
  */
 function forEachMessage(channel, callback, options) {
-    var _a;
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const batchSize = (_a = options === null || options === void 0 ? void 0 : options.batchSize) !== null && _a !== void 0 ? _a : 25;
+        let messagesRemaining = (_b = options === null || options === void 0 ? void 0 : options.count) !== null && _b !== void 0 ? _b : Number.MAX_SAFE_INTEGER;
         let beforeMessageId = undefined;
         while (true) {
             const options = { limit: batchSize };
@@ -171,6 +173,7 @@ function forEachMessage(channel, callback, options) {
                 options.before = beforeMessageId;
             }
             const messages = yield channel.messages.fetch(options);
+            // Sort the messages from oldest to newest
             messages.sort((x, y) => x.createdTimestamp - y.createdTimestamp);
             if (messages.size === 0) {
                 return;
@@ -178,9 +181,14 @@ function forEachMessage(channel, callback, options) {
             // The oldest message in this batch will be used as the "earliest message" in the next batch
             const earliestMessage = messages.first();
             beforeMessageId = earliestMessage.id;
-            // Invoke the callback for each message
-            for (const message of messages.toJSON()) {
+            // Invoke the callback for each message from newest to oldest
+            for (const message of messages.toJSON().reverse()) {
                 yield callback(message);
+            }
+            // Count down and return if we've reached the total count
+            messagesRemaining--;
+            if (messagesRemaining <= 0) {
+                return;
             }
         }
     });

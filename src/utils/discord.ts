@@ -142,9 +142,11 @@ export async function countMessagesSinceDate(channel: TextBasedChannel, date: Da
  * @param channel the text channel in which to count
  * @param callback function to perform for each message
  * @param options.batchSize how many messages to fetch per batch
+ * @param options.count how many messages to visit total
  */
-export async function forEachMessage(channel: TextBasedChannel, callback: (message: Message) => Promise<void>, options?: { batchSize?: number }): Promise<void> {
+export async function forEachMessage(channel: TextBasedChannel, callback: (message: Message) => Promise<void>, options?: { batchSize?: number, count?: number }): Promise<void> {
     const batchSize: number = options?.batchSize ?? 25;
+    let messagesRemaining: number = options?.count ?? Number.MAX_SAFE_INTEGER;
 
     let beforeMessageId: Snowflake | undefined = undefined;
     while (true) {
@@ -153,6 +155,7 @@ export async function forEachMessage(channel: TextBasedChannel, callback: (messa
             options.before = beforeMessageId;
         }
         const messages = await channel.messages.fetch(options);
+        // Sort the messages from oldest to newest
         messages.sort((x, y) => x.createdTimestamp - y.createdTimestamp);
         if (messages.size === 0) {
             return;
@@ -160,9 +163,14 @@ export async function forEachMessage(channel: TextBasedChannel, callback: (messa
         // The oldest message in this batch will be used as the "earliest message" in the next batch
         const earliestMessage: Message = messages.first() as Message;
         beforeMessageId = earliestMessage.id;
-        // Invoke the callback for each message
-        for (const message of messages.toJSON()) {
+        // Invoke the callback for each message from newest to oldest
+        for (const message of messages.toJSON().reverse()) {
             await callback(message);
+        }
+        // Count down and return if we've reached the total count
+        messagesRemaining--;
+        if (messagesRemaining <= 0) {
+            return;
         }
     }
 }
