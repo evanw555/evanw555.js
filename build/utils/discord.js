@@ -184,11 +184,11 @@ function forEachMessage(channel, callback, options) {
             // Invoke the callback for each message from newest to oldest
             for (const message of messages.toJSON().reverse()) {
                 yield callback(message);
-            }
-            // Count down and return if we've reached the total count
-            messagesRemaining--;
-            if (messagesRemaining <= 0) {
-                return;
+                // Count down and return if we've reached the total count
+                messagesRemaining--;
+                if (messagesRemaining <= 0) {
+                    return;
+                }
             }
         }
     });
