@@ -236,6 +236,7 @@ exports.deleteMessagesBeforeMessage = deleteMessagesBeforeMessage;
  *
  * @param choices list of poll choice values
  * @param options.overrides a of poll choice keys that can be used if a particular choice value is encountered
+ * @param options.avoidNumbers if true, then simple in-order numbers won't ever be returned
  * @returns list of choice key emojis corresponding to the provided choice values
  */
 function getPollChoiceKeys(choices, options) {
@@ -263,16 +264,21 @@ function getPollChoiceKeys(choices, options) {
             return (0, random_1.randChoice)(['🅰️', '🅱️'], (0, random_1.shuffle)(['🏳️', '🏴']));
         }
     }
+    // If there are 10 or fewer options, just return numbers with a 10% chance
+    if (n <= 10 && !(options === null || options === void 0 ? void 0 : options.avoidNumbers) && (0, random_1.chance)(0.1)) {
+        // Keep numbers in order
+        return ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].slice(0, n);
+    }
     // For all other cases, just shuffle some array of symbols and slice it
     if (n === 3) {
-        return (0, random_1.shuffle)((0, random_1.randChoice)(['🔴', '⚫', '⚪'], ['🏴', '🏳️', '🏁']));
+        return (0, random_1.shuffle)((0, random_1.randChoice)(['🔴', '⚫', '⚪'], ['🏴', '🏳️', '🏁'], ['🟥', '🟨', '🟦']));
     }
     else if (n === 4) {
-        return (0, random_1.shuffle)(['♠️', '♥️', '♦️', '♣️']);
+        return (0, random_1.shuffle)((0, random_1.randChoice)(['♠️', '♥️', '♦️', '♣️'], ['⬆️', '⬇️', '⬅️', '➡️'], ['➕', '➖', '✖️', '➗'], ['🟥', '🟨', '🟦', '🟩']));
     }
-    else if (n <= 6) {
+    else if (n <= 9) {
         // Keep colors in order
-        return ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣'].slice(0, n);
+        return ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '🟤', '⚫', '⚪'].slice(0, n);
     }
     else if (n <= 20) {
         // Slice to the right size

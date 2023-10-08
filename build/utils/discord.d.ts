@@ -73,10 +73,12 @@ export declare function deleteMessagesBeforeMessage(channel: TextBasedChannel, m
  *
  * @param choices list of poll choice values
  * @param options.overrides a of poll choice keys that can be used if a particular choice value is encountered
+ * @param options.avoidNumbers if true, then simple in-order numbers won't ever be returned
  * @returns list of choice key emojis corresponding to the provided choice values
  */
 export declare function getPollChoiceKeys(choices: string[], options?: {
-    overrides: Record<string, string[]>;
+    overrides?: Record<string, string[]>;
+    avoidNumbers?: true;
 }): string[];
 /**
  * Adds the list of reacts in-order, taking a delay between each.

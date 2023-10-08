@@ -1,7 +1,7 @@
 
 import { FetchMessagesOptions, Message, Snowflake, TextBasedChannel } from "discord.js";
 import { naturalJoin } from "./misc";
-import { randChoice, shuffle } from "./random";
+import { chance, randChoice, shuffle } from "./random";
 import { sleep } from "./time";
 
 export enum DiscordTimestampFormat {
@@ -215,9 +215,10 @@ export async function deleteMessagesBeforeMessage(channel: TextBasedChannel, mes
  *
  * @param choices list of poll choice values
  * @param options.overrides a of poll choice keys that can be used if a particular choice value is encountered
+ * @param options.avoidNumbers if true, then simple in-order numbers won't ever be returned
  * @returns list of choice key emojis corresponding to the provided choice values
  */
-export function getPollChoiceKeys(choices: string[], options?: { overrides: Record<string, string[]> }): string[] {
+export function getPollChoiceKeys(choices: string[], options?: { overrides?: Record<string, string[]>, avoidNumbers?: true }): string[] {
     const n: number = choices.length;
 
     // Recursively handle overrides
@@ -243,14 +244,19 @@ export function getPollChoiceKeys(choices: string[], options?: { overrides: Reco
             return randChoice(['🅰️', '🅱️'], shuffle(['🏳️', '🏴']));
         }
     }
+    // If there are 10 or fewer options, just return numbers with a 10% chance
+    if (n <= 10 && !options?.avoidNumbers && chance(0.1)) {
+        // Keep numbers in order
+        return ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].slice(0, n);
+    }
     // For all other cases, just shuffle some array of symbols and slice it
     if (n === 3) {
-        return shuffle(randChoice(['🔴', '⚫', '⚪'], ['🏴', '🏳️', '🏁']));
+        return shuffle(randChoice(['🔴', '⚫', '⚪'], ['🏴', '🏳️', '🏁'], ['🟥', '🟨', '🟦']));
     } else if (n === 4) {
-        return shuffle(['♠️', '♥️', '♦️', '♣️']);
-    } else if (n <= 6) {
+        return shuffle(randChoice(['♠️', '♥️', '♦️', '♣️'], ['⬆️', '⬇️', '⬅️', '➡️'], ['➕', '➖', '✖️', '➗'], ['🟥', '🟨', '🟦', '🟩']));
+    } else if (n <= 9) {
         // Keep colors in order
-        return ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣'].slice(0, n);
+        return ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '🟤', '⚫', '⚪'].slice(0, n);
     } else if (n <= 20) {
         // Slice to the right size
         return shuffle(['🍒', '🍉', '🍌', '🍎', '🥕', '🏐', '🏀', '🏈', '🌲', '🎱', '🎲', '💎', '💰', '🪐', '☘️', '🌻', '🍄', '🌎', '🌙', '🔥']).slice(0, n);
