@@ -1,11 +1,11 @@
-import { DMChannel, GuildMember, Message, Snowflake, TextBasedChannel } from "discord.js";
+import { BaseMessageOptions, DMChannel, GuildMember, Message, MessageCreateOptions, Snowflake, TextBasedChannel } from "discord.js";
 import { randInt } from "../utils/random";
 import { sleep } from "../utils/time";
 
 interface MessengerBacklogEntry {
     channel: TextBasedChannel,
     message?: Message,
-    text: string,
+    payload: string | MessageCreateOptions,
     options?: MessengerOptions
     resolve?: () => void
 }
@@ -38,12 +38,12 @@ export class Messenger {
         this.memberResolver = memberResolver;
     }
 
-    async send(channel: TextBasedChannel, text: string, options?: MessengerOptions): Promise<void> {
-        await this._send({ channel, text, options });
+    async send(channel: TextBasedChannel, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void> {
+        await this._send({ channel, payload, options });
     }
 
-    async reply(message: Message, text: string, options?: MessengerOptions): Promise<void> {
-        await this._send({ channel: message.channel, message, text, options });
+    async reply(message: Message, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void> {
+        await this._send({ channel: message.channel, message, payload, options });
     }
 
     private async _resolveMember(member: GuildMember | Snowflake): Promise<GuildMember> {
@@ -64,11 +64,11 @@ export class Messenger {
         }
     }
 
-    async dm(member: GuildMember | Snowflake, text: string, options?: MessengerOptions): Promise<void> {
+    async dm(member: GuildMember | Snowflake, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void> {
         try {
             const resolvedMember: GuildMember = await this._resolveMember(member);
             const dmChannel: DMChannel = await resolvedMember.createDM();
-            await this._send({ channel: dmChannel, text, options });
+            await this._send({ channel: dmChannel, payload, options });
         } catch (err) {
             this.log(`Unable to send DM via \`Messenger.dm\`: \`${err}\``);
         }
@@ -87,7 +87,7 @@ export class Messenger {
             this._busy = true;
             this._backlog.push(entry);
             while (this._backlog.length > 0) {
-                const { channel, message, text, resolve } = this._backlog.shift() as MessengerBacklogEntry;
+                const { channel, message, payload, resolve } = this._backlog.shift() as MessengerBacklogEntry;
                 try {
                     // Unless the options specify to send immediately, add an artificial delay
                     if (!entry.options?.immediate) {
@@ -96,18 +96,16 @@ export class Messenger {
                         // Send the typing event and wait a bit
                         try {
                             await channel.sendTyping();
-                            // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
-                            const typingDuration: number = Math.min(randInt(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
-                            await sleep(typingDuration);
+                            await sleep(this.getTypingDuration(payload));
                         } catch (err) {
                             // Typing events are non-critical, so allow them to fail silently...
                         }
                     }
                     // Now actually reply/send the message
                     if (message) {
-                        await message.reply(text);
+                        await message.reply(payload);
                     } else {
-                        await channel.send(text);
+                        await channel.send(payload);
                     }
                 } catch (err) {
                     this.log(`Failed to send message: \`${err}\``);
@@ -129,20 +127,18 @@ export class Messenger {
     /**
      * TODO: do this better. De-dup logic.
      */
-    async sendAndGet(channel: TextBasedChannel, text: string): Promise<Message> {
+    async sendAndGet(channel: TextBasedChannel, payload: string | MessageCreateOptions): Promise<Message> {
         // Take a brief pause
         await sleep(randInt(100, 1500));
         // Send the typing event and wait a bit
         try {
             await channel.sendTyping();
-            // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
-            const typingDuration: number = Math.min(randInt(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
-            await sleep(typingDuration);
+            await sleep(this.getTypingDuration(payload));
         } catch (err) {
             // Typing events are non-critical, so allow them to fail silently...
         }
         // Now actually reply/send the message
-        return channel.send(text);
+        return channel.send(payload);
     }
 
     /**
@@ -173,5 +169,24 @@ export class Messenger {
         if (this.logger) {
             this.logger(text);
         }
+    }
+
+    /**
+     * @param content the message payload
+     * @returns The "typing" duration in milliseconds for this payload
+     */
+    private getTypingDuration(payload: string | MessageCreateOptions): number {
+        let contentLength = 0;
+        if (typeof payload === 'string') {
+            contentLength += payload.length;
+        } else {
+            contentLength += payload.content?.length ?? 0;
+            // Each embed is treated as 10 characters
+            contentLength += (payload.embeds?.length ?? 0) * 10;
+            // Each file is treated as 20 characters
+            contentLength += (payload.files?.length ?? 0) * 20;
+        }
+        // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
+        return Math.min(randInt(45, 55) * contentLength, Messenger.MAX_TYPING_DURATION);
     }
 }

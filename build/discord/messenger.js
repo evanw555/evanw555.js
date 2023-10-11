@@ -24,14 +24,14 @@ class Messenger {
     setMemberResolver(memberResolver) {
         this.memberResolver = memberResolver;
     }
-    send(channel, text, options) {
+    send(channel, payload, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this._send({ channel, text, options });
+            yield this._send({ channel, payload, options });
         });
     }
-    reply(message, text, options) {
+    reply(message, payload, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this._send({ channel: message.channel, message, text, options });
+            yield this._send({ channel: message.channel, message, payload, options });
         });
     }
     _resolveMember(member) {
@@ -57,12 +57,12 @@ class Messenger {
             }
         });
     }
-    dm(member, text, options) {
+    dm(member, payload, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const resolvedMember = yield this._resolveMember(member);
                 const dmChannel = yield resolvedMember.createDM();
-                yield this._send({ channel: dmChannel, text, options });
+                yield this._send({ channel: dmChannel, payload, options });
             }
             catch (err) {
                 this.log(`Unable to send DM via \`Messenger.dm\`: \`${err}\``);
@@ -85,7 +85,7 @@ class Messenger {
                 this._busy = true;
                 this._backlog.push(entry);
                 while (this._backlog.length > 0) {
-                    const { channel, message, text, resolve } = this._backlog.shift();
+                    const { channel, message, payload, resolve } = this._backlog.shift();
                     try {
                         // Unless the options specify to send immediately, add an artificial delay
                         if (!((_a = entry.options) === null || _a === void 0 ? void 0 : _a.immediate)) {
@@ -94,9 +94,7 @@ class Messenger {
                             // Send the typing event and wait a bit
                             try {
                                 yield channel.sendTyping();
-                                // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
-                                const typingDuration = Math.min((0, random_1.randInt)(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
-                                yield (0, time_1.sleep)(typingDuration);
+                                yield (0, time_1.sleep)(this.getTypingDuration(payload));
                             }
                             catch (err) {
                                 // Typing events are non-critical, so allow them to fail silently...
@@ -104,10 +102,10 @@ class Messenger {
                         }
                         // Now actually reply/send the message
                         if (message) {
-                            yield message.reply(text);
+                            yield message.reply(payload);
                         }
                         else {
-                            yield channel.send(text);
+                            yield channel.send(payload);
                         }
                     }
                     catch (err) {
@@ -132,22 +130,20 @@ class Messenger {
     /**
      * TODO: do this better. De-dup logic.
      */
-    sendAndGet(channel, text) {
+    sendAndGet(channel, payload) {
         return __awaiter(this, void 0, void 0, function* () {
             // Take a brief pause
             yield (0, time_1.sleep)((0, random_1.randInt)(100, 1500));
             // Send the typing event and wait a bit
             try {
                 yield channel.sendTyping();
-                // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
-                const typingDuration = Math.min((0, random_1.randInt)(45, 55) * text.length, Messenger.MAX_TYPING_DURATION);
-                yield (0, time_1.sleep)(typingDuration);
+                yield (0, time_1.sleep)(this.getTypingDuration(payload));
             }
             catch (err) {
                 // Typing events are non-critical, so allow them to fail silently...
             }
             // Now actually reply/send the message
-            return channel.send(text);
+            return channel.send(payload);
         });
     }
     /**
@@ -180,6 +176,26 @@ class Messenger {
         if (this.logger) {
             this.logger(text);
         }
+    }
+    /**
+     * @param content the message payload
+     * @returns The "typing" duration in milliseconds for this payload
+     */
+    getTypingDuration(payload) {
+        var _a, _b, _c, _d, _e, _f;
+        let contentLength = 0;
+        if (typeof payload === 'string') {
+            contentLength += payload.length;
+        }
+        else {
+            contentLength += (_b = (_a = payload.content) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
+            // Each embed is treated as 10 characters
+            contentLength += ((_d = (_c = payload.embeds) === null || _c === void 0 ? void 0 : _c.length) !== null && _d !== void 0 ? _d : 0) * 10;
+            // Each file is treated as 20 characters
+            contentLength += ((_f = (_e = payload.files) === null || _e === void 0 ? void 0 : _e.length) !== null && _f !== void 0 ? _f : 0) * 20;
+        }
+        // Calculate the typing duration using the length of the message, but cap it at Discord's max typing duration
+        return Math.min((0, random_1.randInt)(45, 55) * contentLength, Messenger.MAX_TYPING_DURATION);
     }
 }
 exports.Messenger = Messenger;
