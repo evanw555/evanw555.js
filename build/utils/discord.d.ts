@@ -1,4 +1,4 @@
-import { Message, Snowflake, TextBasedChannel } from "discord.js";
+import { Message, Snowflake, TextBasedChannel, TextChannel } from "discord.js";
 export declare enum DiscordTimestampFormat {
     ShortTime = "t",
     LongTime = "T",
@@ -48,8 +48,10 @@ export declare function countMessagesSinceDate(channel: TextBasedChannel, date: 
  * @param callback function to perform for each message
  * @param options.batchSize how many messages to fetch per batch
  * @param options.count how many messages to visit total
+ * @param options.beforeMessageId only visit messages before this one
  */
 export declare function forEachMessage(channel: TextBasedChannel, callback: (message: Message) => Promise<void>, options?: {
+    beforeMessageId?: Snowflake;
     batchSize?: number;
     count?: number;
 }): Promise<void>;
@@ -60,12 +62,14 @@ export declare function forEachMessage(channel: TextBasedChannel, callback: (mes
  * @param options.batchSize how many messages to fetch per batch
  * @param options.delay how many milliseconds to delay between each message deletion operation
  * @param options.beforeDelete some callback to invoke immediately before deleting a message
+ * @param options.filter predicate to use to determine whether a message should be deleted
  * @returns how many messages were deleted by this operation
  */
-export declare function deleteMessagesBeforeMessage(channel: TextBasedChannel, messageId: Snowflake, options?: {
+export declare function deleteMessagesBeforeMessage(channel: TextChannel, messageId: Snowflake, options?: {
     batchSize?: number;
     delay?: number;
     beforeDelete?: (message: Message) => Promise<void>;
+    filter?: (message: Message) => Promise<boolean>;
 }): Promise<number>;
 /**
  * For a list of poll choice values, return an appropriate list of choice key emojis corresponding to the value list.

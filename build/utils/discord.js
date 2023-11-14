@@ -160,13 +160,14 @@ exports.countMessagesSinceDate = countMessagesSinceDate;
  * @param callback function to perform for each message
  * @param options.batchSize how many messages to fetch per batch
  * @param options.count how many messages to visit total
+ * @param options.beforeMessageId only visit messages before this one
  */
 function forEachMessage(channel, callback, options) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const batchSize = (_a = options === null || options === void 0 ? void 0 : options.batchSize) !== null && _a !== void 0 ? _a : 25;
         let messagesRemaining = (_b = options === null || options === void 0 ? void 0 : options.count) !== null && _b !== void 0 ? _b : Number.MAX_SAFE_INTEGER;
-        let beforeMessageId = undefined;
+        let beforeMessageId = options === null || options === void 0 ? void 0 : options.beforeMessageId;
         while (true) {
             const options = { limit: batchSize };
             if (beforeMessageId) {
@@ -201,32 +202,35 @@ exports.forEachMessage = forEachMessage;
  * @param options.batchSize how many messages to fetch per batch
  * @param options.delay how many milliseconds to delay between each message deletion operation
  * @param options.beforeDelete some callback to invoke immediately before deleting a message
+ * @param options.filter predicate to use to determine whether a message should be deleted
  * @returns how many messages were deleted by this operation
  */
 function deleteMessagesBeforeMessage(channel, messageId, options) {
-    var _a, _b;
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
-        const batchSize = (_a = options === null || options === void 0 ? void 0 : options.batchSize) !== null && _a !== void 0 ? _a : 50;
-        const delay = (_b = options === null || options === void 0 ? void 0 : options.delay) !== null && _b !== void 0 ? _b : 1000;
+        const delay = (_a = options === null || options === void 0 ? void 0 : options.delay) !== null && _a !== void 0 ? _a : 1000;
+        const shouldDelete = (_b = options === null || options === void 0 ? void 0 : options.filter) !== null && _b !== void 0 ? _b : ((message) => __awaiter(this, void 0, void 0, function* () { return true; }));
+        // Collect all messages marked for deletion (we do this up front because deletion might interfere with the fetching API)
+        const messagesToDelete = [];
+        yield forEachMessage(channel, (message) => __awaiter(this, void 0, void 0, function* () {
+            if (yield shouldDelete(message)) {
+                messagesToDelete.push(message);
+            }
+        }), {
+            beforeMessageId: messageId,
+            batchSize: (_c = options === null || options === void 0 ? void 0 : options.batchSize) !== null && _c !== void 0 ? _c : 50,
+        });
+        // Delete the appropriate messages
         let numMessagesDeleted = 0;
-        while (true) {
-            const messages = yield channel.messages.fetch({ limit: batchSize, before: messageId });
-            if (messages.size === 0) {
-                console.log('Found no more messages to delete.');
-                return numMessagesDeleted;
+        for (const message of messagesToDelete) {
+            if (options === null || options === void 0 ? void 0 : options.beforeDelete) {
+                yield options.beforeDelete(message);
             }
-            console.log(`Found ${messages.size} messages, deleting all...`);
-            for (let message of messages.values()) {
-                if (options === null || options === void 0 ? void 0 : options.beforeDelete) {
-                    yield options.beforeDelete(message);
-                }
-                yield message.delete();
-                numMessagesDeleted++;
-                process.stdout.write('.');
-                yield (0, time_1.sleep)(delay);
-            }
-            process.stdout.write('✔️\n');
+            yield message.delete();
+            numMessagesDeleted++;
+            yield (0, time_1.sleep)(delay);
         }
+        return numMessagesDeleted;
     });
 }
 exports.deleteMessagesBeforeMessage = deleteMessagesBeforeMessage;

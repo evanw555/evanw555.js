@@ -1,5 +1,5 @@
 
-import { FetchMessagesOptions, Message, Snowflake, TextBasedChannel } from "discord.js";
+import { FetchMessagesOptions, Message, Snowflake, TextBasedChannel, TextChannel } from "discord.js";
 import { naturalJoin } from "./misc";
 import { chance, randChoice, shuffle } from "./random";
 import { sleep } from "./time";
@@ -143,12 +143,13 @@ export async function countMessagesSinceDate(channel: TextBasedChannel, date: Da
  * @param callback function to perform for each message
  * @param options.batchSize how many messages to fetch per batch
  * @param options.count how many messages to visit total
+ * @param options.beforeMessageId only visit messages before this one
  */
-export async function forEachMessage(channel: TextBasedChannel, callback: (message: Message) => Promise<void>, options?: { batchSize?: number, count?: number }): Promise<void> {
+export async function forEachMessage(channel: TextBasedChannel, callback: (message: Message) => Promise<void>, options?: { beforeMessageId?: Snowflake, batchSize?: number, count?: number }): Promise<void> {
     const batchSize: number = options?.batchSize ?? 25;
     let messagesRemaining: number = options?.count ?? Number.MAX_SAFE_INTEGER;
 
-    let beforeMessageId: Snowflake | undefined = undefined;
+    let beforeMessageId: Snowflake | undefined = options?.beforeMessageId;
     while (true) {
         const options: FetchMessagesOptions = { limit: batchSize };
         if (beforeMessageId) {
@@ -182,31 +183,36 @@ export async function forEachMessage(channel: TextBasedChannel, callback: (messa
  * @param options.batchSize how many messages to fetch per batch
  * @param options.delay how many milliseconds to delay between each message deletion operation
  * @param options.beforeDelete some callback to invoke immediately before deleting a message
+ * @param options.filter predicate to use to determine whether a message should be deleted
  * @returns how many messages were deleted by this operation
  */
-export async function deleteMessagesBeforeMessage(channel: TextBasedChannel, messageId: Snowflake, options?: { batchSize?: number, delay?: number, beforeDelete?: (message: Message) => Promise<void>}): Promise<number> {
-    const batchSize: number = options?.batchSize ?? 50;
+export async function deleteMessagesBeforeMessage(channel: TextChannel, messageId: Snowflake, options?: { batchSize?: number, delay?: number, beforeDelete?: (message: Message) => Promise<void>, filter?: (message: Message) => Promise<boolean>}): Promise<number> {
     const delay: number = options?.delay ?? 1000;
+    const shouldDelete = options?.filter ?? (async (message: Message) => true);
 
+    // Collect all messages marked for deletion (we do this up front because deletion might interfere with the fetching API)
+    const messagesToDelete: Message[] = [];
+    await forEachMessage(channel, async (message: Message) => {
+        if (await shouldDelete(message)) {
+            messagesToDelete.push(message);
+        }
+    }, {
+        beforeMessageId: messageId,
+        batchSize: options?.batchSize ?? 50,
+    });
+
+    // Delete the appropriate messages
     let numMessagesDeleted: number = 0;
-    while (true) {
-        const messages = await channel.messages.fetch({ limit: batchSize, before: messageId });
-        if (messages.size === 0) {
-            console.log('Found no more messages to delete.');
-            return numMessagesDeleted;
+    for (const message of messagesToDelete) {
+        if (options?.beforeDelete) {
+            await options.beforeDelete(message);
         }
-        console.log(`Found ${messages.size} messages, deleting all...`);
-        for (let message of messages.values()) {
-            if (options?.beforeDelete) {
-                await options.beforeDelete(message);
-            }
-            await message.delete();
-            numMessagesDeleted++;
-            process.stdout.write('.');
-            await sleep(delay);
-        }
-        process.stdout.write('✔️\n');
+        await message.delete();
+        numMessagesDeleted++;
+        await sleep(delay);
     }
+
+    return numMessagesDeleted;
 }
 
 /**
