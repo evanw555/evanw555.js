@@ -70,6 +70,13 @@ export declare function fromLetterId(input: string): number;
  */
 export declare function pluralize(input: string): string;
 /**
+ * Given some input text, split it into a list naturally separated by paragraph/punctuation.
+ * @param text text to naturally split
+ * @param maxLength max length of each resulting segment
+ * @returns list of the naturally split text segments
+ */
+export declare function splitTextNaturally(text: string, maxLength: number): string[];
+/**
  * For some numerical rank (e.g. 1) return the English rank string (e.g. "1st").
  * @param rank a numerical rank
  * @returns The given rank expressed as a string (e.g. 1st, 2nd, 3rd, 11th, 21st)

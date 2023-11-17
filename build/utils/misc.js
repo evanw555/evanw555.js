@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNumberBetween = exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.collapseRedundantStrings = exports.naturalJoin = void 0;
+exports.getNumberBetween = exports.toMap = exports.filterValueFromMap = exports.getRankString = exports.splitTextNaturally = exports.pluralize = exports.fromLetterId = exports.toLetterId = exports.capitalize = exports.toFixedString = exports.toFixed = exports.getSelectedNode = exports.collapseRedundantStrings = exports.naturalJoin = void 0;
 /**
  * @param input List of strings
  * @param options.conjunction The conjunction to use for lists of 3 or more (default: "and")
@@ -164,6 +164,33 @@ function pluralize(input) {
     return input + 's';
 }
 exports.pluralize = pluralize;
+/**
+ * Given some input text, split it into a list naturally separated by paragraph/punctuation.
+ * @param text text to naturally split
+ * @param maxLength max length of each resulting segment
+ * @returns list of the naturally split text segments
+ */
+function splitTextNaturally(text, maxLength) {
+    const result = [];
+    for (const paragraph of text.split('\n').map(p => p.trim()).filter(p => p)) {
+        let remainingParagraph = paragraph;
+        while (remainingParagraph.length > maxLength) {
+            const greedySlice = remainingParagraph.slice(0, maxLength);
+            const lastPeriodIndex = greedySlice.lastIndexOf('.');
+            if (lastPeriodIndex === -1) {
+                result.push(greedySlice.slice(0, maxLength - 3).trim() + '...');
+                remainingParagraph = remainingParagraph.slice(maxLength - 3).trim();
+            }
+            else {
+                result.push(greedySlice.slice(0, lastPeriodIndex + 1));
+                remainingParagraph = remainingParagraph.slice(lastPeriodIndex + 1).trim();
+            }
+        }
+        result.push(remainingParagraph);
+    }
+    return result;
+}
+exports.splitTextNaturally = splitTextNaturally;
 /**
  * For some numerical rank (e.g. 1) return the English rank string (e.g. "1st").
  * @param rank a numerical rank

@@ -163,6 +163,32 @@ export function pluralize(input: string): string {
 }
 
 /**
+ * Given some input text, split it into a list naturally separated by paragraph/punctuation.
+ * @param text text to naturally split
+ * @param maxLength max length of each resulting segment
+ * @returns list of the naturally split text segments
+ */
+export function splitTextNaturally(text: string, maxLength: number): string[] {
+    const result: string[] = [];
+    for (const paragraph of text.split('\n').map(p => p.trim()).filter(p => p)) {
+        let remainingParagraph = paragraph;
+        while (remainingParagraph.length > maxLength) {
+            const greedySlice = remainingParagraph.slice(0, maxLength);
+            const lastPeriodIndex = greedySlice.lastIndexOf('.');
+            if (lastPeriodIndex === -1) {
+                result.push(greedySlice.slice(0, maxLength - 3).trim() + '...');
+                remainingParagraph = remainingParagraph.slice(maxLength - 3).trim();
+            } else {
+                result.push(greedySlice.slice(0, lastPeriodIndex + 1));
+                remainingParagraph = remainingParagraph.slice(lastPeriodIndex + 1).trim();
+            }
+        }
+        result.push(remainingParagraph);
+    }
+    return result;
+}
+
+/**
  * For some numerical rank (e.g. 1) return the English rank string (e.g. "1st").
  * @param rank a numerical rank
  * @returns The given rank expressed as a string (e.g. 1st, 2nd, 3rd, 11th, 21st)

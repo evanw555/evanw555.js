@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { toLetterId, fromLetterId, collapseRedundantStrings, naturalJoin, getNumberBetween } from '../../src/utils/misc';
+import { toLetterId, fromLetterId, collapseRedundantStrings, naturalJoin, getNumberBetween, splitTextNaturally } from '../../src/utils/misc';
 
 describe('Misc. Utility tests', () => {
     it ('can naturally join strings', () => {
@@ -40,6 +40,17 @@ describe('Misc. Utility tests', () => {
 
         expect(fromLetterId.bind(null, '')).to.throw('Cannot parse letter ID ""');
         expect(fromLetterId.bind(null, 'A1')).to.throw('Cannot parse letter ID "A1"');
+    });
+
+    it('can split text naturally', () => {
+        // Handles:
+        // 1. Multiple blank lines.
+        // 2. Short paragraphs.
+        // 3. Paragraphs with period-delimited sentences.
+        // 4. Paragraphs with run-on sentences.
+        // 5. Paragraphs with run-on and period-delimited sentences.
+        expect(splitTextNaturally('Hello\n\n\nMy name is Evan. How are you.\n\nThis is a really very super quite long run-on sentence in a paragraph. Yes indeed.', 20).join(';'))
+            .to.equal('Hello;My name is Evan.;How are you.;This is a really...;very super quite...;long run-on sente...;nce in a paragraph.;Yes indeed.');
     });
 
     it('can collapse redundant strings in a list', () => {
