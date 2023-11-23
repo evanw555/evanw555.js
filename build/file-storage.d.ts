@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export interface AsyncStorageInterface {
     read(id: string): Promise<string>;
     readJson(id: string): Promise<any>;
@@ -12,5 +13,13 @@ export declare class FileStorage implements AsyncStorageInterface {
     readJson(id: string): Promise<any>;
     readJsonSync(id: string): any;
     write(id: string, value: any): Promise<void>;
+    /**
+     * NOTE: This is still experimental and not confirmed to work.
+     */
+    readBlob(id: string): Promise<Buffer>;
+    /**
+     * NOTE: This is still experimental and not confirmed to work.
+     */
+    writeBlob(id: string, value: Buffer): Promise<void>;
 }
 //# sourceMappingURL=file-storage.d.ts.map

@@ -47,4 +47,32 @@ export class FileStorage implements AsyncStorageInterface {
             });
         });
     }
+
+    /**
+     * NOTE: This is still experimental and not confirmed to work.
+     */
+    async readBlob(id: string): Promise<Buffer> {
+        return new Promise<Buffer>((resolve, reject) => {
+            fs.readFile(this._basePath + id, (err, data) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(data);
+            });
+        });
+    }
+
+    /**
+     * NOTE: This is still experimental and not confirmed to work.
+     */
+    async writeBlob(id: string, value: Buffer): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            fs.writeFile(this._basePath + id, value, (err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
+    }
 }
