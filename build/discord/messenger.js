@@ -24,14 +24,48 @@ class Messenger {
     setMemberResolver(memberResolver) {
         this.memberResolver = memberResolver;
     }
+    /**
+     * Sends a message payload to the specified text channel.
+     * @param channel Channel to send this message payload to
+     * @param payload Message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
     send(channel, payload, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this._send({ channel, payload, options });
+            return yield this._send({ channel, payload, options });
         });
     }
+    /**
+     * Sends a list of message payloads to the specified text channel in the order that they're provided.
+     * @param channel Channel to send these message payloads to
+     * @param payloads List of message payloads to send (in order)
+     * @param options Options to control how these payloads are sent
+     * @returns List of message objects sent successfully to the target channel
+     */
+    sendAll(channel, payloads, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const messages = [];
+            for (const payload of payloads) {
+                const message = yield this.send(channel, payload, options);
+                // Only add this message to the list if it sent successfully
+                if (message) {
+                    messages.push(message);
+                }
+            }
+            return messages;
+        });
+    }
+    /**
+     * Sends a message payload as a reply to some provided message.
+     * @param message Message to which the payload is sent as a reply
+     * @param payload Message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
     reply(message, payload, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this._send({ channel: message.channel, message, payload, options });
+            return yield this._send({ channel: message.channel, message, payload, options });
         });
     }
     _resolveMember(member) {
@@ -57,16 +91,43 @@ class Messenger {
             }
         });
     }
+    /**
+     * Sends a message payload to the specified guild member's DMs.
+     * @param member The guild member (or the ID of the guild member) to DM this message payload to
+     * @param payload The message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
     dm(member, payload, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const resolvedMember = yield this._resolveMember(member);
                 const dmChannel = yield resolvedMember.createDM();
-                yield this._send({ channel: dmChannel, payload, options });
+                return yield this._send({ channel: dmChannel, payload, options });
             }
             catch (err) {
                 this.log(`Unable to send DM via \`Messenger.dm\`: \`${err}\``);
             }
+        });
+    }
+    /**
+     * Sends a list of message payloads to the specified guild member's DMs in the order that they're provided.
+     * @param member The guild member (or the ID of the guild member) to DM these message payloads to
+     * @param payloads List of message payloads to send (in order)
+     * @param options Options to control how these payloads are sent
+     * @returns List of message objects sent successfully to the target channel
+     */
+    dmAll(member, payloads, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const messages = [];
+            for (const payload of payloads) {
+                const message = yield this.dm(member, payload, options);
+                // Only add this message to the list if it sent successfully
+                if (message) {
+                    messages.push(message);
+                }
+            }
+            return messages;
         });
     }
     _send(entry) {
@@ -86,6 +147,7 @@ class Messenger {
                 this._backlog.push(entry);
                 while (this._backlog.length > 0) {
                     const { channel, message, payload, resolve } = this._backlog.shift();
+                    let result = undefined;
                     try {
                         // Unless the options specify to send immediately, add an artificial delay
                         if (!((_a = entry.options) === null || _a === void 0 ? void 0 : _a.immediate)) {
@@ -102,10 +164,10 @@ class Messenger {
                         }
                         // Now actually reply/send the message
                         if (message) {
-                            yield message.reply(payload);
+                            result = yield message.reply(payload);
                         }
                         else {
-                            yield channel.send(payload);
+                            result = yield channel.send(payload);
                         }
                     }
                     catch (err) {
@@ -113,7 +175,7 @@ class Messenger {
                     }
                     // Resolve the promise for this message
                     if (resolve) {
-                        resolve();
+                        resolve(result);
                     }
                     else {
                         this.log(`No resolve function found for messenger backlog entry to ${channel}`);
@@ -125,25 +187,6 @@ class Messenger {
                 // If the messenger is busy, just add the info to the backlog and let the active thread send it when it's done
                 this._backlog.push(entry);
             }
-        });
-    }
-    /**
-     * TODO: do this better. De-dup logic.
-     */
-    sendAndGet(channel, payload) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Take a brief pause
-            yield (0, time_1.sleep)((0, random_1.randInt)(100, 1500));
-            // Send the typing event and wait a bit
-            try {
-                yield channel.sendTyping();
-                yield (0, time_1.sleep)(this.getTypingDuration(payload));
-            }
-            catch (err) {
-                // Typing events are non-critical, so allow them to fail silently...
-            }
-            // Now actually reply/send the message
-            return channel.send(payload);
         });
     }
     /**

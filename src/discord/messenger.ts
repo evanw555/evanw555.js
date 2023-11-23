@@ -7,7 +7,7 @@ interface MessengerBacklogEntry {
     message?: Message,
     payload: string | MessageCreateOptions,
     options?: MessengerOptions
-    resolve?: () => void
+    resolve?: (value: Message | undefined) => void
 }
 interface MessengerOptions {
     /**
@@ -38,12 +38,45 @@ export class Messenger {
         this.memberResolver = memberResolver;
     }
 
-    async send(channel: TextBasedChannel, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void> {
-        await this._send({ channel, payload, options });
+    /**
+     * Sends a message payload to the specified text channel.
+     * @param channel Channel to send this message payload to
+     * @param payload Message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
+    async send(channel: TextBasedChannel, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<Message | undefined> {
+        return await this._send({ channel, payload, options });
     }
 
-    async reply(message: Message, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void> {
-        await this._send({ channel: message.channel, message, payload, options });
+    /**
+     * Sends a list of message payloads to the specified text channel in the order that they're provided.
+     * @param channel Channel to send these message payloads to
+     * @param payloads List of message payloads to send (in order)
+     * @param options Options to control how these payloads are sent
+     * @returns List of message objects sent successfully to the target channel
+     */
+    async sendAll(channel: TextBasedChannel, payloads: (string | MessageCreateOptions)[], options?: MessengerOptions): Promise<Message[]> {
+        const messages: Message[] = [];
+        for (const payload of payloads) {
+            const message = await this.send(channel, payload, options);
+            // Only add this message to the list if it sent successfully
+            if (message) {
+                messages.push(message);
+            }
+        }
+        return messages;
+    }
+
+    /**
+     * Sends a message payload as a reply to some provided message.
+     * @param message Message to which the payload is sent as a reply
+     * @param payload Message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
+    async reply(message: Message, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<Message | undefined> {
+        return await this._send({ channel: message.channel, message, payload, options });
     }
 
     private async _resolveMember(member: GuildMember | Snowflake): Promise<GuildMember> {
@@ -64,17 +97,43 @@ export class Messenger {
         }
     }
 
-    async dm(member: GuildMember | Snowflake, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void> {
+    /**
+     * Sends a message payload to the specified guild member's DMs.
+     * @param member The guild member (or the ID of the guild member) to DM this message payload to
+     * @param payload The message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
+    async dm(member: GuildMember | Snowflake, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<Message | undefined> {
         try {
             const resolvedMember: GuildMember = await this._resolveMember(member);
             const dmChannel: DMChannel = await resolvedMember.createDM();
-            await this._send({ channel: dmChannel, payload, options });
+            return await this._send({ channel: dmChannel, payload, options });
         } catch (err) {
             this.log(`Unable to send DM via \`Messenger.dm\`: \`${err}\``);
         }
     }
 
-    private async _send(entry: MessengerBacklogEntry): Promise<void> {
+    /**
+     * Sends a list of message payloads to the specified guild member's DMs in the order that they're provided.
+     * @param member The guild member (or the ID of the guild member) to DM these message payloads to
+     * @param payloads List of message payloads to send (in order)
+     * @param options Options to control how these payloads are sent
+     * @returns List of message objects sent successfully to the target channel
+     */
+    async dmAll(member: GuildMember | Snowflake, payloads: (string | MessageCreateOptions)[], options?: MessengerOptions): Promise<Message[]> {
+        const messages: Message[] = [];
+        for (const payload of payloads) {
+            const message = await this.dm(member, payload, options);
+            // Only add this message to the list if it sent successfully
+            if (message) {
+                messages.push(message);
+            }
+        }
+        return messages;
+    }
+
+    private async _send(entry: MessengerBacklogEntry): Promise<Message | undefined> {
         return new Promise(async (resolve) => {
             entry.resolve = resolve;
             await this._processEntry(entry);
@@ -88,6 +147,7 @@ export class Messenger {
             this._backlog.push(entry);
             while (this._backlog.length > 0) {
                 const { channel, message, payload, resolve } = this._backlog.shift() as MessengerBacklogEntry;
+                let result: Message | undefined = undefined;
                 try {
                     // Unless the options specify to send immediately, add an artificial delay
                     if (!entry.options?.immediate) {
@@ -103,16 +163,16 @@ export class Messenger {
                     }
                     // Now actually reply/send the message
                     if (message) {
-                        await message.reply(payload);
+                        result = await message.reply(payload);
                     } else {
-                        await channel.send(payload);
+                        result = await channel.send(payload);
                     }
                 } catch (err) {
                     this.log(`Failed to send message: \`${err}\``);
                 }
                 // Resolve the promise for this message
                 if (resolve) {
-                    resolve();
+                    resolve(result);
                 } else {
                     this.log(`No resolve function found for messenger backlog entry to ${channel}`);
                 }
@@ -122,23 +182,6 @@ export class Messenger {
             // If the messenger is busy, just add the info to the backlog and let the active thread send it when it's done
             this._backlog.push(entry);
         }
-    }
-
-    /**
-     * TODO: do this better. De-dup logic.
-     */
-    async sendAndGet(channel: TextBasedChannel, payload: string | MessageCreateOptions): Promise<Message> {
-        // Take a brief pause
-        await sleep(randInt(100, 1500));
-        // Send the typing event and wait a bit
-        try {
-            await channel.sendTyping();
-            await sleep(this.getTypingDuration(payload));
-        } catch (err) {
-            // Typing events are non-critical, so allow them to fail silently...
-        }
-        // Now actually reply/send the message
-        return channel.send(payload);
     }
 
     /**

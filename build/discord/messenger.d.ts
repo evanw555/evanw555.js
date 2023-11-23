@@ -14,16 +14,49 @@ export declare class Messenger {
     constructor();
     setLogger(logger: (message: string) => void): void;
     setMemberResolver(memberResolver: (id: Snowflake) => Promise<GuildMember>): void;
-    send(channel: TextBasedChannel, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void>;
-    reply(message: Message, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void>;
+    /**
+     * Sends a message payload to the specified text channel.
+     * @param channel Channel to send this message payload to
+     * @param payload Message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
+    send(channel: TextBasedChannel, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<Message | undefined>;
+    /**
+     * Sends a list of message payloads to the specified text channel in the order that they're provided.
+     * @param channel Channel to send these message payloads to
+     * @param payloads List of message payloads to send (in order)
+     * @param options Options to control how these payloads are sent
+     * @returns List of message objects sent successfully to the target channel
+     */
+    sendAll(channel: TextBasedChannel, payloads: (string | MessageCreateOptions)[], options?: MessengerOptions): Promise<Message[]>;
+    /**
+     * Sends a message payload as a reply to some provided message.
+     * @param message Message to which the payload is sent as a reply
+     * @param payload Message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
+    reply(message: Message, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<Message | undefined>;
     private _resolveMember;
-    dm(member: GuildMember | Snowflake, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<void>;
+    /**
+     * Sends a message payload to the specified guild member's DMs.
+     * @param member The guild member (or the ID of the guild member) to DM this message payload to
+     * @param payload The message payload to send
+     * @param options Options to control how this payload is sent
+     * @returns The sent message object if it was successful, else undefined
+     */
+    dm(member: GuildMember | Snowflake, payload: string | MessageCreateOptions, options?: MessengerOptions): Promise<Message | undefined>;
+    /**
+     * Sends a list of message payloads to the specified guild member's DMs in the order that they're provided.
+     * @param member The guild member (or the ID of the guild member) to DM these message payloads to
+     * @param payloads List of message payloads to send (in order)
+     * @param options Options to control how these payloads are sent
+     * @returns List of message objects sent successfully to the target channel
+     */
+    dmAll(member: GuildMember | Snowflake, payloads: (string | MessageCreateOptions)[], options?: MessengerOptions): Promise<Message[]>;
     private _send;
     private _processEntry;
-    /**
-     * TODO: do this better. De-dup logic.
-     */
-    sendAndGet(channel: TextBasedChannel, payload: string | MessageCreateOptions): Promise<Message>;
     /**
      * Send the provided text as a series of boxed (monospaced) messages limited to no more than 2000 characters each.
      * @param channel the target channel
