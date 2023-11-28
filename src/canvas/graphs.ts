@@ -2,18 +2,17 @@ import canvas, { Canvas } from 'canvas';
 import { GraphPalette } from './types';
 import { DEFAULT_GRAPH_PALETTE } from './constants';
 
-export async function createBarGraph(entries: { name: string, value: number, imageUrl: string }[], options?: { showNames?: boolean, title?: string, rowHeight?: number, palette?: GraphPalette }): Promise<Canvas> {
+export async function createBarGraph(entries: { name: string, value: number, imageUrl: string }[], options?: { showNames?: boolean, title?: string, rowHeight?: number, width?: number, palette?: GraphPalette }): Promise<Canvas> {
     const ROW_HEIGHT = options?.rowHeight ?? 40;
+    const WIDTH = options?.width ?? 480
     const SHOW_NAMES = options?.showNames ?? true;
     const PALETTE = options?.palette ?? DEFAULT_GRAPH_PALETTE;
 
     const MARGIN = 8;
     const PADDING = 4;
-    const MAX_BAR_WIDTH = ROW_HEIGHT * 9;
+
     const TOTAL_ROWS = entries.length + (options?.title ? 1 : 0);
     const HEIGHT = TOTAL_ROWS * ROW_HEIGHT + (TOTAL_ROWS + 1) * MARGIN;
-    const META_COLUMNS = 1 + (SHOW_NAMES ? 2 : 0);
-    const WIDTH = META_COLUMNS * ROW_HEIGHT + MAX_BAR_WIDTH + (SHOW_NAMES ? 4 : 3) * MARGIN;
 
     const c = canvas.createCanvas(WIDTH, HEIGHT);
     const context = c.getContext('2d');
@@ -64,6 +63,7 @@ export async function createBarGraph(entries: { name: string, value: number, ima
         }
         baseX += ROW_HEIGHT + MARGIN;
         // Draw the bar
+        const MAX_BAR_WIDTH = WIDTH - baseX - MARGIN;
         const barWidth = Math.floor(MAX_BAR_WIDTH * entry.value / maxEntryValue);
         context.fillStyle = PALETTE.padding;
         context.fillRect(baseX, baseY, barWidth, ROW_HEIGHT);

@@ -16,18 +16,16 @@ exports.createBarGraph = void 0;
 const canvas_1 = __importDefault(require("canvas"));
 const constants_1 = require("./constants");
 function createBarGraph(entries, options) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
         const ROW_HEIGHT = (_a = options === null || options === void 0 ? void 0 : options.rowHeight) !== null && _a !== void 0 ? _a : 40;
-        const SHOW_NAMES = (_b = options === null || options === void 0 ? void 0 : options.showNames) !== null && _b !== void 0 ? _b : true;
-        const PALETTE = (_c = options === null || options === void 0 ? void 0 : options.palette) !== null && _c !== void 0 ? _c : constants_1.DEFAULT_GRAPH_PALETTE;
+        const WIDTH = (_b = options === null || options === void 0 ? void 0 : options.width) !== null && _b !== void 0 ? _b : 480;
+        const SHOW_NAMES = (_c = options === null || options === void 0 ? void 0 : options.showNames) !== null && _c !== void 0 ? _c : true;
+        const PALETTE = (_d = options === null || options === void 0 ? void 0 : options.palette) !== null && _d !== void 0 ? _d : constants_1.DEFAULT_GRAPH_PALETTE;
         const MARGIN = 8;
         const PADDING = 4;
-        const MAX_BAR_WIDTH = ROW_HEIGHT * 9;
         const TOTAL_ROWS = entries.length + ((options === null || options === void 0 ? void 0 : options.title) ? 1 : 0);
         const HEIGHT = TOTAL_ROWS * ROW_HEIGHT + (TOTAL_ROWS + 1) * MARGIN;
-        const META_COLUMNS = 1 + (SHOW_NAMES ? 2 : 0);
-        const WIDTH = META_COLUMNS * ROW_HEIGHT + MAX_BAR_WIDTH + (SHOW_NAMES ? 4 : 3) * MARGIN;
         const c = canvas_1.default.createCanvas(WIDTH, HEIGHT);
         const context = c.getContext('2d');
         // Fill in the background
@@ -74,6 +72,7 @@ function createBarGraph(entries, options) {
             }
             baseX += ROW_HEIGHT + MARGIN;
             // Draw the bar
+            const MAX_BAR_WIDTH = WIDTH - baseX - MARGIN;
             const barWidth = Math.floor(MAX_BAR_WIDTH * entry.value / maxEntryValue);
             context.fillStyle = PALETTE.padding;
             context.fillRect(baseX, baseY, barWidth, ROW_HEIGHT);

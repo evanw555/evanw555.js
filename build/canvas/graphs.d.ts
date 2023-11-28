@@ -8,6 +8,7 @@ export declare function createBarGraph(entries: {
     showNames?: boolean;
     title?: string;
     rowHeight?: number;
+    width?: number;
     palette?: GraphPalette;
 }): Promise<Canvas>;
 //# sourceMappingURL=graphs.d.ts.map
