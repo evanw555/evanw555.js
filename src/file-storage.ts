@@ -64,14 +64,16 @@ export class FileStorage implements AsyncStorageInterface {
 
     /**
      * NOTE: This is still experimental and not confirmed to work.
+     * @returns The file path of the written BLOB (including the storage's base URL)
      */
-    async writeBlob(id: string, value: Buffer): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            fs.writeFile(this._basePath + id, value, (err) => {
+    async writeBlob(id: string, value: Buffer): Promise<string> {
+        const filePath = this._basePath + id;
+        return new Promise<string>((resolve, reject) => {
+            fs.writeFile(filePath, value, (err) => {
                 if (err) {
                     return reject(err);
                 }
-                resolve();
+                resolve(filePath);
             });
         });
     }

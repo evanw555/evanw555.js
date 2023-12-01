@@ -19,7 +19,8 @@ export declare class FileStorage implements AsyncStorageInterface {
     readBlob(id: string): Promise<Buffer>;
     /**
      * NOTE: This is still experimental and not confirmed to work.
+     * @returns The file path of the written BLOB (including the storage's base URL)
      */
-    writeBlob(id: string, value: Buffer): Promise<void>;
+    writeBlob(id: string, value: Buffer): Promise<string>;
 }
 //# sourceMappingURL=file-storage.d.ts.map

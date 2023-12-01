@@ -71,15 +71,17 @@ class FileStorage {
     }
     /**
      * NOTE: This is still experimental and not confirmed to work.
+     * @returns The file path of the written BLOB (including the storage's base URL)
      */
     writeBlob(id, value) {
         return __awaiter(this, void 0, void 0, function* () {
+            const filePath = this._basePath + id;
             return new Promise((resolve, reject) => {
-                fs_1.default.writeFile(this._basePath + id, value, (err) => {
+                fs_1.default.writeFile(filePath, value, (err) => {
                     if (err) {
                         return reject(err);
                     }
-                    resolve();
+                    resolve(filePath);
                 });
             });
         });
