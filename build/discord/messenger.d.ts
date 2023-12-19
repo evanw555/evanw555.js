@@ -9,9 +9,15 @@ export declare class Messenger {
     private static MAX_TYPING_DURATION;
     private _busy;
     private readonly _backlog;
+    private readonly _alwaysImmediate;
     private logger?;
     private memberResolver?;
-    constructor();
+    /**
+     * @param options.alwaysImmediate If true, then every message sent with this messenger will be immediate (no typing delay)
+     */
+    constructor(options?: {
+        alwaysImmediate?: true;
+    });
     setLogger(logger: (message: string) => void): void;
     setMemberResolver(memberResolver: (id: Snowflake) => Promise<GuildMember>): void;
     /**

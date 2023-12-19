@@ -14,9 +14,14 @@ const discord_js_1 = require("discord.js");
 const random_1 = require("../utils/random");
 const time_1 = require("../utils/time");
 class Messenger {
-    constructor() {
+    /**
+     * @param options.alwaysImmediate If true, then every message sent with this messenger will be immediate (no typing delay)
+     */
+    constructor(options) {
+        var _a;
         this._busy = false;
         this._backlog = [];
+        this._alwaysImmediate = (_a = options === null || options === void 0 ? void 0 : options.alwaysImmediate) !== null && _a !== void 0 ? _a : false;
     }
     setLogger(logger) {
         this.logger = logger;
@@ -150,7 +155,8 @@ class Messenger {
                     let result = undefined;
                     try {
                         // Unless the options specify to send immediately, add an artificial delay
-                        if (!((_a = entry.options) === null || _a === void 0 ? void 0 : _a.immediate)) {
+                        const immediate = ((_a = entry.options) === null || _a === void 0 ? void 0 : _a.immediate) || this._alwaysImmediate;
+                        if (!immediate) {
                             // Take a brief pause
                             yield (0, time_1.sleep)((0, random_1.randInt)(100, 1500));
                             // Send the typing event and wait a bit

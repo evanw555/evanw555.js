@@ -22,12 +22,17 @@ export class Messenger {
 
     private _busy: boolean;
     private readonly _backlog: MessengerBacklogEntry[];
+    private readonly _alwaysImmediate: boolean;
     private logger?: (message: string) => void;
     private memberResolver?: (id: Snowflake) => Promise<GuildMember>;
 
-    constructor() {
+    /**
+     * @param options.alwaysImmediate If true, then every message sent with this messenger will be immediate (no typing delay)
+     */
+    constructor(options?: { alwaysImmediate?: true }) {
         this._busy = false;
         this._backlog = [];
+        this._alwaysImmediate = options?.alwaysImmediate ?? false;
     }
 
     setLogger(logger: (message: string) => void): void {
@@ -150,7 +155,8 @@ export class Messenger {
                 let result: Message | undefined = undefined;
                 try {
                     // Unless the options specify to send immediately, add an artificial delay
-                    if (!entry.options?.immediate) {
+                    const immediate = entry.options?.immediate || this._alwaysImmediate;
+                    if (!immediate) {
                         // Take a brief pause
                         await sleep(randInt(100, 1500));
                         // Send the typing event and wait a bit
