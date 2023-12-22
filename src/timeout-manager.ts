@@ -142,10 +142,13 @@ export class TimeoutManager<T extends string> {
             };
             // Schedule a timeout to try again in 10 days
             this.instances[id] = setTimeout(async () => {
-                // First, un-associate this ID with this timeout instance
+                // First, clear the timeout info and un-associate this ID with this timeout instance
+                delete this.timeouts[id];
                 delete this.instances[id];
-                // Then, try to add the timeout again
+                // Then, try to add the timeout again with the same ID, options, etc.
                 await this.addTimeoutForId(id, type, date, options);
+                // Dump the timeouts
+                await this.dumpTimeouts();
             }, 1000 * 60 * 60 * 24 * 10);
             // console.log(`Timeout for \`${type}\` at ${date.toLocaleString()} is too far out, trying again in 10 days`);
         } else if (millisUntilMessage > 0) {
@@ -157,12 +160,11 @@ export class TimeoutManager<T extends string> {
             };
             // Schedule and save the actual timeout
             this.instances[id] = setTimeout(async () => {
-                // First, un-associate this ID with this timeout instance
+                // First, clear the timeout info and un-associate this ID with this timeout instance
+                delete this.timeouts[id];
                 delete this.instances[id];
                 // Perform the actual callback
                 await this.invokeTimeout(id, type, options);
-                // Clear the timeout info
-                delete this.timeouts[id];
                 // Dump the timeouts
                 await this.dumpTimeouts();
             }, millisUntilMessage);
@@ -188,11 +190,25 @@ export class TimeoutManager<T extends string> {
         }
     }
 
+    /**
+     * Safely invokes a given timeout, reporting any errors back to the user via the error callback.
+     * This method is safe and thus can be assumed to never fail.
+     * @param id ID of the timeout to be invoked
+     * @param type Type of the timeout to be invoked
+     * @param options Options of the timeout to be invoked
+     */
     private async invokeTimeout(id: string, type: T, options: TimeoutOptions): Promise<void> {
+        // Invoke the callback safely so that errors can be reported back to the user
         try {
             await this.callbacks(type, options.arg);
         } catch (err) {
-            await this.onError(id, type, err);
+            // This method failing is fatal, so ensure the error callback is also safe
+            try {
+                await this.onError(id, type, err);
+            } catch (err) {
+                // TODO: Can we report this in a better way?
+                console.log(`Failed to invoke both the callback and the error handler for \`${type}\` timeout with ID \`${id}\`: \`${err}\``);
+            }
         }
     }
 
@@ -211,7 +227,7 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
-     * Cancels an existing timeout.
+     * Cancels an existing timeout. This method will fail if the timeout is mid-invocation or nonexistent.
      * @param id ID of the timeout to be canceled
      * @throws Error if no timeout with this ID is currently scheduled
      */
@@ -229,7 +245,7 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
-     * Cancels all the timeouts of a given type.
+     * Cancels all the timeouts of a given type. Any timeouts that are mid-invocation will not be cancelled.
      * @param type Type of timeouts to cancel
      * @returns The IDs of all canceled timeouts
      */
@@ -242,7 +258,7 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
-     * Postpones an existing timeout to a later date.
+     * Postpones an existing timeout to a later date. This method will fail if the timeout is mid-invocation or nonexistent.
      * @param id ID of the timeout to be postponed
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
      * @throws Error if no timeout with this ID is currently scheduled
@@ -269,7 +285,7 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
-     * Postpones all existing timeouts of a given type to a later date.
+     * Postpones all existing timeouts of a given type to a later date. Any timeouts that are mid-invocation will not be postponed.
      * @param type Type of timeouts to postpone
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
      * @returns The IDs of all postpones timeouts
@@ -282,10 +298,20 @@ export class TimeoutManager<T extends string> {
         return ids;
     }
 
+    /**
+     * Determines if this manager has an existing timeout with the provided ID.
+     * @param id Timeout ID
+     * @returns True if a timeout with the given ID is scheduled and has not yet begun invocation
+     */
     hasTimeoutWithId(id: string): boolean {
         return id in this.timeouts && id in this.instances;
     }
 
+    /**
+     * Gets the date of the scheduled timeout with a given ID, or undefined if none exists.
+     * @param id Timeout ID
+     * @returns The date of the corresponding timeout, or undefined if it doesn't exist (or has begun invocation).
+     */
     getDateForTimeoutWithId(id: string): Date | undefined {
         if (id in this.timeouts) {
             return new Date(this.timeouts[id].date);
@@ -293,6 +319,8 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
+     * Gets the date of some timeout with the provided type, or undefined if none exists.
+     * Note that if there are multiple timeouts with this type, there is no guarantee which one will be selected.
      * @returns the date of some currently scheduled timeout of the given type, or undefined if none exists.
      */
     getDateForTimeoutWithType(type: T): Date | undefined {
@@ -302,6 +330,7 @@ export class TimeoutManager<T extends string> {
     }
 
     /**
+     * Determines if there is at least one scheduled timeout with a given type that has not yet begun invocation.
      * @returns true if a timeout with the given type is currently scheduled.
      */
     hasTimeoutWithType(type: T): boolean {
