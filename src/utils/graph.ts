@@ -23,9 +23,14 @@ export function findCycle(graph: Record<string, string[]>, options?: { randomize
     }
 
     const visit = (node: string, stack: string[]): string[] | undefined => {
-        // If this stack already contains this node, then this is a cycle
+        // If this node has already been visited...
         if (stack.includes(node)) {
-            return stack;
+            // If the stack began at this node, then it's a complete cycle
+            if (stack[0] === node) {
+                return stack;
+            }
+            // If it's not the first node, then this technically isn't the full cycle
+            return undefined;
         }
         // Else, traverse to each connecting node with this node on the stack
         const nextNodes = [...(graph[node] ?? [])];

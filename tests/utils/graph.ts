@@ -25,7 +25,8 @@ describe('Graph tests', () => {
         expect(result2?.join(',')).to.equal('x,y');
         // 3-node cycle
         const result3 = findCycle({
-            x: ['a', 'y'],
+            a: ['x'],
+            x: ['d', 'y'],
             y: ['b', 'z'],
             z: ['c', 'x']
         });
