@@ -23,6 +23,7 @@ describe('DAG tests', () => {
 
     it('flattens branching DAGs', () => {
         expect(flattenDAG({
+            // Note that A leads to LMNO, all of which lead to Z
             a: ['l', 'm', 'n', 'o'],
             l: ['z', 'x'],
             m: ['z'],

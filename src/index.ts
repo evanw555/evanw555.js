@@ -17,6 +17,7 @@ export * from './timeout-manager';
 export * from './utils/dag';
 export * from './utils/discord';
 export * from './utils/edit-distance';
+export * from './utils/graph';
 export * from './utils/k-means';
 export * from './utils/load-json';
 export * from './utils/misc';
