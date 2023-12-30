@@ -58,9 +58,11 @@ function shuffleWithDependencies(input, dependencies) {
         (_a = edges[from]) === null || _a === void 0 ? void 0 : _a.push(to);
     };
     const existingNodes = new Set();
-    for (const [key, value] of Object.entries(dependencies)) {
-        if (value && input.includes(key) && input.includes(value)) {
-            addEdge(value, key);
+    for (const [key, values] of Object.entries(dependencies)) {
+        for (const value of values) {
+            if (input.includes(key) && input.includes(value)) {
+                addEdge(value, key);
+            }
         }
     }
     // Add the remaining elements to the DAG

@@ -3,14 +3,15 @@ import { shuffleWithDependencies } from '../../src/utils/random';
 
 describe('Random Utils tests', () => {
     it('shuffles with dependencies', () => {
-        const data = ['second', 'third', 'first', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'three', 'two', 'one', 'second2', 'third2'];
+        const data = ['second', 'third', 'first', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'three', 'two', 'one', 'second2', 'third2', 'last'];
         const dependencies = {
-            third: 'second',
-            second: 'first',
-            third2: 'second2',
-            second2: 'first',
-            three: 'two',
-            two: 'one'
+            third: ['second'],
+            second: ['first'],
+            third2: ['second2'],
+            second2: ['first'],
+            last: ['third', 'third2'],
+            three: ['two'],
+            two: ['one']
         };
 
         for (let i = 0; i < 100; i++) {
@@ -20,6 +21,7 @@ describe('Random Utils tests', () => {
             const thirdIndex = result.indexOf('third');
             const second2Index = result.indexOf('second2');
             const third2Index = result.indexOf('third2');
+            const lastIndex = result.indexOf('last');
             const oneIndex = result.indexOf('one');
             const twoIndex = result.indexOf('two');
             const threeIndex = result.indexOf('three');
@@ -29,6 +31,9 @@ describe('Random Utils tests', () => {
             // The branch of the main tree must be in order
             expect(firstIndex).is.lessThan(second2Index, 'first must be before second2');
             expect(second2Index).is.lessThan(third2Index, 'second2 must be before third2');
+            // The last node (which depends on multiple nodes) must be after both main branches
+            expect(thirdIndex).is.lessThan(lastIndex, 'third must be before last');
+            expect(third2Index).is.lessThan(lastIndex, 'third2 must be before last');
             // The linear nodes of the disconnected tree must be in order
             expect(oneIndex).is.lessThan(twoIndex, 'one must be before two');
             expect(twoIndex).is.lessThan(threeIndex, 'two must be before three');

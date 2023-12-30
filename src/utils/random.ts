@@ -39,7 +39,7 @@ export function chance(p: number): boolean {
     return Math.random() < p;
 }
 
-export function shuffleWithDependencies(input: string[], dependencies: Record<string, string>): string[] {
+export function shuffleWithDependencies(input: string[], dependencies: Record<string, string[]>): string[] {
     const edges: Record<string, string[]> = {};
     const initializeEdge = (node: string) => {
         if (!edges[node]) {
@@ -53,9 +53,11 @@ export function shuffleWithDependencies(input: string[], dependencies: Record<st
         edges[from]?.push(to);
     };
     const existingNodes: Set<string> = new Set();
-    for (const [ key, value ] of Object.entries(dependencies)) {
-        if (value && input.includes(key) && input.includes(value)) {
-            addEdge(value, key);
+    for (const [ key, values ] of Object.entries(dependencies)) {
+        for (const value of values) {
+            if (input.includes(key) && input.includes(value)) {
+                addEdge(value, key);
+            }
         }
     }
     // Add the remaining elements to the DAG
