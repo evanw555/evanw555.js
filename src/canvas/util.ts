@@ -10,11 +10,12 @@ import { GraphPalette } from "./types";
  * @returns The provided image resized as a new canvas (or the original canvas/image if not resized)
  */
 export function resize(image: Canvas | Image, options?: { width?: number, height?: number }): Canvas | Image {
-    if (!options?.width || !options?.height) {
+    if (!options?.width && !options?.height) {
         throw new Error('Width and/or height must be specified when resizing');
     }
-    const WIDTH = options?.width ?? (options?.height * image.width / image.height);
-    const HEIGHT = options?.height ?? (options?.width * image.height / image.width);
+    // We know that if one of these is undefined, the other must be defined
+    const WIDTH = options?.width ?? (options?.height as number * image.width / image.height);
+    const HEIGHT = options?.height ?? (options?.width as number * image.height / image.width);
 
     // Optimization just in case no work needs to be done
     if (WIDTH === image.width && HEIGHT === image.height) {
