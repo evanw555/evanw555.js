@@ -32,9 +32,11 @@ export function resize(image: Canvas | Image, options?: { width?: number, height
 /**
  * Joins a list of canvases together horizontally.
  */
-export function joinCanvasesHorizontal(canvases: Canvas[], options?: { align?: 'top' | 'bottom' | 'center' | 'resize-to-first' | 'resize-to-shortest' | 'resize-to-tallest' }): Canvas {
+export function joinCanvasesHorizontal(canvases: Canvas[], options?: { align?: 'top' | 'bottom' | 'center' | 'resize-to-first' | 'resize-to-shortest' | 'resize-to-tallest', spacing?: number }): Canvas {
     const ALIGN = options?.align ?? 'top';
-    const WIDTH = canvases.map(c => c.width).reduce((a, b) => a + b);
+    const SPACING = options?.spacing ?? 0;
+    // TODO: This can be affected by resized elements, fix this!
+    const WIDTH = canvases.map(c => c.width).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
     const HEIGHT = Math.max(...canvases.map(c => c.height));
     const compositeCanvas = createCanvas(WIDTH, HEIGHT);
     const compositeContext = compositeCanvas.getContext('2d');
@@ -69,7 +71,7 @@ export function joinCanvasesHorizontal(canvases: Canvas[], options?: { align?: '
         }
         compositeContext.drawImage(canvas, baseX, y);
         // Advance the horizontal offset
-        baseX += canvas.width;
+        baseX += canvas.width + SPACING;
     }
 
     return compositeCanvas;
@@ -78,10 +80,12 @@ export function joinCanvasesHorizontal(canvases: Canvas[], options?: { align?: '
 /**
  * Joins a list of canvases together vertically.
  */
-export function joinCanvasesVertical(canvases: Canvas[], options?: { align?: 'left' | 'right' | 'center' | 'resize-to-first' | 'resize-to-thinnest' | 'resize-to-widest' }): Canvas {
+export function joinCanvasesVertical(canvases: Canvas[], options?: { align?: 'left' | 'right' | 'center' | 'resize-to-first' | 'resize-to-thinnest' | 'resize-to-widest', spacing?: number }): Canvas {
     const ALIGN = options?.align ?? 'left';
+    const SPACING = options?.spacing ?? 0;
     const WIDTH = Math.max(...canvases.map(c => c.width));
-    const HEIGHT = canvases.map(c => c.height).reduce((a, b) => a + b);
+    // TODO: This can be affected by resized elements, fix this!
+    const HEIGHT = canvases.map(c => c.height).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
     const compositeCanvas = createCanvas(WIDTH, HEIGHT);
     const compositeContext = compositeCanvas.getContext('2d');
 
@@ -115,7 +119,7 @@ export function joinCanvasesVertical(canvases: Canvas[], options?: { align?: 'le
         }
         compositeContext.drawImage(canvas, x, baseY);
         // Advance the vertical offset
-        baseY += canvas.height;
+        baseY += canvas.height + SPACING;
     }
 
     return compositeCanvas;

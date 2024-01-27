@@ -17,12 +17,14 @@ export declare function resize(image: Canvas | Image, options?: {
  */
 export declare function joinCanvasesHorizontal(canvases: Canvas[], options?: {
     align?: 'top' | 'bottom' | 'center' | 'resize-to-first' | 'resize-to-shortest' | 'resize-to-tallest';
+    spacing?: number;
 }): Canvas;
 /**
  * Joins a list of canvases together vertically.
  */
 export declare function joinCanvasesVertical(canvases: Canvas[], options?: {
     align?: 'left' | 'right' | 'center' | 'resize-to-first' | 'resize-to-thinnest' | 'resize-to-widest';
+    spacing?: number;
 }): Canvas;
 /**
  * Given some canvas, fills the background using the given palette's background color.

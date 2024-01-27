@@ -32,9 +32,11 @@ exports.resize = resize;
  * Joins a list of canvases together horizontally.
  */
 function joinCanvasesHorizontal(canvases, options) {
-    var _a;
+    var _a, _b;
     const ALIGN = (_a = options === null || options === void 0 ? void 0 : options.align) !== null && _a !== void 0 ? _a : 'top';
-    const WIDTH = canvases.map(c => c.width).reduce((a, b) => a + b);
+    const SPACING = (_b = options === null || options === void 0 ? void 0 : options.spacing) !== null && _b !== void 0 ? _b : 0;
+    // TODO: This can be affected by resized elements, fix this!
+    const WIDTH = canvases.map(c => c.width).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
     const HEIGHT = Math.max(...canvases.map(c => c.height));
     const compositeCanvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
     const compositeContext = compositeCanvas.getContext('2d');
@@ -70,7 +72,7 @@ function joinCanvasesHorizontal(canvases, options) {
         }
         compositeContext.drawImage(canvas, baseX, y);
         // Advance the horizontal offset
-        baseX += canvas.width;
+        baseX += canvas.width + SPACING;
     }
     return compositeCanvas;
 }
@@ -79,10 +81,12 @@ exports.joinCanvasesHorizontal = joinCanvasesHorizontal;
  * Joins a list of canvases together vertically.
  */
 function joinCanvasesVertical(canvases, options) {
-    var _a;
+    var _a, _b;
     const ALIGN = (_a = options === null || options === void 0 ? void 0 : options.align) !== null && _a !== void 0 ? _a : 'left';
+    const SPACING = (_b = options === null || options === void 0 ? void 0 : options.spacing) !== null && _b !== void 0 ? _b : 0;
     const WIDTH = Math.max(...canvases.map(c => c.width));
-    const HEIGHT = canvases.map(c => c.height).reduce((a, b) => a + b);
+    // TODO: This can be affected by resized elements, fix this!
+    const HEIGHT = canvases.map(c => c.height).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
     const compositeCanvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
     const compositeContext = compositeCanvas.getContext('2d');
     if (!canvases || canvases.length === 0) {
@@ -117,7 +121,7 @@ function joinCanvasesVertical(canvases, options) {
         }
         compositeContext.drawImage(canvas, x, baseY);
         // Advance the vertical offset
-        baseY += canvas.height;
+        baseY += canvas.height + SPACING;
     }
     return compositeCanvas;
 }
