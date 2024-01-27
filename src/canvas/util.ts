@@ -32,21 +32,16 @@ export function resize(image: Canvas | Image, options?: { width?: number, height
 /**
  * Joins a list of canvases together horizontally.
  */
-export function joinCanvasesHorizontal(canvases: Canvas[], options?: { align?: 'top' | 'bottom' | 'center' | 'resize-to-first' | 'resize-to-shortest' | 'resize-to-tallest', spacing?: number }): Canvas {
+export function joinCanvasesHorizontal(canvases: (Canvas | Image)[], options?: { align?: 'top' | 'bottom' | 'center' | 'resize-to-first' | 'resize-to-shortest' | 'resize-to-tallest', spacing?: number }): Canvas {
     const ALIGN = options?.align ?? 'top';
     const SPACING = options?.spacing ?? 0;
-    // TODO: This can be affected by resized elements, fix this!
-    const WIDTH = canvases.map(c => c.width).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
-    const HEIGHT = Math.max(...canvases.map(c => c.height));
-    const compositeCanvas = createCanvas(WIDTH, HEIGHT);
-    const compositeContext = compositeCanvas.getContext('2d');
 
     if (!canvases || canvases.length === 0) {
         throw new Error('Cannot join an empty list of canvases');
     }
 
     // First, find the target height if needed
-    let targetHeight = undefined;
+    let targetHeight: number | undefined = undefined;
     if (ALIGN === 'resize-to-first') {
         targetHeight = canvases[0].height;
     } else if (ALIGN === 'resize-to-shortest') {
@@ -55,23 +50,30 @@ export function joinCanvasesHorizontal(canvases: Canvas[], options?: { align?: '
         targetHeight = Math.max(...canvases.map(c => c.height));
     }
 
+    // Resize all canvases as needed
+    const resizedCanvases = canvases.map(c => resize(c, { height: targetHeight ?? c.height }));
+
+    // Prepare the composite canvas as per the resized canvas dimensions
+    const WIDTH = resizedCanvases.map(c => c.width).reduce((a, b) => a + b) + SPACING * (resizedCanvases.length - 1);
+    const HEIGHT = Math.max(...resizedCanvases.map(c => c.height));
+    const compositeCanvas = createCanvas(WIDTH, HEIGHT);
+    const compositeContext = compositeCanvas.getContext('2d');
+
     let baseX = 0;
-    for (const rawCanvas of canvases) {
-        // First, resize the canvas
-        const canvas = resize(rawCanvas, { height: targetHeight ?? rawCanvas.height });
+    for (const resizedCanvas of resizedCanvases) {
         // Draw the resized canvas at the proper vertical alignment
         let y: number;
         if (ALIGN === 'bottom') {
-            y = HEIGHT - canvas.height;
+            y = HEIGHT - resizedCanvas.height;
         } else if (ALIGN === 'center') {
-            y = (HEIGHT - canvas.height) / 2;
+            y = (HEIGHT - resizedCanvas.height) / 2;
         } else {
             // Top or resize-aligned
             y = 0;
         }
-        compositeContext.drawImage(canvas, baseX, y);
+        compositeContext.drawImage(resizedCanvas, baseX, y);
         // Advance the horizontal offset
-        baseX += canvas.width + SPACING;
+        baseX += resizedCanvas.width + SPACING;
     }
 
     return compositeCanvas;
@@ -80,21 +82,16 @@ export function joinCanvasesHorizontal(canvases: Canvas[], options?: { align?: '
 /**
  * Joins a list of canvases together vertically.
  */
-export function joinCanvasesVertical(canvases: Canvas[], options?: { align?: 'left' | 'right' | 'center' | 'resize-to-first' | 'resize-to-thinnest' | 'resize-to-widest', spacing?: number }): Canvas {
+export function joinCanvasesVertical(canvases: (Canvas | Image)[], options?: { align?: 'left' | 'right' | 'center' | 'resize-to-first' | 'resize-to-thinnest' | 'resize-to-widest', spacing?: number }): Canvas {
     const ALIGN = options?.align ?? 'left';
     const SPACING = options?.spacing ?? 0;
-    const WIDTH = Math.max(...canvases.map(c => c.width));
-    // TODO: This can be affected by resized elements, fix this!
-    const HEIGHT = canvases.map(c => c.height).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
-    const compositeCanvas = createCanvas(WIDTH, HEIGHT);
-    const compositeContext = compositeCanvas.getContext('2d');
 
     if (!canvases || canvases.length === 0) {
         throw new Error('Cannot join an empty list of canvases');
     }
 
     // First, find the target width if needed
-    let targetWidth = undefined;
+    let targetWidth: number | undefined = undefined;
     if (ALIGN === 'resize-to-first') {
         targetWidth = canvases[0].width;
     } else if (ALIGN === 'resize-to-thinnest') {
@@ -103,23 +100,30 @@ export function joinCanvasesVertical(canvases: Canvas[], options?: { align?: 'le
         targetWidth = Math.max(...canvases.map(c => c.width));
     }
 
+    // Resize all canvases as needed
+    const resizedCanvases = canvases.map(c => resize(c, { width: targetWidth ?? c.width }));
+
+    // Prepare the composite canvas as per the resized canvas dimensions
+    const WIDTH = Math.max(...resizedCanvases.map(c => c.width));
+    const HEIGHT = resizedCanvases.map(c => c.height).reduce((a, b) => a + b) + SPACING * (resizedCanvases.length - 1);
+    const compositeCanvas = createCanvas(WIDTH, HEIGHT);
+    const compositeContext = compositeCanvas.getContext('2d');
+
     let baseY = 0;
-    for (const rawCanvas of canvases) {
-        // First, resize the canvas
-        const canvas = resize(rawCanvas, { width: targetWidth ?? rawCanvas.width });
+    for (const resizedCanvas of resizedCanvases) {
         // Draw the resized canvas at the proper horizontal alignment
         let x: number;
         if (ALIGN === 'right') {
-            x = WIDTH - canvas.width;
+            x = WIDTH - resizedCanvas.width;
         } else if (ALIGN === 'center') {
-            x = (WIDTH - canvas.width) / 2;
+            x = (WIDTH - resizedCanvas.width) / 2;
         } else {
             // Left or resize-aligned
             x = 0;
         }
-        compositeContext.drawImage(canvas, x, baseY);
+        compositeContext.drawImage(resizedCanvas, x, baseY);
         // Advance the vertical offset
-        baseY += canvas.height + SPACING;
+        baseY += resizedCanvas.height + SPACING;
     }
 
     return compositeCanvas;

@@ -15,14 +15,14 @@ export declare function resize(image: Canvas | Image, options?: {
 /**
  * Joins a list of canvases together horizontally.
  */
-export declare function joinCanvasesHorizontal(canvases: Canvas[], options?: {
+export declare function joinCanvasesHorizontal(canvases: (Canvas | Image)[], options?: {
     align?: 'top' | 'bottom' | 'center' | 'resize-to-first' | 'resize-to-shortest' | 'resize-to-tallest';
     spacing?: number;
 }): Canvas;
 /**
  * Joins a list of canvases together vertically.
  */
-export declare function joinCanvasesVertical(canvases: Canvas[], options?: {
+export declare function joinCanvasesVertical(canvases: (Canvas | Image)[], options?: {
     align?: 'left' | 'right' | 'center' | 'resize-to-first' | 'resize-to-thinnest' | 'resize-to-widest';
     spacing?: number;
 }): Canvas;

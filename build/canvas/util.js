@@ -35,11 +35,6 @@ function joinCanvasesHorizontal(canvases, options) {
     var _a, _b;
     const ALIGN = (_a = options === null || options === void 0 ? void 0 : options.align) !== null && _a !== void 0 ? _a : 'top';
     const SPACING = (_b = options === null || options === void 0 ? void 0 : options.spacing) !== null && _b !== void 0 ? _b : 0;
-    // TODO: This can be affected by resized elements, fix this!
-    const WIDTH = canvases.map(c => c.width).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
-    const HEIGHT = Math.max(...canvases.map(c => c.height));
-    const compositeCanvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
-    const compositeContext = compositeCanvas.getContext('2d');
     if (!canvases || canvases.length === 0) {
         throw new Error('Cannot join an empty list of canvases');
     }
@@ -54,25 +49,30 @@ function joinCanvasesHorizontal(canvases, options) {
     else if (ALIGN === 'resize-to-tallest') {
         targetHeight = Math.max(...canvases.map(c => c.height));
     }
+    // Resize all canvases as needed
+    const resizedCanvases = canvases.map(c => resize(c, { height: targetHeight !== null && targetHeight !== void 0 ? targetHeight : c.height }));
+    // Prepare the composite canvas as per the resized canvas dimensions
+    const WIDTH = resizedCanvases.map(c => c.width).reduce((a, b) => a + b) + SPACING * (resizedCanvases.length - 1);
+    const HEIGHT = Math.max(...resizedCanvases.map(c => c.height));
+    const compositeCanvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
+    const compositeContext = compositeCanvas.getContext('2d');
     let baseX = 0;
-    for (const rawCanvas of canvases) {
-        // First, resize the canvas
-        const canvas = resize(rawCanvas, { height: targetHeight !== null && targetHeight !== void 0 ? targetHeight : rawCanvas.height });
+    for (const resizedCanvas of resizedCanvases) {
         // Draw the resized canvas at the proper vertical alignment
         let y;
         if (ALIGN === 'bottom') {
-            y = HEIGHT - canvas.height;
+            y = HEIGHT - resizedCanvas.height;
         }
         else if (ALIGN === 'center') {
-            y = (HEIGHT - canvas.height) / 2;
+            y = (HEIGHT - resizedCanvas.height) / 2;
         }
         else {
             // Top or resize-aligned
             y = 0;
         }
-        compositeContext.drawImage(canvas, baseX, y);
+        compositeContext.drawImage(resizedCanvas, baseX, y);
         // Advance the horizontal offset
-        baseX += canvas.width + SPACING;
+        baseX += resizedCanvas.width + SPACING;
     }
     return compositeCanvas;
 }
@@ -84,11 +84,6 @@ function joinCanvasesVertical(canvases, options) {
     var _a, _b;
     const ALIGN = (_a = options === null || options === void 0 ? void 0 : options.align) !== null && _a !== void 0 ? _a : 'left';
     const SPACING = (_b = options === null || options === void 0 ? void 0 : options.spacing) !== null && _b !== void 0 ? _b : 0;
-    const WIDTH = Math.max(...canvases.map(c => c.width));
-    // TODO: This can be affected by resized elements, fix this!
-    const HEIGHT = canvases.map(c => c.height).reduce((a, b) => a + b) + SPACING * (canvases.length - 1);
-    const compositeCanvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
-    const compositeContext = compositeCanvas.getContext('2d');
     if (!canvases || canvases.length === 0) {
         throw new Error('Cannot join an empty list of canvases');
     }
@@ -103,25 +98,30 @@ function joinCanvasesVertical(canvases, options) {
     else if (ALIGN === 'resize-to-widest') {
         targetWidth = Math.max(...canvases.map(c => c.width));
     }
+    // Resize all canvases as needed
+    const resizedCanvases = canvases.map(c => resize(c, { width: targetWidth !== null && targetWidth !== void 0 ? targetWidth : c.width }));
+    // Prepare the composite canvas as per the resized canvas dimensions
+    const WIDTH = Math.max(...resizedCanvases.map(c => c.width));
+    const HEIGHT = resizedCanvases.map(c => c.height).reduce((a, b) => a + b) + SPACING * (resizedCanvases.length - 1);
+    const compositeCanvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
+    const compositeContext = compositeCanvas.getContext('2d');
     let baseY = 0;
-    for (const rawCanvas of canvases) {
-        // First, resize the canvas
-        const canvas = resize(rawCanvas, { width: targetWidth !== null && targetWidth !== void 0 ? targetWidth : rawCanvas.width });
+    for (const resizedCanvas of resizedCanvases) {
         // Draw the resized canvas at the proper horizontal alignment
         let x;
         if (ALIGN === 'right') {
-            x = WIDTH - canvas.width;
+            x = WIDTH - resizedCanvas.width;
         }
         else if (ALIGN === 'center') {
-            x = (WIDTH - canvas.width) / 2;
+            x = (WIDTH - resizedCanvas.width) / 2;
         }
         else {
             // Left or resize-aligned
             x = 0;
         }
-        compositeContext.drawImage(canvas, x, baseY);
+        compositeContext.drawImage(resizedCanvas, x, baseY);
         // Advance the vertical offset
-        baseY += canvas.height + SPACING;
+        baseY += resizedCanvas.height + SPACING;
     }
     return compositeCanvas;
 }
