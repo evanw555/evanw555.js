@@ -130,6 +130,31 @@ export function joinCanvasesVertical(canvases: (Canvas | Image)[], options?: { a
 }
 
 /**
+ * Returns a new canvas containing the source canvas/image with added margins of a specified size (or sizes).
+ * @param canvas The source image/canvas
+ * @param margin Width of the margin for all four sides if numeric, else the width of each particular margin
+ * @returns The source canvas with added margin as a new canvas
+ */
+export function withMargin(canvas: Canvas | Image, margin: number | { top?: number, left?: number, right?: number, bottom?: number }): Canvas {
+    const TOP = (typeof margin === 'number') ? margin : (margin?.top ?? 0);
+    const LEFT = (typeof margin === 'number') ? margin : (margin?.left ?? 0);
+    const RIGHT = (typeof margin === 'number') ? margin : (margin?.right ?? 0);
+    const BOTTOM = (typeof margin === 'number') ? margin : (margin?.bottom ?? 0);
+
+    const WIDTH = canvas.width + LEFT + RIGHT;
+    const HEIGHT = canvas.height + TOP + BOTTOM;
+
+    // Create the expanded canvas expanded to fit all margins
+    const expandedCanvas = createCanvas(WIDTH, HEIGHT);
+    const context = expandedCanvas.getContext('2d');
+
+    // Draw the source canvas inside all the margins
+    context.drawImage(canvas, LEFT, TOP);
+
+    return expandedCanvas;
+}
+
+/**
  * Given some canvas, fills the background using the given palette's background color.
  */
 export function fillBackground(canvas: Canvas, palette: Pick<GraphPalette, 'background'>): Canvas {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.withDropShadow = exports.applyMask = exports.toCircle = exports.fillBackground = exports.joinCanvasesVertical = exports.joinCanvasesHorizontal = exports.resize = void 0;
+exports.withDropShadow = exports.applyMask = exports.toCircle = exports.fillBackground = exports.withMargin = exports.joinCanvasesVertical = exports.joinCanvasesHorizontal = exports.resize = void 0;
 const canvas_1 = require("canvas");
 /**
  * Resizes the provided canvas/image to the specified dimensions.
@@ -126,6 +126,28 @@ function joinCanvasesVertical(canvases, options) {
     return compositeCanvas;
 }
 exports.joinCanvasesVertical = joinCanvasesVertical;
+/**
+ * Returns a new canvas containing the source canvas/image with added margins of a specified size (or sizes).
+ * @param canvas The source image/canvas
+ * @param margin Width of the margin for all four sides if numeric, else the width of each particular margin
+ * @returns The source canvas with added margin as a new canvas
+ */
+function withMargin(canvas, margin) {
+    var _a, _b, _c, _d;
+    const TOP = (typeof margin === 'number') ? margin : ((_a = margin === null || margin === void 0 ? void 0 : margin.top) !== null && _a !== void 0 ? _a : 0);
+    const LEFT = (typeof margin === 'number') ? margin : ((_b = margin === null || margin === void 0 ? void 0 : margin.left) !== null && _b !== void 0 ? _b : 0);
+    const RIGHT = (typeof margin === 'number') ? margin : ((_c = margin === null || margin === void 0 ? void 0 : margin.right) !== null && _c !== void 0 ? _c : 0);
+    const BOTTOM = (typeof margin === 'number') ? margin : ((_d = margin === null || margin === void 0 ? void 0 : margin.bottom) !== null && _d !== void 0 ? _d : 0);
+    const WIDTH = canvas.width + LEFT + RIGHT;
+    const HEIGHT = canvas.height + TOP + BOTTOM;
+    // Create the expanded canvas expanded to fit all margins
+    const expandedCanvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
+    const context = expandedCanvas.getContext('2d');
+    // Draw the source canvas inside all the margins
+    context.drawImage(canvas, LEFT, TOP);
+    return expandedCanvas;
+}
+exports.withMargin = withMargin;
 /**
  * Given some canvas, fills the background using the given palette's background color.
  */

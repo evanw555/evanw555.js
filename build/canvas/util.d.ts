@@ -27,6 +27,18 @@ export declare function joinCanvasesVertical(canvases: (Canvas | Image)[], optio
     spacing?: number;
 }): Canvas;
 /**
+ * Returns a new canvas containing the source canvas/image with added margins of a specified size (or sizes).
+ * @param canvas The source image/canvas
+ * @param margin Width of the margin for all four sides if numeric, else the width of each particular margin
+ * @returns The source canvas with added margin as a new canvas
+ */
+export declare function withMargin(canvas: Canvas | Image, margin: number | {
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
+}): Canvas;
+/**
  * Given some canvas, fills the background using the given palette's background color.
  */
 export declare function fillBackground(canvas: Canvas, palette: Pick<GraphPalette, 'background'>): Canvas;
