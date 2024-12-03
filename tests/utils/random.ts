@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { shuffleWithDependencies } from '../../src/utils/random';
+import { shuffleWithDependencies, shuffleCycle } from '../../src/utils/random';
 
 describe('Random Utils tests', () => {
     it('shuffles with dependencies', () => {
@@ -48,4 +48,14 @@ describe('Random Utils tests', () => {
         // Ensure it contains exactly three elements with no "undefined"
         expect(shuffleWithDependencies(['a','b','c'], {}).join('').length).to.equal(3);
     })
+
+    it('shuffles into cycles with preferences', () => {
+        const data = ['one','two','three','four','five','six','seven','eight','nine','ten'];
+        const shuffled = shuffleCycle(data, {
+            deterministic: true,
+            whitelists: { one: ['eight'], five: ['one','eleven','twelve'], six: ['ten','twelve','nine'], seven: ['three','four','nine'], eight: ['thirteen','seven','three'] },
+            blacklists: { four: ['thirteen','eight'], seven: ['fourteen','fifteen'], nine: ['one'], ten: ['fourteen'] }
+        });
+        expect(shuffled.join(',')).equals('two,five,one,eight,seven,four,six,ten,three,nine');
+    });
 });

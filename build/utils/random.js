@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shuffleWithDependencies = exports.chance = exports.shuffle = exports.randChoice = exports.randInt = void 0;
+exports.shuffleCycle = exports.shuffleWithDependencies = exports.chance = exports.shuffle = exports.randChoice = exports.randInt = void 0;
 const dag_1 = require("./dag");
 /**
  * @param lo Lower bound (inclusive)
@@ -95,4 +95,67 @@ function shuffleWithDependencies(input, dependencies) {
     // })
 }
 exports.shuffleWithDependencies = shuffleWithDependencies;
+/**
+ * Given a list of strings, assign each input a target such that the graph of targets form one large cycle.
+ * @param input List of strings to be shuffled
+ * @param options.whitelists For a given input string, a list of strings they'd prefer to have as their target
+ * @param options.blacklists For a given input string, a list of strings they'd prefer to not have as their target
+ * @param options.deterministic If true, ensure the result for a given set of inputs and options is always the same
+ */
+function shuffleCycle(input, options) {
+    var _a, _b, _c, _d;
+    // First, validate the input list
+    if (input.length === 0) {
+        return [];
+    }
+    if (input.length !== new Set(input).size) {
+        throw new Error('There cannot be duplicates in the input string list');
+    }
+    // First, compute the desirability of each input string
+    const whitelists = (_a = options === null || options === void 0 ? void 0 : options.whitelists) !== null && _a !== void 0 ? _a : {};
+    const blacklists = (_b = options === null || options === void 0 ? void 0 : options.blacklists) !== null && _b !== void 0 ? _b : {};
+    const desirabilities = {};
+    for (const x of input) {
+        // Desirability is computed as the number of times this input shows up in any of the whitelists
+        desirabilities[x] = Object.values(whitelists).filter(w => w.includes(x)).length;
+    }
+    // console.log(JSON.stringify(desirabilities, null, 2));
+    // Sort the options by ascending desirability so options can be selected from the front
+    const rawAllOptions = [...input];
+    if (!(options === null || options === void 0 ? void 0 : options.deterministic)) {
+        shuffle(rawAllOptions);
+    }
+    const allOptions = rawAllOptions.sort((x, y) => desirabilities[x] - desirabilities[y]);
+    // console.log('sorted options: ' + JSON.stringify(allOptions));
+    // Prime the result list with the first node
+    const result = [allOptions[0]];
+    while (result.length < allOptions.length) {
+        const node = result[result.length - 1];
+        const whitelist = (_c = whitelists[node]) !== null && _c !== void 0 ? _c : [];
+        const blacklist = (_d = blacklists[node]) !== null && _d !== void 0 ? _d : [];
+        const remainingOptions = allOptions.filter(x => !result.includes(x));
+        // First, check if an option from the whitelist can be selected
+        const whitelistedOptions = remainingOptions.filter(x => whitelist.includes(x));
+        // console.log(`${node} preferred options: ${whitelistedOptions}`);
+        if (whitelistedOptions.length > 0) {
+            const target = whitelistedOptions[0];
+            result.push(target);
+            continue;
+        }
+        // Else, try an option that isn't blacklisted
+        const nonBlacklistedOptions = remainingOptions.filter(x => !blacklist.includes(x));
+        // console.log(`${node} acceptable options: ${nonBlacklistedOptions}`);
+        if (nonBlacklistedOptions.length > 0) {
+            const target = nonBlacklistedOptions[0];
+            result.push(target);
+            continue;
+        }
+        // Else, just choose the first available option
+        // console.log(`${node} last resort options: ${remainingOptions}`);
+        const lastResort = remainingOptions[0];
+        result.push(lastResort);
+    }
+    return result;
+}
+exports.shuffleCycle = shuffleCycle;
 //# sourceMappingURL=random.js.map
