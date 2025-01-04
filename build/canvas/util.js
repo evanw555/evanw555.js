@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.withDropShadow = exports.applyMask = exports.toCircle = exports.fillBackground = exports.withMargin = exports.joinCanvasesVertical = exports.joinCanvasesHorizontal = exports.resize = void 0;
+exports.cropToSquare = exports.cropAroundPoints = exports.crop = exports.getRotated = exports.setHue = exports.superimpose = exports.withDropShadow = exports.applyMask = exports.toCircle = exports.fillBackground = exports.withMargin = exports.joinCanvasesVertical = exports.joinCanvasesHorizontal = exports.resize = void 0;
 const canvas_1 = require("canvas");
 /**
  * Resizes the provided canvas/image to the specified dimensions.
@@ -251,4 +251,153 @@ function withDropShadow(image, options) {
     return canvas;
 }
 exports.withDropShadow = withDropShadow;
+/**
+ * Given any number of source images, superimpose them onto one another in the order provided (last image will show up on top).
+ * All images will be center-aligned and the output canvas will be sized to fit every image at its native resolution.
+ * @param canvases Source images
+ * @returns New canvas with all source images superimposed onto one another
+ */
+function superimpose(canvases) {
+    if (canvases.length === 0) {
+        throw new Error('Cannot superimpose an empty list of source images');
+    }
+    const WIDTH = Math.max(...canvases.map(c => c.width));
+    const HEIGHT = Math.max(...canvases.map(c => c.height));
+    const canvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
+    const context = canvas.getContext('2d');
+    // Draw each canvas in order centered on the canvas
+    for (const c of canvases) {
+        context.drawImage(c, Math.round((WIDTH - c.width) / 2), Math.round((HEIGHT - c.height) / 2));
+    }
+    return canvas;
+}
+exports.superimpose = superimpose;
+/**
+ * Given a source image, returns a new canvas containing the source image with its hue property updated.
+ * @param image Source image
+ * @param style Style string used to determine the new hue
+ * @returns New canvas containing the hue-adjusted image
+ */
+function setHue(image, style) {
+    const canvas = (0, canvas_1.createCanvas)(image.width, image.height);
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0);
+    context.save();
+    context.globalCompositeOperation = 'hue';
+    context.fillStyle = style;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.restore();
+    return canvas;
+}
+exports.setHue = setHue;
+/**
+ * Returns the source image rotated to the specified angle.
+ * @param image Source image/canvas
+ * @param angle Angle (in radians) to rotate the image clockwise
+ * @returns New canvas containing the rotated image
+ */
+function getRotated(image, angle) {
+    const canvas = (0, canvas_1.createCanvas)(image.width, image.height);
+    const context = canvas.getContext('2d');
+    context.save();
+    // Set the origin to the middle of the canvas
+    context.translate(canvas.width / 2, canvas.height / 2);
+    // Adjust the context space to be rotated
+    context.rotate(angle);
+    // Draw the rotated image
+    context.drawImage(image, Math.round(-image.width / 2), Math.round(-image.width / 2));
+    context.restore();
+    return canvas;
+}
+exports.getRotated = getRotated;
+/**
+ * Given a source image, returns a cropped form of that image.
+ * @param image Source image
+ * @param options.x Optional left-crop coordinate for custom horizontal alignments
+ * @param options.y Optional top-crop coordinate for custom vertical alignments
+ * @param options.width Optional new width to crop to (defaults to source width)
+ * @param options.height Optional new height to crop to (default to source height)
+ * @param options.horizontal Optional horizontal alignment mode (defaults to center)
+ * @param options.vertical Optional vertical alignment mode (defaults to center)
+ * @returns New canvas containing the cropped image
+ */
+function crop(image, options) {
+    var _a, _b, _c, _d, _e, _f;
+    const WIDTH = (_a = options === null || options === void 0 ? void 0 : options.width) !== null && _a !== void 0 ? _a : image.width;
+    const HEIGHT = (_b = options === null || options === void 0 ? void 0 : options.height) !== null && _b !== void 0 ? _b : image.height;
+    const HORIZONTAL = (_c = options === null || options === void 0 ? void 0 : options.horizontal) !== null && _c !== void 0 ? _c : 'center';
+    const VERTICAL = (_d = options === null || options === void 0 ? void 0 : options.vertical) !== null && _d !== void 0 ? _d : 'center';
+    const canvas = (0, canvas_1.createCanvas)(WIDTH, HEIGHT);
+    const context = canvas.getContext('2d');
+    let x = -((_e = options === null || options === void 0 ? void 0 : options.x) !== null && _e !== void 0 ? _e : 0);
+    switch (HORIZONTAL) {
+        case 'left':
+            x = 0;
+            break;
+        case 'center':
+            x = Math.round((WIDTH - image.width) / 2);
+            break;
+        case 'right':
+            x = WIDTH - image.width;
+            break;
+        case 'custom':
+            // Let override remain
+            break;
+    }
+    let y = -((_f = options === null || options === void 0 ? void 0 : options.y) !== null && _f !== void 0 ? _f : 0);
+    switch (VERTICAL) {
+        case 'top':
+            y = 0;
+            break;
+        case 'center':
+            y = Math.round((HEIGHT - image.height) / 2);
+            break;
+        case 'bottom':
+            y = HEIGHT - image.height;
+            break;
+        case 'custom':
+            // Let override remain
+            break;
+    }
+    context.drawImage(image, x, y);
+    return canvas;
+}
+exports.crop = crop;
+/**
+ * Given a source image, crop such that all the specified points are still contained in the final image.
+ * @param image Source image
+ * @param points List of coordinates to preserve in the cropped image
+ * @param options.margin Optional margin to add around all specified points (defaults to zero)
+ * @returns New canvas containing the source image cropped around the specified points
+ */
+function cropAroundPoints(image, points, options) {
+    var _a;
+    if (points.length === 0) {
+        throw new Error('Cannot crop around no points!');
+    }
+    const leftX = Math.min(...points.map(p => p.x));
+    const rightX = Math.max(...points.map(p => p.x));
+    const topY = Math.min(...points.map(p => p.y));
+    const bottomY = Math.max(...points.map(p => p.y));
+    const margin = (_a = options === null || options === void 0 ? void 0 : options.margin) !== null && _a !== void 0 ? _a : 0;
+    return crop(image, {
+        x: leftX - margin,
+        y: topY - margin,
+        width: rightX - leftX + 2 * margin,
+        height: bottomY - topY + 2 * margin,
+        horizontal: 'custom',
+        vertical: 'custom'
+    });
+}
+exports.cropAroundPoints = cropAroundPoints;
+/**
+ * Given a source image, crop it to a square while keeping it center-aligned.
+ * @param image Source image
+ * @returns New canvas containing the center-cropped image
+ */
+function cropToSquare(image) {
+    const MIN_DIMENSION = Math.min(image.width, image.height);
+    return crop(image, { width: MIN_DIMENSION, height: MIN_DIMENSION, horizontal: 'center', vertical: 'center' });
+}
+exports.cropToSquare = cropToSquare;
 //# sourceMappingURL=util.js.map

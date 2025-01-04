@@ -74,4 +74,63 @@ export declare function withDropShadow(image: Canvas | Image, options?: {
     angle?: number;
     distance?: number;
 }): Canvas;
+/**
+ * Given any number of source images, superimpose them onto one another in the order provided (last image will show up on top).
+ * All images will be center-aligned and the output canvas will be sized to fit every image at its native resolution.
+ * @param canvases Source images
+ * @returns New canvas with all source images superimposed onto one another
+ */
+export declare function superimpose(canvases: (Canvas | Image)[]): Canvas;
+/**
+ * Given a source image, returns a new canvas containing the source image with its hue property updated.
+ * @param image Source image
+ * @param style Style string used to determine the new hue
+ * @returns New canvas containing the hue-adjusted image
+ */
+export declare function setHue(image: Image | Canvas, style: string): Canvas;
+/**
+ * Returns the source image rotated to the specified angle.
+ * @param image Source image/canvas
+ * @param angle Angle (in radians) to rotate the image clockwise
+ * @returns New canvas containing the rotated image
+ */
+export declare function getRotated(image: Image | Canvas, angle: number): Canvas;
+/**
+ * Given a source image, returns a cropped form of that image.
+ * @param image Source image
+ * @param options.x Optional left-crop coordinate for custom horizontal alignments
+ * @param options.y Optional top-crop coordinate for custom vertical alignments
+ * @param options.width Optional new width to crop to (defaults to source width)
+ * @param options.height Optional new height to crop to (default to source height)
+ * @param options.horizontal Optional horizontal alignment mode (defaults to center)
+ * @param options.vertical Optional vertical alignment mode (defaults to center)
+ * @returns New canvas containing the cropped image
+ */
+export declare function crop(image: Image | Canvas, options?: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    horizontal?: 'left' | 'center' | 'right' | 'custom';
+    vertical?: 'top' | 'center' | 'bottom' | 'custom';
+}): Canvas;
+/**
+ * Given a source image, crop such that all the specified points are still contained in the final image.
+ * @param image Source image
+ * @param points List of coordinates to preserve in the cropped image
+ * @param options.margin Optional margin to add around all specified points (defaults to zero)
+ * @returns New canvas containing the source image cropped around the specified points
+ */
+export declare function cropAroundPoints(image: Image | Canvas, points: {
+    x: number;
+    y: number;
+}[], options?: {
+    margin?: number;
+}): Canvas;
+/**
+ * Given a source image, crop it to a square while keeping it center-aligned.
+ * @param image Source image
+ * @returns New canvas containing the center-cropped image
+ */
+export declare function cropToSquare(image: Image | Canvas): Canvas;
 //# sourceMappingURL=util.d.ts.map

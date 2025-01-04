@@ -275,3 +275,163 @@ export function withDropShadow(image: Canvas | Image, options?: { expandCanvas?:
 
     return canvas;
 }
+
+/**
+ * Given any number of source images, superimpose them onto one another in the order provided (last image will show up on top).
+ * All images will be center-aligned and the output canvas will be sized to fit every image at its native resolution.
+ * @param canvases Source images
+ * @returns New canvas with all source images superimposed onto one another
+ */
+export function superimpose(canvases: (Canvas | Image)[]): Canvas {
+    if (canvases.length === 0) {
+        throw new Error('Cannot superimpose an empty list of source images');
+    }
+    const WIDTH = Math.max(...canvases.map(c => c.width));
+    const HEIGHT = Math.max(...canvases.map(c => c.height));
+    const canvas = createCanvas(WIDTH, HEIGHT);
+    const context = canvas.getContext('2d');
+
+    // Draw each canvas in order centered on the canvas
+    for (const c of canvases) {
+        context.drawImage(c, Math.round((WIDTH - c.width) / 2), Math.round((HEIGHT - c.height) / 2));
+    }
+
+    return canvas;
+}
+
+/**
+ * Given a source image, returns a new canvas containing the source image with its hue property updated.
+ * @param image Source image
+ * @param style Style string used to determine the new hue
+ * @returns New canvas containing the hue-adjusted image
+ */
+export function setHue(image: Image | Canvas, style: string): Canvas {
+    const canvas = createCanvas(image.width, image.height);
+    const context = canvas.getContext('2d');
+
+    context.drawImage(image, 0, 0);
+
+    context.save();
+    context.globalCompositeOperation = 'hue';
+    context.fillStyle = style;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.restore();
+
+    return canvas;
+}
+
+/**
+ * Returns the source image rotated to the specified angle.
+ * @param image Source image/canvas
+ * @param angle Angle (in radians) to rotate the image clockwise
+ * @returns New canvas containing the rotated image
+ */
+export function getRotated(image: Image | Canvas, angle: number): Canvas {
+    const canvas = createCanvas(image.width, image.height);
+    const context = canvas.getContext('2d');
+
+    context.save();
+    // Set the origin to the middle of the canvas
+    context.translate(canvas.width / 2,canvas.height / 2);
+    // Adjust the context space to be rotated
+    context.rotate(angle);
+    // Draw the rotated image
+    context.drawImage(image, Math.round(-image.width / 2), Math.round(-image.width / 2));
+    context.restore();
+
+    return canvas;
+}
+
+/**
+ * Given a source image, returns a cropped form of that image.
+ * @param image Source image
+ * @param options.x Optional left-crop coordinate for custom horizontal alignments
+ * @param options.y Optional top-crop coordinate for custom vertical alignments
+ * @param options.width Optional new width to crop to (defaults to source width)
+ * @param options.height Optional new height to crop to (default to source height)
+ * @param options.horizontal Optional horizontal alignment mode (defaults to center)
+ * @param options.vertical Optional vertical alignment mode (defaults to center)
+ * @returns New canvas containing the cropped image
+ */
+export function crop(image: Image | Canvas, options?: { x?: number, y?: number, width?: number, height?: number, horizontal?: 'left' | 'center' | 'right' | 'custom', vertical?: 'top' | 'center' | 'bottom' | 'custom'}): Canvas {
+    const WIDTH = options?.width ?? image.width;
+    const HEIGHT = options?.height ?? image.height;
+    const HORIZONTAL = options?.horizontal ?? 'center';
+    const VERTICAL = options?.vertical ?? 'center';
+
+    const canvas = createCanvas(WIDTH, HEIGHT);
+    const context = canvas.getContext('2d');
+
+    let x = -(options?.x ?? 0);
+    switch (HORIZONTAL) {
+        case 'left':
+            x = 0;
+            break;
+        case 'center':
+            x = Math.round((WIDTH - image.width) / 2);
+            break;
+        case 'right':
+            x = WIDTH - image.width;
+            break;
+        case 'custom':
+            // Let override remain
+            break;
+    }
+
+    let y = -(options?.y ?? 0);
+    switch (VERTICAL) {
+        case 'top':
+            y = 0;
+            break;
+        case 'center':
+            y = Math.round((HEIGHT - image.height) / 2);
+            break;
+        case 'bottom':
+            y = HEIGHT - image.height;
+            break;
+        case 'custom':
+            // Let override remain
+            break;
+    }
+
+    context.drawImage(image, x, y);
+
+    return canvas;
+}
+
+/**
+ * Given a source image, crop such that all the specified points are still contained in the final image.
+ * @param image Source image
+ * @param points List of coordinates to preserve in the cropped image
+ * @param options.margin Optional margin to add around all specified points (defaults to zero)
+ * @returns New canvas containing the source image cropped around the specified points
+ */
+export function cropAroundPoints(image: Image | Canvas, points: { x: number, y: number }[], options?: { margin?: number }): Canvas {
+    if (points.length === 0) {
+        throw new Error('Cannot crop around no points!');
+    }
+    const leftX = Math.min(...points.map(p => p.x));
+    const rightX = Math.max(...points.map(p => p.x));
+    const topY = Math.min(...points.map(p => p.y));
+    const bottomY = Math.max(...points.map(p => p.y));
+    const margin = options?.margin ?? 0;
+
+    return crop(image, {
+        x: leftX - margin,
+        y: topY - margin,
+        width: rightX - leftX + 2 * margin,
+        height: bottomY - topY + 2 * margin,
+        horizontal: 'custom',
+        vertical: 'custom'
+    });
+}
+
+/**
+ * Given a source image, crop it to a square while keeping it center-aligned.
+ * @param image Source image
+ * @returns New canvas containing the center-cropped image
+ */
+export function cropToSquare(image: Image | Canvas): Canvas {
+    const MIN_DIMENSION = Math.min(image.width, image.height);
+    return crop(image, { width: MIN_DIMENSION, height: MIN_DIMENSION, horizontal: 'center', vertical: 'center' });
+}
