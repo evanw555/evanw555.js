@@ -32,6 +32,8 @@ function createBarGraph(entries, options) {
         const HEIGHT = TOTAL_ROWS * ROW_HEIGHT + (TOTAL_ROWS + 1) * MARGIN;
         const c = canvas_1.default.createCanvas(WIDTH, HEIGHT);
         const context = c.getContext('2d');
+        // The font for all text in the graph itself is the same
+        context.font = `${Math.floor(ROW_HEIGHT * 0.6)}px sans-serif`;
         // Determine the largest entry value
         const maxEntryValue = Math.max(...entries.map(e => e.value));
         // Draw each row
@@ -50,7 +52,6 @@ function createBarGraph(entries, options) {
             if (SHOW_NAMES) {
                 context.fillStyle = PALETTE.padding;
                 context.fillRect(baseX, baseY, ROW_HEIGHT * 2, ROW_HEIGHT);
-                context.font = `${Math.floor(ROW_HEIGHT * 0.6)}px sans-serif`;
                 context.fillStyle = PALETTE.text;
                 context.fillText(entry.name, baseX + PADDING, baseY + 0.75 * ROW_HEIGHT, (ROW_HEIGHT - PADDING) * 2);
                 baseX += ROW_HEIGHT * 2 + MARGIN;
