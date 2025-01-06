@@ -15,7 +15,7 @@ export async function createBarGraph(entries: { name: string, value: number, ima
     // Padding within boxes
     const PADDING = 4;
 
-    const TOTAL_ROWS = entries.length + (options?.title ? 1 : 0) + (options?.subtitle ? 1 : 0);
+    const TOTAL_ROWS = entries.length;
     const HEIGHT = TOTAL_ROWS * ROW_HEIGHT + (TOTAL_ROWS + 1) * MARGIN;
 
     const c = canvas.createCanvas(WIDTH, HEIGHT);
@@ -85,12 +85,12 @@ export async function createBarGraph(entries: { name: string, value: number, ima
 
     // If it has a subtitle, add it
     if (options?.subtitle) {
-        canvases.push(getTextLabel(options?.subtitle, WIDTH, Math.round(ROW_HEIGHT / 2), { align: 'center', style: PALETTE.text, margin: MARGIN }));
+        canvases.push(getTextLabel(options?.subtitle, WIDTH, Math.round(ROW_HEIGHT * 0.66), { align: 'center', style: PALETTE.text, margin: MARGIN }));
     }
 
     // Add the actual graph
     canvases.push(c);
 
     // Return all components joined with a background
-    return fillBackground(joinCanvasesVertical(canvases, { align: 'center', spacing: MARGIN }), PALETTE);
+    return fillBackground(joinCanvasesVertical(canvases), PALETTE);
 }

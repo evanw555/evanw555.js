@@ -28,7 +28,7 @@ function createBarGraph(entries, options) {
         const MARGIN = 8;
         // Padding within boxes
         const PADDING = 4;
-        const TOTAL_ROWS = entries.length + ((options === null || options === void 0 ? void 0 : options.title) ? 1 : 0) + ((options === null || options === void 0 ? void 0 : options.subtitle) ? 1 : 0);
+        const TOTAL_ROWS = entries.length;
         const HEIGHT = TOTAL_ROWS * ROW_HEIGHT + (TOTAL_ROWS + 1) * MARGIN;
         const c = canvas_1.default.createCanvas(WIDTH, HEIGHT);
         const context = c.getContext('2d');
@@ -94,12 +94,12 @@ function createBarGraph(entries, options) {
         }
         // If it has a subtitle, add it
         if (options === null || options === void 0 ? void 0 : options.subtitle) {
-            canvases.push((0, text_1.getTextLabel)(options === null || options === void 0 ? void 0 : options.subtitle, WIDTH, Math.round(ROW_HEIGHT / 2), { align: 'center', style: PALETTE.text, margin: MARGIN }));
+            canvases.push((0, text_1.getTextLabel)(options === null || options === void 0 ? void 0 : options.subtitle, WIDTH, Math.round(ROW_HEIGHT * 0.66), { align: 'center', style: PALETTE.text, margin: MARGIN }));
         }
         // Add the actual graph
         canvases.push(c);
         // Return all components joined with a background
-        return (0, util_1.fillBackground)((0, util_1.joinCanvasesVertical)(canvases, { align: 'center', spacing: MARGIN }), PALETTE);
+        return (0, util_1.fillBackground)((0, util_1.joinCanvasesVertical)(canvases), PALETTE);
     });
 }
 exports.createBarGraph = createBarGraph;
