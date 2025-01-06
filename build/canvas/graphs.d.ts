@@ -7,6 +7,7 @@ export declare function createBarGraph(entries: {
 }[], options?: {
     showNames?: boolean;
     title?: string;
+    subtitle?: string;
     rowHeight?: number;
     width?: number;
     palette?: GraphPalette;

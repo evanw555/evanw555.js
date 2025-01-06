@@ -155,10 +155,13 @@ export function withMargin(canvas: Canvas | Image, margin: number | { top?: numb
 }
 
 /**
- * Given some canvas, fills the background using the given palette's background color.
+ * Given some source image, fills the background using the given palette's background color.
+ * @param image Source image
+ * @param palette Palette with a specified background style
+ * @returns New canvas containing the source image with the desired background
  */
-export function fillBackground(canvas: Canvas, palette: Pick<GraphPalette, 'background'>): Canvas {
-    const compositeCanvas = createCanvas(canvas.width, canvas.height);
+export function fillBackground(image: Image | Canvas, palette: Pick<GraphPalette, 'background'>): Canvas {
+    const compositeCanvas = createCanvas(image.width, image.height);
     const compositeContext = compositeCanvas.getContext('2d');
 
     // Fill the background
@@ -166,7 +169,7 @@ export function fillBackground(canvas: Canvas, palette: Pick<GraphPalette, 'back
     compositeContext.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
 
     // Draw the original image
-    compositeContext.drawImage(canvas, 0, 0);
+    compositeContext.drawImage(image, 0, 0);
 
     return compositeCanvas;
 }

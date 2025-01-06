@@ -1,41 +1,31 @@
 import canvas, { Canvas } from 'canvas';
 import { GraphPalette } from './types';
 import { DEFAULT_GRAPH_PALETTE } from './constants';
+import { getTextLabel } from './text';
+import { fillBackground, joinCanvasesVertical } from './util';
 
-export async function createBarGraph(entries: { name: string, value: number, imageUrl: string }[], options?: { showNames?: boolean, title?: string, rowHeight?: number, width?: number, palette?: GraphPalette }): Promise<Canvas> {
+export async function createBarGraph(entries: { name: string, value: number, imageUrl: string }[], options?: { showNames?: boolean, title?: string, subtitle?: string, rowHeight?: number, width?: number, palette?: GraphPalette }): Promise<Canvas> {
     const ROW_HEIGHT = options?.rowHeight ?? 40;
     const WIDTH = options?.width ?? 480
     const SHOW_NAMES = options?.showNames ?? true;
     const PALETTE = options?.palette ?? DEFAULT_GRAPH_PALETTE;
 
+    // Margin between elements and around the edge of the canvas
     const MARGIN = 8;
+    // Padding within boxes
     const PADDING = 4;
 
-    const TOTAL_ROWS = entries.length + (options?.title ? 1 : 0);
+    const TOTAL_ROWS = entries.length + (options?.title ? 1 : 0) + (options?.subtitle ? 1 : 0);
     const HEIGHT = TOTAL_ROWS * ROW_HEIGHT + (TOTAL_ROWS + 1) * MARGIN;
 
     const c = canvas.createCanvas(WIDTH, HEIGHT);
     const context = c.getContext('2d');
 
-    // Fill in the background
-    context.fillStyle = PALETTE.background;
-    context.fillRect(0, 0, WIDTH, HEIGHT);
-
-    // Draw the title
-    let baseY = MARGIN;
-    if (options?.title) {
-        context.font = `${Math.floor(ROW_HEIGHT * 0.6)}px sans-serif`;
-        context.fillStyle = PALETTE.text;
-        const titleWidth = context.measureText(options.title).width;
-        const titleX = (WIDTH - titleWidth) / 2;
-        context.fillText(options.title, titleX, baseY + 0.75 * ROW_HEIGHT);
-        baseY += ROW_HEIGHT + MARGIN;
-    }
-
     // Determine the largest entry value
     const maxEntryValue = Math.max(...entries.map(e => e.value));
 
     // Draw each row
+    let baseY = MARGIN;
     for (const entry of entries) {
         // TODO: Use image loader with cache
         let image: canvas.Image | undefined = undefined;
@@ -86,5 +76,21 @@ export async function createBarGraph(entries: { name: string, value: number, ima
         baseY += ROW_HEIGHT + MARGIN;
     }
 
-    return c;
+    const canvases: Canvas[] = [];
+
+    // If it has a title, add it
+    if (options?.title) {
+        canvases.push(getTextLabel(options?.title, WIDTH, ROW_HEIGHT, { align: 'center', style: PALETTE.text, margin: MARGIN }));
+    }
+
+    // If it has a subtitle, add it
+    if (options?.subtitle) {
+        canvases.push(getTextLabel(options?.subtitle, WIDTH, Math.round(ROW_HEIGHT / 2), { align: 'center', style: PALETTE.text, margin: MARGIN }));
+    }
+
+    // Add the actual graph
+    canvases.push(c);
+
+    // Return all components joined with a background
+    return fillBackground(joinCanvasesVertical(canvases, { align: 'center', spacing: MARGIN }), PALETTE);
 }

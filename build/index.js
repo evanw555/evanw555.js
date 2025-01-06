@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./a-star"), exports);
 __exportStar(require("./canvas/constants"), exports);
 __exportStar(require("./canvas/graphs"), exports);
+__exportStar(require("./canvas/text"), exports);
 __exportStar(require("./canvas/types"), exports);
 __exportStar(require("./canvas/util"), exports);
 __exportStar(require("./circular-queue"), exports);

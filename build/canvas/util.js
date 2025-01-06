@@ -149,16 +149,19 @@ function withMargin(canvas, margin) {
 }
 exports.withMargin = withMargin;
 /**
- * Given some canvas, fills the background using the given palette's background color.
+ * Given some source image, fills the background using the given palette's background color.
+ * @param image Source image
+ * @param palette Palette with a specified background style
+ * @returns New canvas containing the source image with the desired background
  */
-function fillBackground(canvas, palette) {
-    const compositeCanvas = (0, canvas_1.createCanvas)(canvas.width, canvas.height);
+function fillBackground(image, palette) {
+    const compositeCanvas = (0, canvas_1.createCanvas)(image.width, image.height);
     const compositeContext = compositeCanvas.getContext('2d');
     // Fill the background
     compositeContext.fillStyle = palette.background;
     compositeContext.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
     // Draw the original image
-    compositeContext.drawImage(canvas, 0, 0);
+    compositeContext.drawImage(image, 0, 0);
     return compositeCanvas;
 }
 exports.fillBackground = fillBackground;

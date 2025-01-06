@@ -39,9 +39,12 @@ export declare function withMargin(canvas: Canvas | Image, margin: number | {
     bottom?: number;
 }): Canvas;
 /**
- * Given some canvas, fills the background using the given palette's background color.
+ * Given some source image, fills the background using the given palette's background color.
+ * @param image Source image
+ * @param palette Palette with a specified background style
+ * @returns New canvas containing the source image with the desired background
  */
-export declare function fillBackground(canvas: Canvas, palette: Pick<GraphPalette, 'background'>): Canvas;
+export declare function fillBackground(image: Image | Canvas, palette: Pick<GraphPalette, 'background'>): Canvas;
 /**
  * Given some image/canvas, return a canvas of that image/canvas trimmed to a circle.
  * @param image The source image/canvas

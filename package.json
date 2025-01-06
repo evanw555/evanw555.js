@@ -1,6 +1,6 @@
 {
     "name": "evanw555.js",
-    "version": "2.0.38",
+    "version": "2.0.39",
     "description": "Various JavaScript utilities",
     "author": "Evan Williams",
     "main": "./build/index.js",

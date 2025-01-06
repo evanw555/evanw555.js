@@ -3,6 +3,7 @@
 export * from './a-star';
 export * from './canvas/constants';
 export * from './canvas/graphs';
+export * from './canvas/text';
 export * from './canvas/types';
 export * from './canvas/util';
 export * from './circular-queue';

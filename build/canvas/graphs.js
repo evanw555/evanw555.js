@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createBarGraph = void 0;
 const canvas_1 = __importDefault(require("canvas"));
 const constants_1 = require("./constants");
+const text_1 = require("./text");
+const util_1 = require("./util");
 function createBarGraph(entries, options) {
     var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
@@ -22,28 +24,18 @@ function createBarGraph(entries, options) {
         const WIDTH = (_b = options === null || options === void 0 ? void 0 : options.width) !== null && _b !== void 0 ? _b : 480;
         const SHOW_NAMES = (_c = options === null || options === void 0 ? void 0 : options.showNames) !== null && _c !== void 0 ? _c : true;
         const PALETTE = (_d = options === null || options === void 0 ? void 0 : options.palette) !== null && _d !== void 0 ? _d : constants_1.DEFAULT_GRAPH_PALETTE;
+        // Margin between elements and around the edge of the canvas
         const MARGIN = 8;
+        // Padding within boxes
         const PADDING = 4;
-        const TOTAL_ROWS = entries.length + ((options === null || options === void 0 ? void 0 : options.title) ? 1 : 0);
+        const TOTAL_ROWS = entries.length + ((options === null || options === void 0 ? void 0 : options.title) ? 1 : 0) + ((options === null || options === void 0 ? void 0 : options.subtitle) ? 1 : 0);
         const HEIGHT = TOTAL_ROWS * ROW_HEIGHT + (TOTAL_ROWS + 1) * MARGIN;
         const c = canvas_1.default.createCanvas(WIDTH, HEIGHT);
         const context = c.getContext('2d');
-        // Fill in the background
-        context.fillStyle = PALETTE.background;
-        context.fillRect(0, 0, WIDTH, HEIGHT);
-        // Draw the title
-        let baseY = MARGIN;
-        if (options === null || options === void 0 ? void 0 : options.title) {
-            context.font = `${Math.floor(ROW_HEIGHT * 0.6)}px sans-serif`;
-            context.fillStyle = PALETTE.text;
-            const titleWidth = context.measureText(options.title).width;
-            const titleX = (WIDTH - titleWidth) / 2;
-            context.fillText(options.title, titleX, baseY + 0.75 * ROW_HEIGHT);
-            baseY += ROW_HEIGHT + MARGIN;
-        }
         // Determine the largest entry value
         const maxEntryValue = Math.max(...entries.map(e => e.value));
         // Draw each row
+        let baseY = MARGIN;
         for (const entry of entries) {
             // TODO: Use image loader with cache
             let image = undefined;
@@ -95,7 +87,19 @@ function createBarGraph(entries, options) {
             // Advance vertical offset
             baseY += ROW_HEIGHT + MARGIN;
         }
-        return c;
+        const canvases = [];
+        // If it has a title, add it
+        if (options === null || options === void 0 ? void 0 : options.title) {
+            canvases.push((0, text_1.getTextLabel)(options === null || options === void 0 ? void 0 : options.title, WIDTH, ROW_HEIGHT, { align: 'center', style: PALETTE.text, margin: MARGIN }));
+        }
+        // If it has a subtitle, add it
+        if (options === null || options === void 0 ? void 0 : options.subtitle) {
+            canvases.push((0, text_1.getTextLabel)(options === null || options === void 0 ? void 0 : options.subtitle, WIDTH, Math.round(ROW_HEIGHT / 2), { align: 'center', style: PALETTE.text, margin: MARGIN }));
+        }
+        // Add the actual graph
+        canvases.push(c);
+        // Return all components joined with a background
+        return (0, util_1.fillBackground)((0, util_1.joinCanvasesVertical)(canvases, { align: 'center', spacing: MARGIN }), PALETTE);
     });
 }
 exports.createBarGraph = createBarGraph;
