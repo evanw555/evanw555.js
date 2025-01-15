@@ -4,6 +4,12 @@ interface MessengerOptions {
      * Whether to skip the typing delay and send immediately.
      */
     immediate?: boolean;
+    /**
+     * If specified, this message will try to be deleted after some number of milliseconds.
+     * The deletion process isn't persistent, so using large delays runs the risk of the message not
+     * being deleted due to reboots. There is no guarantee of a successful deletion.
+     */
+    ttl?: number;
 }
 export declare class Messenger {
     private static MAX_TYPING_DURATION;

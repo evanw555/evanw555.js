@@ -144,7 +144,7 @@ class Messenger {
         });
     }
     _processEntry(entry) {
-        var _a;
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this._busy) {
                 // If the messenger isn't typing/waiting/sending, then go ahead and process the message now
@@ -185,6 +185,19 @@ class Messenger {
                     }
                     else {
                         this.log(`No resolve function found for messenger backlog entry to ${channel}`);
+                    }
+                    // If a TTL is specified, set a timeout for this message to be deleted
+                    if (result && ((_b = entry.options) === null || _b === void 0 ? void 0 : _b.ttl)) {
+                        const messageToDelete = result;
+                        const ttl = entry.options.ttl;
+                        setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                            try {
+                                yield messageToDelete.delete();
+                            }
+                            catch (err) {
+                                this.log(`Failed to delete message \`${messageToDelete.id}\` with messenger TTL \`${ttl}\`: \`${err}\``);
+                            }
+                        }), ttl);
                     }
                 }
                 this._busy = false;

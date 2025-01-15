@@ -13,7 +13,13 @@ interface MessengerOptions {
     /**
      * Whether to skip the typing delay and send immediately.
      */
-    immediate?: boolean
+    immediate?: boolean,
+    /**
+     * If specified, this message will try to be deleted after some number of milliseconds.
+     * The deletion process isn't persistent, so using large delays runs the risk of the message not
+     * being deleted due to reboots. There is no guarantee of a successful deletion.
+     */
+    ttl?: number
 }
 
 export class Messenger {
@@ -181,6 +187,18 @@ export class Messenger {
                     resolve(result);
                 } else {
                     this.log(`No resolve function found for messenger backlog entry to ${channel}`);
+                }
+                // If a TTL is specified, set a timeout for this message to be deleted
+                if (result && entry.options?.ttl) {
+                    const messageToDelete = result;
+                    const ttl = entry.options.ttl;
+                    setTimeout(async () => {
+                        try {
+                            await messageToDelete.delete();
+                        } catch (err) {
+                            this.log(`Failed to delete message \`${messageToDelete.id}\` with messenger TTL \`${ttl}\`: \`${err}\``);
+                        }
+                    }, ttl);
                 }
             }
             this._busy = false;
