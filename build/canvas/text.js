@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTextLabel = void 0;
+exports.getTextBox = exports.getTextLabel = void 0;
 const canvas_1 = require("canvas");
+const util_1 = require("./util");
 /**
  * Generates a canvas containing the specified text with the specified width and height.
  * The size of the text will be automatically determined unless specified otherwise.
@@ -49,4 +50,37 @@ function getTextLabel(text, width, height, options) {
     return canvas;
 }
 exports.getTextLabel = getTextLabel;
+function getTextBox(text, width, rowHeight, options) {
+    var _a;
+    const dummyCanvas = (0, canvas_1.createCanvas)(1, 1);
+    const context = dummyCanvas.getContext('2d');
+    context.font = (_a = options === null || options === void 0 ? void 0 : options.font) !== null && _a !== void 0 ? _a : `${rowHeight * 0.6}px sans-serif`;
+    // TODO: Ensure this list isn't empty
+    const words = text.split(' ');
+    const rows = [];
+    while (words.length > 0) {
+        // Keep adding words to this row until we exceed the width or run out of words
+        const wordsThisRow = [words.shift()];
+        let reachedEnd = false;
+        while (context.measureText(wordsThisRow.join(' ')).width < width) {
+            const nextWord = words.shift();
+            if (nextWord) {
+                wordsThisRow.push(nextWord);
+            }
+            else {
+                reachedEnd = true;
+                break;
+            }
+        }
+        // If we exceeded the width (and have more than one word), insert the last word back into the queue
+        if (!reachedEnd && wordsThisRow.length > 1) {
+            words.unshift(wordsThisRow.pop());
+        }
+        // Render this row and add it to the list of canvases to join
+        // TODO: This makes the big assumption that the font will be the same. Can we guarantee this? Helper utility for default font or something?
+        rows.push(getTextLabel(wordsThisRow.join(' '), width, rowHeight, options));
+    }
+    return (0, util_1.joinCanvasesVertical)(rows);
+}
+exports.getTextBox = getTextBox;
 //# sourceMappingURL=text.js.map

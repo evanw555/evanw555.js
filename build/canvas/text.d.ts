@@ -20,4 +20,11 @@ export declare function getTextLabel(text: string, width: number, height: number
     alpha?: number;
     margin?: number;
 }): Canvas;
+export declare function getTextBox(text: string, width: number, rowHeight: number, options?: {
+    align?: 'center' | 'left' | 'right';
+    font?: string;
+    style?: string;
+    alpha?: number;
+    margin?: number;
+}): Canvas;
 //# sourceMappingURL=text.d.ts.map

@@ -1,4 +1,5 @@
 import { Canvas, createCanvas } from "canvas";
+import { joinCanvasesVertical } from "./util";
 
 /**
  * Generates a canvas containing the specified text with the specified width and height.
@@ -46,4 +47,38 @@ export function getTextLabel(text: string, width: number, height: number, option
     context.restore();
 
     return canvas;
+}
+
+export function getTextBox(text: string, width: number, rowHeight: number, options?: { align?: 'center' | 'left' | 'right', font?: string, style?: string, alpha?: number, margin?: number }): Canvas {
+    const dummyCanvas = createCanvas(1, 1);
+    const context = dummyCanvas.getContext('2d');
+
+    context.font = options?.font ?? `${rowHeight * 0.6}px sans-serif`;
+
+    // TODO: Ensure this list isn't empty
+    const words: string[] = text.split(' ');
+    const rows: Canvas[] = [];
+    while (words.length > 0) {
+        // Keep adding words to this row until we exceed the width or run out of words
+        const wordsThisRow: string[] = [words.shift() as string];
+        let reachedEnd = false;
+        while (context.measureText(wordsThisRow.join(' ')).width < width) {
+            const nextWord = words.shift();
+            if (nextWord) {
+                wordsThisRow.push(nextWord);
+            } else {
+                reachedEnd = true;
+                break;
+            }
+        }
+        // If we exceeded the width (and have more than one word), insert the last word back into the queue
+        if (!reachedEnd && wordsThisRow.length > 1) {
+            words.unshift(wordsThisRow.pop() as string);
+        }
+        // Render this row and add it to the list of canvases to join
+        // TODO: This makes the big assumption that the font will be the same. Can we guarantee this? Helper utility for default font or something?
+        rows.push(getTextLabel(wordsThisRow.join(' '), width, rowHeight, options));
+    }
+
+    return joinCanvasesVertical(rows);
 }
