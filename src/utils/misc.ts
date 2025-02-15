@@ -253,3 +253,42 @@ export function toMap<T>(keys: string[], values: T[]): Record<string, T> {
 export function getNumberBetween(a: number, b: number, along: number = 0.5): number {
     return a + along * (b - a);
 }
+
+/**
+ * Computes a score to indicate how many of the unique words in the source text are repeated in the input text.
+ * For example, source text "hello, world" repeats completely in "MY WORLD IS A HELLO" and returns a score of 1.
+ * For example, source text "one two three four" repeats partially in "Hello four" and returns a score of 0.25.
+ * @param text The input text
+ * @param source The source text that the input text may be borrowing from
+ * @returns Word repetition score in the range [0, 1]
+ */
+export function getWordRepetitionScore(text: string, source: string): number {
+    const sanitize = (s: string) => {
+        return s.toLowerCase()
+            // Remove non-alphanumeric characters
+            .replace(/[^0-9a-zA-Z\s]/g, '')
+            // Replace all whitespace segments with one space
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
+    const inputTokens = sanitize(text).split(' ');
+    const sourceTokens = sanitize(source).split(' ');
+    // Remove duplicates to make this more accurate
+    const sourceTokenSet = new Set(sourceTokens);
+
+    if (sourceTokens.length === 0) {
+        return 0;
+    }
+
+    let numRepeated = 0;
+    for (const word of sourceTokenSet) {
+        if (inputTokens.includes(word)) {
+            numRepeated++;
+        }
+    }
+
+    console.log(`${sourceTokens} (${sourceTokens.length}, ${sourceTokenSet.size}) repeats ${numRepeated} in ${inputTokens} (${inputTokens.length})`);
+
+    return numRepeated / sourceTokenSet.size;
+}

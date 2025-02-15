@@ -107,4 +107,13 @@ export declare function toMap<T>(keys: string[], values: T[]): Record<string, T>
  * @returns a number between the provided number
  */
 export declare function getNumberBetween(a: number, b: number, along?: number): number;
+/**
+ * Computes a score to indicate how many of the unique words in the source text are repeated in the input text.
+ * For example, source text "hello, world" repeats completely in "MY WORLD IS A HELLO" and returns a score of 1.
+ * For example, source text "one two three four" repeats partially in "Hello four" and returns a score of 0.25.
+ * @param text The input text
+ * @param source The source text that the input text may be borrowing from
+ * @returns Word repetition score in the range [0, 1]
+ */
+export declare function getWordRepetitionScore(text: string, source: string): number;
 //# sourceMappingURL=misc.d.ts.map

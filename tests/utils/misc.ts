@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { toLetterId, fromLetterId, collapseRedundantStrings, naturalJoin, getNumberBetween, splitTextNaturally } from '../../src/utils/misc';
+import { toLetterId, fromLetterId, getWordRepetitionScore, collapseRedundantStrings, naturalJoin, getNumberBetween, splitTextNaturally } from '../../src/utils/misc';
 
 describe('Misc. Utility tests', () => {
     it ('can naturally join strings', () => {
@@ -80,5 +80,20 @@ describe('Misc. Utility tests', () => {
         expect(getNumberBetween(0, 100, -1)).to.equal(-100);
         expect(getNumberBetween(0, 100, 2)).to.equal(200);
         expect(getNumberBetween(1000, 900, 0.1)).to.equal(990);
+    });
+
+    it('can compute a word repetition score', () => {
+        expect(getWordRepetitionScore('MY WORLD IS A HELLO', 'Hello, world.')).to.equal(1);
+        expect(getWordRepetitionScore('Hello, four', 'one two three four')).to.equal(0.25);
+        expect(getWordRepetitionScore('I\'m copying nothing', 'But are you?')).to.equal(0);
+        expect(getWordRepetitionScore('Do not divide by zero', ' ')).to.equal(0);
+        expect(getWordRepetitionScore('Don\'t t(a)ke p-u-n-c-t-u-a-t-i-o-n into account.', 'punctuation, dont, take, four')).to.equal(0.75);
+        // Even though there are 4 words in the source text, only 2 unique words are used in the computation
+        expect(getWordRepetitionScore('repeated', 'repeated repeated repeated word')).to.equal(0.5);
+        expect(getWordRepetitionScore('repeated repeated repeated word', 'repeated')).to.equal(1);
+        expect(getWordRepetitionScore(
+            'Hear my soul speak: / The very instant that I saw you, did / My heart fly to your service',
+            'A heart to love, and in that heart / Courage, to make\'s love known'
+        )).to.equal(0.3);
     });
 });
