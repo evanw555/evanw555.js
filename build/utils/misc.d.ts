@@ -83,21 +83,6 @@ export declare function splitTextNaturally(text: string, maxLength: number): str
  */
 export declare function getRankString(rank: number): string;
 /**
- * Returns a new map including key-value pairs from the input map,
- * but with entries omitted if their value matches the blacklisted value parameter.
- * @param input input map
- * @param blacklistedValue value used to determine which entries to omit
- */
-export declare function filterValueFromMap<T>(input: Record<string, T>, blacklistedValue: T): Record<string, T>;
-/**
- * For some list of keys and some list of values of equal length, returns
- * a map with each key mapped to its respective value.
- * @param keys List of unique keys of length N
- * @param values List of values of length N
- * @returns The constructed map
- */
-export declare function toMap<T>(keys: string[], values: T[]): Record<string, T>;
-/**
  * Computes a number between the two provided numbers, as specified by the optional "along" factor.
  * If the user wants a number 0.5 "along", it will return a number exactly halfway between the two.
  * If the user wants a number 0.25 "along", it will return a number a quarter of the way between the two.

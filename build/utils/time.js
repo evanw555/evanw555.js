@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.toDayOfWeekString = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 function sleep(milliseconds) {
@@ -123,11 +123,21 @@ exports.toTimeString = toTimeString;
  * @param date input date
  * @returns The day of the week (e.g. "Tuesday")
  */
-function toDayOfWeekString(date) {
+function getDayOfWeekName(date) {
     const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     return weekday[date.getDay()];
 }
-exports.toDayOfWeekString = toDayOfWeekString;
+exports.getDayOfWeekName = getDayOfWeekName;
+/**
+ * @param date input date
+ * @returns The month (e.g. "February")
+ */
+function getMonthName(date) {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthName = monthNames[date.getMonth()];
+    return monthName;
+}
+exports.getMonthName = getMonthName;
 /**
  * For some duration value, return an English expression representing that duration.
  * @param milliseconds the duration in milliseconds
@@ -228,7 +238,7 @@ function getRelativeDateTimeString(date) {
         return `tomorrow at ${toTimeString(date)}`;
     }
     // Otherwise, render the DOW
-    return `${toDayOfWeekString(date)} at ${toTimeString(date)}`;
+    return `${getDayOfWeekName(date)} at ${toTimeString(date)}`;
 }
 exports.getRelativeDateTimeString = getRelativeDateTimeString;
 //# sourceMappingURL=time.js.map

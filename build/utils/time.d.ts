@@ -73,7 +73,12 @@ export declare function toTimeString(date: Date): string;
  * @param date input date
  * @returns The day of the week (e.g. "Tuesday")
  */
-export declare function toDayOfWeekString(date: Date): string;
+export declare function getDayOfWeekName(date: Date): string;
+/**
+ * @param date input date
+ * @returns The month (e.g. "February")
+ */
+export declare function getMonthName(date: Date): string;
 /**
  * For some duration value, return an English expression representing that duration.
  * @param milliseconds the duration in milliseconds

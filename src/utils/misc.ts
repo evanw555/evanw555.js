@@ -205,43 +205,6 @@ export function getRankString(rank: number): string {
 }
 
 /**
- * Returns a new map including key-value pairs from the input map,
- * but with entries omitted if their value matches the blacklisted value parameter.
- * @param input input map
- * @param blacklistedValue value used to determine which entries to omit
- */
-export function filterValueFromMap<T>(input: Record<string, T>, blacklistedValue: T): Record<string, T> {
-    const output: Record<string, T> = {};
-    Object.keys(input).forEach((key) => {
-        if (input[key] !== blacklistedValue) {
-            output[key] = input[key];
-        }
-    });
-    return output;
-}
-
-/**
- * For some list of keys and some list of values of equal length, returns
- * a map with each key mapped to its respective value.
- * @param keys List of unique keys of length N
- * @param values List of values of length N
- * @returns The constructed map
- */
-export function toMap<T>(keys: string[], values: T[]): Record<string, T> {
-    if (keys.length !== values.length) {
-        throw new Error(`Cannot create a map with ${keys.length} keys and ${values.length} values!`);
-    }
-    if (keys.length !== new Set(keys).size) {
-        throw new Error(`Cannot create a map with duplicate keys!`);
-    }
-    const result: Record<string, T> = {};
-    for (let i = 0; i < keys.length; i++) {
-        result[keys[i]] = values[i];
-    }
-    return result;
-}
-
-/**
  * Computes a number between the two provided numbers, as specified by the optional "along" factor.
  * If the user wants a number 0.5 "along", it will return a number exactly halfway between the two.
  * If the user wants a number 0.25 "along", it will return a number a quarter of the way between the two.
@@ -287,8 +250,6 @@ export function getWordRepetitionScore(text: string, source: string): number {
             numRepeated++;
         }
     }
-
-    console.log(`${sourceTokens} (${sourceTokens.length}, ${sourceTokenSet.size}) repeats ${numRepeated} in ${inputTokens} (${inputTokens.length})`);
 
     return numRepeated / sourceTokenSet.size;
 }

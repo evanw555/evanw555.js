@@ -2,9 +2,9 @@ import { Message, Snowflake, TextChannel } from "discord.js";
 import { AsyncStorageInterface } from "../file-storage";
 import { PastTimeoutStrategy, TimeoutManager } from "../timeout-manager";
 import { addReactsSync, getPollChoiceKeys } from "../utils/discord";
-import { toMap } from "../utils/misc";
 import { shuffle } from "../utils/random";
 import { getDateBetween, getRelativeDateTimeString } from "../utils/time";
+import { toMap } from "../utils/collections";
 
 type PollerTimeoutTypes = 'nominationEnd' | 'pollEnd' | 'pollReminder';
 type ChannelResolver = (channelId: Snowflake) => Promise<TextChannel>;

@@ -121,9 +121,19 @@ export function toTimeString(date: Date): string {
  * @param date input date
  * @returns The day of the week (e.g. "Tuesday")
  */
-export function toDayOfWeekString(date: Date): string {
+export function getDayOfWeekName(date: Date): string {
     const weekday: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     return weekday[date.getDay()];
+}
+
+/**
+ * @param date input date
+ * @returns The month (e.g. "February")
+ */
+export function getMonthName(date: Date): string {
+    const monthNames: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthName: string = monthNames[date.getMonth()];
+    return monthName;
 }
 
 /**
@@ -238,5 +248,5 @@ export function getRelativeDateTimeString(date: Date): string {
     }
 
     // Otherwise, render the DOW
-    return `${toDayOfWeekString(date)} at ${toTimeString(date)}`;
+    return `${getDayOfWeekName(date)} at ${toTimeString(date)}`;
 }

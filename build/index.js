@@ -30,6 +30,7 @@ __exportStar(require("./multi-logger"), exports);
 __exportStar(require("./r9k"), exports);
 __exportStar(require("./tile-map"), exports);
 __exportStar(require("./timeout-manager"), exports);
+__exportStar(require("./utils/collections"), exports);
 __exportStar(require("./utils/dag"), exports);
 __exportStar(require("./utils/discord"), exports);
 __exportStar(require("./utils/edit-distance"), exports);
@@ -39,5 +40,6 @@ __exportStar(require("./utils/load-json"), exports);
 __exportStar(require("./utils/misc"), exports);
 __exportStar(require("./utils/pretty"), exports);
 __exportStar(require("./utils/random"), exports);
+__exportStar(require("./utils/text"), exports);
 __exportStar(require("./utils/time"), exports);
 //# sourceMappingURL=index.js.map

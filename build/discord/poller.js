@@ -13,9 +13,9 @@ exports.Poller = void 0;
 const discord_js_1 = require("discord.js");
 const timeout_manager_1 = require("../timeout-manager");
 const discord_1 = require("../utils/discord");
-const misc_1 = require("../utils/misc");
 const random_1 = require("../utils/random");
 const time_1 = require("../utils/time");
+const collections_1 = require("../utils/collections");
 // TODO: This implementation is incomplete
 class Poller {
     constructor(storage, channelResolver, pollCompletionCallback) {
@@ -48,7 +48,7 @@ class Poller {
         return __awaiter(this, void 0, void 0, function* () {
             // Construct poll data
             const choiceKeys = (0, discord_1.getPollChoiceKeys)(choiceValues);
-            const choices = (0, misc_1.toMap)(choiceKeys, choiceValues);
+            const choices = (0, collections_1.toMap)(choiceKeys, choiceValues);
             const renderedChoices = choiceKeys.map(key => `${key} ${choices[key]}`).join('\n');
             const messageText = `${data.header}\n_${data.prompt}_\n`
                 + `${renderedChoices}\n`
