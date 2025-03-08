@@ -55,4 +55,22 @@ export declare function getMinKey<T>(keys: T[], valueFn: (x: T) => number): T;
  * @returns Copy of the source list shortened to the desired length
  */
 export declare function getEvenlyShortened<T>(values: T[], newLength: number): T[];
+/**
+ * Returns the size of the provided object.
+ * @param map Input object
+ */
+export declare function getObjectSize(map: Object): number;
+/**
+ * Returns true if the provided object is empty.
+ * @param map Input object
+ */
+export declare function isObjectEmpty(map: Object): boolean;
+/**
+ * Given a map with numeric values, increment a given property regardless of whether it exists.
+ * If that value reaches zero, it will be deleted.
+ * @param map Map with numeric values
+ * @param key The property to be incremented
+ * @param amount The amount to increment
+ */
+export declare function incrementProperty<K extends string>(map: Record<K, number>, key: K, amount: number): void;
 //# sourceMappingURL=collections.d.ts.map

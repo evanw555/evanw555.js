@@ -142,3 +142,35 @@ export function getEvenlyShortened<T>(values: T[], newLength: number): T[] {
     }
     return result;
 }
+
+/**
+ * Returns the size of the provided object.
+ * @param map Input object
+ */
+export function getObjectSize(map: Object): number {
+    return Object.keys(map).length;
+}
+
+/**
+ * Returns true if the provided object is empty.
+ * @param map Input object
+ */
+export function isObjectEmpty(map: Object): boolean {
+    return getObjectSize(map) === 0;
+}
+
+/**
+ * Given a map with numeric values, increment a given property regardless of whether it exists.
+ * If that value reaches zero, it will be deleted.
+ * @param map Map with numeric values
+ * @param key The property to be incremented
+ * @param amount The amount to increment
+ */
+export function incrementProperty<K extends string>(map: Record<K, number>, key: K, amount: number) {
+    // Add value to this map entry (default to zero)
+    map[key] = (map[key] ?? 0) + amount;
+    // Delete if the value is now zero
+    if (map[key] === 0) {
+        delete map[key];
+    }
+}

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEvenlyShortened = exports.getMinKey = exports.getMaxKey = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMap = void 0;
+exports.incrementProperty = exports.isObjectEmpty = exports.getObjectSize = exports.getEvenlyShortened = exports.getMinKey = exports.getMaxKey = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMap = void 0;
 /**
  * For some list of keys and some list of values of equal length, returns
  * a map with each key mapped to its respective value.
@@ -144,4 +144,37 @@ function getEvenlyShortened(values, newLength) {
     return result;
 }
 exports.getEvenlyShortened = getEvenlyShortened;
+/**
+ * Returns the size of the provided object.
+ * @param map Input object
+ */
+function getObjectSize(map) {
+    return Object.keys(map).length;
+}
+exports.getObjectSize = getObjectSize;
+/**
+ * Returns true if the provided object is empty.
+ * @param map Input object
+ */
+function isObjectEmpty(map) {
+    return getObjectSize(map) === 0;
+}
+exports.isObjectEmpty = isObjectEmpty;
+/**
+ * Given a map with numeric values, increment a given property regardless of whether it exists.
+ * If that value reaches zero, it will be deleted.
+ * @param map Map with numeric values
+ * @param key The property to be incremented
+ * @param amount The amount to increment
+ */
+function incrementProperty(map, key, amount) {
+    var _a;
+    // Add value to this map entry (default to zero)
+    map[key] = ((_a = map[key]) !== null && _a !== void 0 ? _a : 0) + amount;
+    // Delete if the value is now zero
+    if (map[key] === 0) {
+        delete map[key];
+    }
+}
+exports.incrementProperty = incrementProperty;
 //# sourceMappingURL=collections.js.map

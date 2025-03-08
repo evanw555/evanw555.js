@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMinKey, groupByProperty, toMap } from '../../src/utils/collections';
+import { filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMinKey, getObjectSize, groupByProperty, incrementProperty, isObjectEmpty, toMap } from '../../src/utils/collections';
 
 describe('Collection Utility tests', () => {
     it('constructs maps from a list of keys and values', () => {
@@ -73,5 +73,38 @@ describe('Collection Utility tests', () => {
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,0], 9).join(',')).equals('1,2,3,4,5,6,7,8,9');
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,0], 10).join(',')).equals('1,2,3,4,5,6,7,8,9,0');
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 12).join(',')).equals('1,2,3,5,6,7,9,10,11,13,14,15');
+    });
+
+    // This also tests object size/emptiness functions
+    it('increments numeric map properties', () => {
+        const map: Record<string, number> = {};
+        expect(isObjectEmpty(map)).true;
+
+        incrementProperty(map, 'a', 1);
+        expect(getObjectSize(map)).equals(1);
+        expect(map.a).equals(1);
+
+        incrementProperty(map, 'a', 1);
+        incrementProperty(map, 'b', 1);
+        expect(getObjectSize(map)).equals(2);
+        expect(map.a).equals(2);
+        expect(map.b).equals(1);
+
+        incrementProperty(map, 'a', 1);
+        incrementProperty(map, 'b', 1);
+        incrementProperty(map, 'c', 1);
+        expect(getObjectSize(map)).equals(3);
+        expect(map.a).equals(3);
+        expect(map.b).equals(2);
+        expect(map.c).equals(1);
+
+        incrementProperty(map, 'a', 1);
+        incrementProperty(map, 'b', -2);
+        incrementProperty(map, 'c', -1);
+        expect(getObjectSize(map)).equals(1);
+        expect(map.a).equals(4);
+
+        incrementProperty(map, 'a', -4);
+        expect(isObjectEmpty(map)).true;
     });
 });
