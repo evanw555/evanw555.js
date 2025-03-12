@@ -17,6 +17,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./a-star"), exports);
 __exportStar(require("./circular-queue"), exports);
+__exportStar(require("./discord/dm-reply-collector"), exports);
 __exportStar(require("./discord/messenger"), exports);
 __exportStar(require("./discord/poller"), exports);
 __exportStar(require("./file-storage"), exports);

@@ -1,5 +1,6 @@
 export * from './a-star';
 export * from './circular-queue';
+export * from './discord/dm-reply-collector';
 export * from './discord/messenger';
 export * from './discord/poller';
 export * from './file-storage';
