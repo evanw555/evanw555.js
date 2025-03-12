@@ -7,19 +7,27 @@ export class DmReplyCollector {
     private readonly messageReplyCallbacks: Record<Snowflake, (message: Message) => Promise<void>>;
 
     // TODO: Add an optional error handler callback
-    constructor(client: Client) {
+    constructor() {
         this.messageReplyCallbacks = {};
-        // Intercept message create events on this client to handle registered DM replies
-        client.on('messageCreate', async (msg) => {
-            // If there's a message reply callback registered for this DM, process it as such
-            const referenceMessageId = msg.reference?.messageId;
-            if (referenceMessageId && this.hasDmReplyCallbackForMessage(referenceMessageId)) {
-                await this.invokeMessageReplyCallback(referenceMessageId, msg);
-            }
-        });
     }
 
-    async registerDmReplyCallback(user: User, messagePayload: string | MessageCreateOptions, callback: (message: Message) => Promise<void>) {
+    /**
+     * This hook should be invoked for every message received by the bot client.
+     * If the incoming message has a callback registered for it, it will be invoked.
+     * @param message The message to process
+     */
+    async onMessage(message: Message) {
+        // If there's a message reply callback registered for this DM, process it as such
+        const referenceMessageId = message.reference?.messageId;
+        if (referenceMessageId && this.hasDmReplyCallbackForMessage(referenceMessageId)) {
+            await this.invokeMessageReplyCallback(referenceMessageId, message);
+        }
+    }
+
+    /**
+     * Send a DM to the provided user, and invoke the provided callback when the user replies to the DM.
+     */
+    async solicitReply(user: User, messagePayload: string | MessageCreateOptions, callback: (message: Message) => Promise<void>) {
         try {
             // First, attempt to send the message
             const dmChannel = await user.createDM();
@@ -43,11 +51,11 @@ export class DmReplyCollector {
     }
 
     /**
-     * Simple wrapper around {@link registerDmReplyCallback} that extracts an image attachment automatically and invokes the callback if found.
+     * Simple wrapper around {@link solicitReply} that extracts an image attachment automatically and invokes the callback if found.
      */
-    async registerDmReplyImageCallback(user: User, messagePayload: string | MessageCreateOptions, callback: (message: Message, imageAttachment: Attachment) => Promise<void>) {
+    async solicitImageReply(user: User, messagePayload: string | MessageCreateOptions, callback: (message: Message, imageAttachment: Attachment) => Promise<void>) {
         // Just a simple wrapper around the primary method that extracts the image attachment automatically
-        await this.registerDmReplyCallback(user, messagePayload, async (replyMessage) => {
+        await this.solicitReply(user, messagePayload, async (replyMessage) => {
             // Extract the images from the reply message...
             const firstImageAttachment = replyMessage.attachments.filter(a => a.contentType?.startsWith('image/')).first();
             if (firstImageAttachment) {

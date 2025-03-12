@@ -15,19 +15,28 @@ exports.DmReplyCollector = void 0;
  */
 class DmReplyCollector {
     // TODO: Add an optional error handler callback
-    constructor(client) {
+    constructor() {
         this.messageReplyCallbacks = {};
-        // Intercept message create events on this client to handle registered DM replies
-        client.on('messageCreate', (msg) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            // If there's a message reply callback registered for this DM, process it as such
-            const referenceMessageId = (_a = msg.reference) === null || _a === void 0 ? void 0 : _a.messageId;
-            if (referenceMessageId && this.hasDmReplyCallbackForMessage(referenceMessageId)) {
-                yield this.invokeMessageReplyCallback(referenceMessageId, msg);
-            }
-        }));
     }
-    registerDmReplyCallback(user, messagePayload, callback) {
+    /**
+     * This hook should be invoked for every message received by the bot client.
+     * If the incoming message has a callback registered for it, it will be invoked.
+     * @param message The message to process
+     */
+    onMessage(message) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            // If there's a message reply callback registered for this DM, process it as such
+            const referenceMessageId = (_a = message.reference) === null || _a === void 0 ? void 0 : _a.messageId;
+            if (referenceMessageId && this.hasDmReplyCallbackForMessage(referenceMessageId)) {
+                yield this.invokeMessageReplyCallback(referenceMessageId, message);
+            }
+        });
+    }
+    /**
+     * Send a DM to the provided user, and invoke the provided callback when the user replies to the DM.
+     */
+    solicitReply(user, messagePayload, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // First, attempt to send the message
@@ -53,12 +62,12 @@ class DmReplyCollector {
         });
     }
     /**
-     * Simple wrapper around {@link registerDmReplyCallback} that extracts an image attachment automatically and invokes the callback if found.
+     * Simple wrapper around {@link solicitReply} that extracts an image attachment automatically and invokes the callback if found.
      */
-    registerDmReplyImageCallback(user, messagePayload, callback) {
+    solicitImageReply(user, messagePayload, callback) {
         return __awaiter(this, void 0, void 0, function* () {
             // Just a simple wrapper around the primary method that extracts the image attachment automatically
-            yield this.registerDmReplyCallback(user, messagePayload, (replyMessage) => __awaiter(this, void 0, void 0, function* () {
+            yield this.solicitReply(user, messagePayload, (replyMessage) => __awaiter(this, void 0, void 0, function* () {
                 // Extract the images from the reply message...
                 const firstImageAttachment = replyMessage.attachments.filter(a => { var _a; return (_a = a.contentType) === null || _a === void 0 ? void 0 : _a.startsWith('image/'); }).first();
                 if (firstImageAttachment) {
