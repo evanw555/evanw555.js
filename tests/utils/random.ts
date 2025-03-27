@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { shuffleWithDependencies, shuffleCycle } from '../../src/utils/random';
+import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments } from '../../src/utils/random';
+import { getObjectSize } from '../../src/utils/collections';
 
 describe('Random Utils tests', () => {
     it('shuffles with dependencies', () => {
@@ -47,7 +48,7 @@ describe('Random Utils tests', () => {
         expect(shuffleWithDependencies(['hello'], {}).join('')).to.equal('hello');
         // Ensure it contains exactly three elements with no "undefined"
         expect(shuffleWithDependencies(['a','b','c'], {}).join('').length).to.equal(3);
-    })
+    });
 
     it('shuffles into cycles with preferences', () => {
         const data = ['one','two','three','four','five','six','seven','eight','nine','ten'];
@@ -58,4 +59,30 @@ describe('Random Utils tests', () => {
         });
         expect(shuffled.join(',')).equals('two,five,one,eight,seven,four,six,ten,three,nine');
     });
+    
+    it('randomly distributes assignments', () => {
+        const keys = ['one', 'two', 'three'];
+        const values = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+        for (let valuesPerKey = 1; valuesPerKey < values.length; valuesPerKey++) {
+            const result = getRandomlyDistributedAssignments(keys, values, { valuesPerKey });
+
+            // Assert that the result is reasonable
+            expect(getObjectSize(result)).equals(keys.length);
+            expect(Object.values(result).every(a => a.length === valuesPerKey)).true;
+
+            // Assert that all assignments are within 1 usage of each other, and that they're all unique
+            const usageCountsPerValue: Record<string, number> = {};
+            for (const assignments of Object.values(result)) {
+                for (const a of assignments) {
+                    usageCountsPerValue[a] = (usageCountsPerValue[a] ?? 0) + 1;
+                }
+            }
+            const usageCounts: Set<number> = new Set();
+            for (const count of Object.values(usageCountsPerValue)) {
+                usageCounts.add(count);
+            }
+            expect(usageCounts.size).lessThanOrEqual(2);
+        }
+    })
 });

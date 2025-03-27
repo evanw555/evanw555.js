@@ -33,4 +33,16 @@ export declare function shuffleCycle(input: string[], options?: {
     blacklists?: Record<string, string[]>;
     deterministic?: boolean;
 }): string[];
+/**
+ * For a list of keys and a list of values, randomly assign some number of values to each key in a way that guarantees each value a similar number of assignments.
+ * @param keys List of keys
+ * @param values List of values
+ * @param options.valuesPerKey How many values should be assigned to each key
+ * @param options.deterministic If true, the results of this function will be the same every time (no randomness)
+ * @returns A mapping from each key to its list of assigned values
+ */
+export declare function getRandomlyDistributedAssignments(keys: string[], values: string[], options?: {
+    valuesPerKey?: number;
+    deterministic?: boolean;
+}): Record<string, string[]>;
 //# sourceMappingURL=random.d.ts.map

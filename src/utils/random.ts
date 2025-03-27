@@ -151,3 +151,37 @@ export function shuffleCycle(input: string[], options?: { whitelists?: Record<st
 
     return result;
 }
+
+/**
+ * For a list of keys and a list of values, randomly assign some number of values to each key in a way that guarantees each value a similar number of assignments.
+ * @param keys List of keys
+ * @param values List of values
+ * @param options.valuesPerKey How many values should be assigned to each key
+ * @param options.deterministic If true, the results of this function will be the same every time (no randomness)
+ * @returns A mapping from each key to its list of assigned values
+ */
+export function getRandomlyDistributedAssignments(keys: string[], values: string[], options?: { valuesPerKey?: number, deterministic?: boolean }): Record<string, string[]> {
+    const VALUES_PER_KEY = options?.valuesPerKey ?? 1;
+    const DETERMINISTIC = options?.deterministic ?? false;
+
+    // Prime the usage of each value to zero
+    const valueUsage: Record<string, number> = {};
+    for (const value of values) {
+        valueUsage[value] = 0;
+    }
+
+    // For each key, assign the least used values
+    const result: Record<string, string[]> = {};
+    for (const key of keys) {
+        const sortedOptions = (DETERMINISTIC ? values.sort() : shuffle(values)).sort((x, y) => valueUsage[x] - valueUsage[y]);
+        const chosenOptions = sortedOptions.slice(0, VALUES_PER_KEY).sort();
+        // Increment the usage of each chosen value
+        for (const value of chosenOptions) {
+            valueUsage[value] = (valueUsage[value] ?? 0) + 1;
+        }
+        // Assign the chosen values to this key
+        result[key] = chosenOptions;
+    }
+
+    return result;
+}

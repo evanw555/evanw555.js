@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shuffleCycle = exports.shuffleWithDependencies = exports.chance = exports.shuffle = exports.randChoice = exports.randInt = void 0;
+exports.getRandomlyDistributedAssignments = exports.shuffleCycle = exports.shuffleWithDependencies = exports.chance = exports.shuffle = exports.randChoice = exports.randInt = void 0;
 const dag_1 = require("./dag");
 /**
  * @param lo Lower bound (inclusive)
@@ -158,4 +158,36 @@ function shuffleCycle(input, options) {
     return result;
 }
 exports.shuffleCycle = shuffleCycle;
+/**
+ * For a list of keys and a list of values, randomly assign some number of values to each key in a way that guarantees each value a similar number of assignments.
+ * @param keys List of keys
+ * @param values List of values
+ * @param options.valuesPerKey How many values should be assigned to each key
+ * @param options.deterministic If true, the results of this function will be the same every time (no randomness)
+ * @returns A mapping from each key to its list of assigned values
+ */
+function getRandomlyDistributedAssignments(keys, values, options) {
+    var _a, _b, _c;
+    const VALUES_PER_KEY = (_a = options === null || options === void 0 ? void 0 : options.valuesPerKey) !== null && _a !== void 0 ? _a : 1;
+    const DETERMINISTIC = (_b = options === null || options === void 0 ? void 0 : options.deterministic) !== null && _b !== void 0 ? _b : false;
+    // Prime the usage of each value to zero
+    const valueUsage = {};
+    for (const value of values) {
+        valueUsage[value] = 0;
+    }
+    // For each key, assign the least used values
+    const result = {};
+    for (const key of keys) {
+        const sortedOptions = (DETERMINISTIC ? values.sort() : shuffle(values)).sort((x, y) => valueUsage[x] - valueUsage[y]);
+        const chosenOptions = sortedOptions.slice(0, VALUES_PER_KEY).sort();
+        // Increment the usage of each chosen value
+        for (const value of chosenOptions) {
+            valueUsage[value] = ((_c = valueUsage[value]) !== null && _c !== void 0 ? _c : 0) + 1;
+        }
+        // Assign the chosen values to this key
+        result[key] = chosenOptions;
+    }
+    return result;
+}
+exports.getRandomlyDistributedAssignments = getRandomlyDistributedAssignments;
 //# sourceMappingURL=random.js.map
