@@ -128,18 +128,37 @@ export function getMinKey<T>(keys: T[], valueFn: (x: T) => number): T {
 }
 
 /**
- * Given some source list, returns a copy shortened to the desired list by removing elements at even intervals.
+ * Given some source list, returns a copy shortened to the desired length by removing elements at even intervals.
  * @param values Source list
  * @param newLength Desired length of shortened list
+ * @param options.padding Keeps the first N and last N values in the input list as-is (where N is the padding option)
  * @returns Copy of the source list shortened to the desired length
  */
-export function getEvenlyShortened<T>(values: T[], newLength: number): T[] {
+export function getEvenlyShortened<T>(values: T[], newLength: number, options?: { padding?: number }): T[] {
+    if (newLength === 0) {
+        return [];
+    }
+    if (newLength < 0) {
+        throw new Error('Cannot shorten list to a negative length');
+    }
+    if (options?.padding) {
+        const padding = options?.padding;
+        if (padding < 0) {
+            throw new Error('Cannot shorten list with negative padding option');
+        }
+        if (padding * 2 > newLength) {
+            throw new Error(`Cannot fit padding of size ${padding} in front and back of a list of length ${newLength}`);
+        }
+        return [...values.slice(0, padding), ...getEvenlyShortened(values.slice(padding, -padding), newLength - 2 * padding), ...values.slice(-padding)];
+    }
     const result: T[] = [];
     const n = values.length;
-    for (let i = 0; i < newLength; i++) {
-        const sourceIndex = Math.floor(i * n / newLength);
+    const m = newLength - 1;
+    for (let i = 0; i < m; i++) {
+        const sourceIndex = Math.floor(i * n / m);
         result[i] = values[sourceIndex];
     }
+    result[m] = values[n - 1];
     return result;
 }
 

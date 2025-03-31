@@ -67,12 +67,41 @@ describe('Collection Utility tests', () => {
     });
 
     it('evenly shortens lists', () => {
-        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,0], 2).join(',')).equals('1,6');
-        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,0], 3).join(',')).equals('1,4,7');
-        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,0], 5).join(',')).equals('1,3,5,7,9');
-        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,0], 9).join(',')).equals('1,2,3,4,5,6,7,8,9');
-        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,0], 10).join(',')).equals('1,2,3,4,5,6,7,8,9,0');
-        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 12).join(',')).equals('1,2,3,5,6,7,9,10,11,13,14,15');
+        // Shorten an odd-length list
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 1).join(',')).equals('9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 2).join(',')).equals('1,9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 3).join(',')).equals('1,5,9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 4).join(',')).equals('1,4,7,9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 5).join(',')).equals('1,3,5,7,9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 6).join(',')).equals('1,2,4,6,8,9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 9).join(',')).equals('1,2,3,4,5,6,7,8,9');
+
+        // Shorten an even-length list
+        expect(getEvenlyShortened([1,2,3,4,5,6], 1).join(',')).equals('6');
+        expect(getEvenlyShortened([1,2,3,4,5,6], 2).join(',')).equals('1,6');
+        expect(getEvenlyShortened([1,2,3,4,5,6], 3).join(',')).equals('1,4,6');
+        expect(getEvenlyShortened([1,2,3,4,5,6], 4).join(',')).equals('1,3,5,6');
+        expect(getEvenlyShortened([1,2,3,4,5,6], 5).join(',')).equals('1,2,4,5,6');
+        expect(getEvenlyShortened([1,2,3,4,5,6], 6).join(',')).equals('1,2,3,4,5,6');
+
+        // Duplicates elements if attempting to lengthen the list
+        expect(getEvenlyShortened([1,2,3], 4).join(',')).equals('1,2,3,3');
+        expect(getEvenlyShortened([1,2,3], 5).join(',')).equals('1,1,2,3,3');
+        expect(getEvenlyShortened([1,2,3], 6).join(',')).equals('1,1,2,2,3,3');
+
+        // Test weird small values
+        expect(getEvenlyShortened([1,2,3], 2).join(',')).equals('1,3');
+        expect(getEvenlyShortened([1,2,3], 1).join(',')).equals('3');
+        expect(getEvenlyShortened([1,2,3], 0).join(',')).equals('');
+
+        // Misc big case
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 12).join(',')).equals('1,2,3,5,6,8,9,11,12,14,15,16');
+
+        // Test the padding option
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 4, { padding: 1 }).join(',')).equals('1,2,8,9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 5, { padding: 1 }).join(',')).equals('1,2,5,8,9');
+        expect(getEvenlyShortened([1,2,3,4], 4, { padding: 2 }).join(',')).equals('1,2,3,4');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], 15, { padding: 5 }).join(',')).equals('1,2,3,4,5,6,9,13,17,20,21,22,23,24,25');
     });
 
     // This also tests object size/emptiness functions
