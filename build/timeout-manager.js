@@ -153,7 +153,8 @@ class TimeoutManager {
     }
     /**
      * Safely invokes a given timeout, reporting any errors back to the user via the error callback.
-     * This method is safe and thus can be assumed to never fail.
+     * This method is safe and thus can be assumed to never fail. Note that there doesn't necessarily
+     * need to be a timeout with the given ID or type in the state.
      * @param id ID of the timeout to be invoked
      * @param type Type of the timeout to be invoked
      * @param options Options of the timeout to be invoked
@@ -257,13 +258,45 @@ class TimeoutManager {
      * Postpones all existing timeouts of a given type to a later date. Any timeouts that are mid-invocation will not be postponed.
      * @param type Type of timeouts to postpone
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
-     * @returns The IDs of all postpones timeouts
+     * @returns The IDs of all postponed timeouts
      */
     postponeTimeoutsWithType(type, value) {
         return __awaiter(this, void 0, void 0, function* () {
             const ids = this.getTimeoutIdsWithType(type);
             for (const id of ids) {
                 yield this.postponeTimeout(id, value);
+            }
+            return ids;
+        });
+    }
+    /**
+     * Forces an existing timeout into invocation immediately. This method will fail if the timeout is mid-invocation or nonexistent.
+     * @param id ID of the timeout to be postponed
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    forceTimeout(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.instances[id] || !this.timeouts[id]) {
+                throw new Error(`Cannot force non-existent timeout with ID ${id}`);
+            }
+            const timeout = this.timeouts[id];
+            // Cancel the existing timeout
+            yield this.cancelTimeout(id);
+            // Invoke it now
+            yield this.invokeTimeout(id, timeout.type, timeout.options);
+        });
+    }
+    /**
+     * Forces all existing timeouts of a given type into invocation immediately. Any timeouts that are mid-invocation will not be forced.
+     * @param type Type of timeouts to force
+     * @returns The IDs of all forced timeouts
+     */
+    forceTimeoutsWithType(type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ids = this.getTimeoutIdsWithType(type);
+            for (const id of ids) {
+                yield this.forceTimeout(id);
             }
             return ids;
         });

@@ -76,7 +76,8 @@ export declare class TimeoutManager<T extends string> {
     private addTimeoutForId;
     /**
      * Safely invokes a given timeout, reporting any errors back to the user via the error callback.
-     * This method is safe and thus can be assumed to never fail.
+     * This method is safe and thus can be assumed to never fail. Note that there doesn't necessarily
+     * need to be a timeout with the given ID or type in the state.
      * @param id ID of the timeout to be invoked
      * @param type Type of the timeout to be invoked
      * @param options Options of the timeout to be invoked
@@ -113,9 +114,22 @@ export declare class TimeoutManager<T extends string> {
      * Postpones all existing timeouts of a given type to a later date. Any timeouts that are mid-invocation will not be postponed.
      * @param type Type of timeouts to postpone
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
-     * @returns The IDs of all postpones timeouts
+     * @returns The IDs of all postponed timeouts
      */
     postponeTimeoutsWithType(type: T, value: Date | number): Promise<string[]>;
+    /**
+     * Forces an existing timeout into invocation immediately. This method will fail if the timeout is mid-invocation or nonexistent.
+     * @param id ID of the timeout to be postponed
+     * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
+     * @throws Error if no timeout with this ID is currently scheduled
+     */
+    forceTimeout(id: string): Promise<void>;
+    /**
+     * Forces all existing timeouts of a given type into invocation immediately. Any timeouts that are mid-invocation will not be forced.
+     * @param type Type of timeouts to force
+     * @returns The IDs of all forced timeouts
+     */
+    forceTimeoutsWithType(type: T): Promise<string[]>;
     /**
      * Determines if this manager has an existing timeout with the provided ID.
      * @param id Timeout ID
