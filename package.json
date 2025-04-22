@@ -1,6 +1,6 @@
 {
     "name": "evanw555.js",
-    "version": "3.0.6",
+    "version": "3.0.7",
     "description": "Various JavaScript utilities",
     "author": "Evan Williams",
     "repository": "github:evanw555/evanw555.js",
@@ -8,7 +8,7 @@
     "types": "./build/index.d.ts",
     "scripts": {
         "build": "rm -rf ./build && rm ./src/index.ts && cti entrypoint -n ./src -o index.ts && tsc --build",
-        "test": "mocha -r ts-node/register 'tests/**/*.ts'"
+        "test": "rm -rf /tmp/evanw555.js && mkdir -p /tmp/evanw555.js && mocha -r ts-node/register 'tests/**/*.ts'"
     },
     "engines": {
         "node": ">=16.9.0"

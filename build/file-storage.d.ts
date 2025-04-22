@@ -22,5 +22,11 @@ export declare class FileStorage implements AsyncStorageInterface {
      * @returns The file path of the written BLOB (including the storage's base URL)
      */
     writeBlob(id: string, value: Buffer): Promise<string>;
+    /**
+     * Checks the existence of a given file.
+     * @param id File to check
+     * @returns True if the file with the given ID exists
+     */
+    exists(id: string): boolean;
 }
 //# sourceMappingURL=file-storage.d.ts.map

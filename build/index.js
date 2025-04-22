@@ -20,6 +20,7 @@ __exportStar(require("./circular-queue"), exports);
 __exportStar(require("./discord/dm-reply-collector"), exports);
 __exportStar(require("./discord/messenger"), exports);
 __exportStar(require("./discord/poller"), exports);
+__exportStar(require("./file-record-storage"), exports);
 __exportStar(require("./file-storage"), exports);
 __exportStar(require("./language-generator"), exports);
 __exportStar(require("./multi-logger"), exports);

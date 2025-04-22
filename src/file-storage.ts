@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { join } from 'path';
 
 export interface AsyncStorageInterface {
     read(id: string): Promise<string>
@@ -16,7 +17,7 @@ export class FileStorage implements AsyncStorageInterface {
 
     async read(id: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            fs.readFile(this._basePath + id, this._ENCODING, (err, data) => {
+            fs.readFile(join(this._basePath, id), this._ENCODING, (err, data) => {
                 if (err) {
                     return reject(err);
                 }
@@ -26,7 +27,7 @@ export class FileStorage implements AsyncStorageInterface {
     }
 
     readSync(id: string): string {
-        return fs.readFileSync(this._basePath + id, this._ENCODING);
+        return fs.readFileSync(join(this._basePath, id), this._ENCODING);
     }
 
     async readJson(id: string): Promise<any> {
@@ -39,7 +40,7 @@ export class FileStorage implements AsyncStorageInterface {
 
     async write(id: string, value: any): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            fs.writeFile(this._basePath + id, value.toString(), (err) => {
+            fs.writeFile(join(this._basePath, id), value.toString(), (err) => {
                 if (err) {
                     return reject(err);
                 }
@@ -53,7 +54,7 @@ export class FileStorage implements AsyncStorageInterface {
      */
     async readBlob(id: string): Promise<Buffer> {
         return new Promise<Buffer>((resolve, reject) => {
-            fs.readFile(this._basePath + id, (err, data) => {
+            fs.readFile(join(this._basePath, id), (err, data) => {
                 if (err) {
                     return reject(err);
                 }
@@ -67,7 +68,7 @@ export class FileStorage implements AsyncStorageInterface {
      * @returns The file path of the written BLOB (including the storage's base URL)
      */
     async writeBlob(id: string, value: Buffer): Promise<string> {
-        const filePath = this._basePath + id;
+        const filePath = join(this._basePath, id);
         return new Promise<string>((resolve, reject) => {
             fs.writeFile(filePath, value, (err) => {
                 if (err) {
@@ -76,5 +77,14 @@ export class FileStorage implements AsyncStorageInterface {
                 resolve(filePath);
             });
         });
+    }
+
+    /**
+     * Checks the existence of a given file.
+     * @param id File to check
+     * @returns True if the file with the given ID exists
+     */
+    exists(id: string): boolean {
+        return fs.existsSync(join(this._basePath, id));
     }
 }

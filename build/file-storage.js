@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileStorage = void 0;
 const fs_1 = __importDefault(require("fs"));
+const path_1 = require("path");
 class FileStorage {
     constructor(basePath) {
         this._ENCODING = 'utf8';
@@ -22,7 +23,7 @@ class FileStorage {
     read(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                fs_1.default.readFile(this._basePath + id, this._ENCODING, (err, data) => {
+                fs_1.default.readFile((0, path_1.join)(this._basePath, id), this._ENCODING, (err, data) => {
                     if (err) {
                         return reject(err);
                     }
@@ -32,7 +33,7 @@ class FileStorage {
         });
     }
     readSync(id) {
-        return fs_1.default.readFileSync(this._basePath + id, this._ENCODING);
+        return fs_1.default.readFileSync((0, path_1.join)(this._basePath, id), this._ENCODING);
     }
     readJson(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -45,7 +46,7 @@ class FileStorage {
     write(id, value) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                fs_1.default.writeFile(this._basePath + id, value.toString(), (err) => {
+                fs_1.default.writeFile((0, path_1.join)(this._basePath, id), value.toString(), (err) => {
                     if (err) {
                         return reject(err);
                     }
@@ -60,7 +61,7 @@ class FileStorage {
     readBlob(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                fs_1.default.readFile(this._basePath + id, (err, data) => {
+                fs_1.default.readFile((0, path_1.join)(this._basePath, id), (err, data) => {
                     if (err) {
                         return reject(err);
                     }
@@ -75,7 +76,7 @@ class FileStorage {
      */
     writeBlob(id, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filePath = this._basePath + id;
+            const filePath = (0, path_1.join)(this._basePath, id);
             return new Promise((resolve, reject) => {
                 fs_1.default.writeFile(filePath, value, (err) => {
                     if (err) {
@@ -85,6 +86,14 @@ class FileStorage {
                 });
             });
         });
+    }
+    /**
+     * Checks the existence of a given file.
+     * @param id File to check
+     * @returns True if the file with the given ID exists
+     */
+    exists(id) {
+        return fs_1.default.existsSync((0, path_1.join)(this._basePath, id));
     }
 }
 exports.FileStorage = FileStorage;

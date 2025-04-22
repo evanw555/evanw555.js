@@ -3,6 +3,7 @@ export * from './circular-queue';
 export * from './discord/dm-reply-collector';
 export * from './discord/messenger';
 export * from './discord/poller';
+export * from './file-record-storage';
 export * from './file-storage';
 export * from './language-generator';
 export * from './multi-logger';
