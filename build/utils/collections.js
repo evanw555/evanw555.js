@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.incrementProperty = exports.isObjectEmpty = exports.getObjectSize = exports.getEvenlyShortened = exports.getMinKey = exports.getMaxKey = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMap = void 0;
+exports.addObjects = exports.incrementProperty = exports.isObjectEmpty = exports.getObjectSize = exports.getEvenlyShortened = exports.getMinKey = exports.getMaxKey = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMap = void 0;
 /**
  * For some list of keys and some list of values of equal length, returns
  * a map with each key mapped to its respective value.
@@ -196,4 +196,20 @@ function incrementProperty(map, key, amount) {
     }
 }
 exports.incrementProperty = incrementProperty;
+/**
+ * Adds any number of numeric objects together by adding all their properties.
+ * @param objects Objects with numeric values
+ * @returns New object containing the sum of all properties by name
+ */
+function addObjects(...objects) {
+    var _a;
+    const result = {};
+    for (const o of objects) {
+        for (const [key, value] of Object.entries(o)) {
+            result[key] = ((_a = result[key]) !== null && _a !== void 0 ? _a : 0) + value;
+        }
+    }
+    return result;
+}
+exports.addObjects = addObjects;
 //# sourceMappingURL=collections.js.map

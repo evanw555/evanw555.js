@@ -193,3 +193,18 @@ export function incrementProperty<K extends string>(map: Record<K, number>, key:
         delete map[key];
     }
 }
+
+/**
+ * Adds any number of numeric objects together by adding all their properties.
+ * @param objects Objects with numeric values
+ * @returns New object containing the sum of all properties by name
+ */
+export function addObjects(...objects: Record<string, number>[]): Record<string, number> {
+    const result: Record<string, number> = {};
+    for (const o of objects) {
+        for (const [key, value] of Object.entries(o)) {
+            result[key] = (result[key] ?? 0) + value;
+        }
+    }
+    return result;
+}

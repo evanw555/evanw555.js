@@ -76,4 +76,10 @@ export declare function isObjectEmpty(map: Object): boolean;
  * @param amount The amount to increment
  */
 export declare function incrementProperty<K extends string>(map: Record<K, number>, key: K, amount: number): void;
+/**
+ * Adds any number of numeric objects together by adding all their properties.
+ * @param objects Objects with numeric values
+ * @returns New object containing the sum of all properties by name
+ */
+export declare function addObjects(...objects: Record<string, number>[]): Record<string, number>;
 //# sourceMappingURL=collections.d.ts.map

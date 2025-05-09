@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMinKey, getObjectSize, groupByProperty, incrementProperty, isObjectEmpty, toMap } from '../../src/utils/collections';
+import { addObjects, filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMinKey, getObjectSize, groupByProperty, incrementProperty, isObjectEmpty, toMap } from '../../src/utils/collections';
 
 describe('Collection Utility tests', () => {
     it('constructs maps from a list of keys and values', () => {
@@ -135,5 +135,21 @@ describe('Collection Utility tests', () => {
 
         incrementProperty(map, 'a', -4);
         expect(isObjectEmpty(map)).true;
+    });
+
+    it('adds objects together', () => {
+        const o1 = { a: 1, b: 2, c: 3 };
+        const o2 = { d: 4, e: 5, f: 6 };
+        const o3 = { a: 10, c: 20, e: 30 };
+        const o4 = { a: 100, f: 1000, g: 99 };
+
+        // Identity property: adding one with nothing returns itself (keys in order)
+        expect(JSON.stringify(addObjects(o1))).equals('{"a":1,"b":2,"c":3}');
+
+        expect(JSON.stringify(addObjects(o1, o2))).equals('{"a":1,"b":2,"c":3,"d":4,"e":5,"f":6}');
+        expect(JSON.stringify(addObjects(o1, o2, o3))).equals('{"a":11,"b":2,"c":23,"d":4,"e":35,"f":6}');
+        expect(JSON.stringify(addObjects(o1, o2, o3, o4))).equals('{"a":111,"b":2,"c":23,"d":4,"e":35,"f":1006,"g":99}');
+
+        expect(JSON.stringify(addObjects(o1, o3))).equals('{"a":11,"b":2,"c":23,"e":30}');11
     });
 });
