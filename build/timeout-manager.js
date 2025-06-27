@@ -340,6 +340,14 @@ class TimeoutManager {
         return Object.keys(this.timeouts).filter(id => this.timeouts[id].type === type);
     }
     /**
+     * Given a predicate that takes a timeout arg as input, return IDs for all timeouts for which the predicate is true.
+     * @param type Only compare against timeouts with this type
+     * @param predicate Timeout argument predicate
+     */
+    getTimeoutIdsWithArg(type, predicate) {
+        return this.getTimeoutIdsWithType(type).filter(id => predicate(this.timeouts[id].options.arg));
+    }
+    /**
      * @returns list of human-readable strings representing each timeout (in ascending date order)
      */
     toStrings() {

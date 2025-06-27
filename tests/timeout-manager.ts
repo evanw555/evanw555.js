@@ -207,4 +207,33 @@ describe('TimeoutManager Tests', () => {
         expect(manager.hasTimeoutWithId(id)).false;
         expect(manager.hasTimeoutWithType('fail')).false;
     });
+
+    it('can get IDs using an arg predicate', async () => {
+        expect(manager.hasTimeoutWithType('predicate')).false;
+        expect(manager.hasTimeoutWithType('predicateOther')).false;
+
+        const id1 = await manager.registerTimeout('predicate', in10Minutes, { arg: 'hello' });
+        const idOther = await manager.registerTimeout('predicateOther', in10Minutes, { arg: 'hello' });
+        const id2 = await manager.registerTimeout('predicate', in10Minutes, { arg: null });
+        const id3 = await manager.registerTimeout('predicate', in10Minutes);
+        const id4 = await manager.registerTimeout('predicate', in10Minutes, { arg: { a: 123, b: 456 }});
+        const id5 = await manager.registerTimeout('predicate', in10Minutes, { arg: { m: true, b: 4 }});
+        const id6 = await manager.registerTimeout('predicate', in10Minutes, { arg: { b: 7 }});
+        expect(manager.hasTimeoutWithId(id1)).true;
+        expect(manager.hasTimeoutWithId(idOther)).true;
+        expect(manager.hasTimeoutWithId(id2)).true;
+        expect(manager.hasTimeoutWithId(id3)).true;
+        expect(manager.hasTimeoutWithId(id4)).true;
+        expect(manager.hasTimeoutWithId(id5)).true;
+        expect(manager.hasTimeoutWithId(id6)).true;
+
+        const ids = manager.getTimeoutIdsWithArg('predicate', (arg) => arg && typeof arg === 'object' && arg.b && (arg.b % 2 === 0));
+        expect(ids.length).equals(2);
+        expect(ids[0]).equals(id4);
+        expect(ids[1]).equals(id5);
+
+        const ids2 = manager.getTimeoutIdsWithArg('predicate', (arg) => arg === 'hello');
+        expect(ids2.length).equals(1);
+        expect(ids2[0]).equals(id1);
+    });
 });
