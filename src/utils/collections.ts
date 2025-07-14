@@ -87,6 +87,32 @@ export function groupByProperty<T extends Object, K extends keyof T>(inputs: T[]
     return result;
 }
 
+type ScoringFunction<T> = (x: T) => number;
+
+/**
+ * Given a list of keys and a scoring function, return the keys that maximize the scoring function.
+ * @param keys List of keys
+ * @param valueFn The scoring function that takes an input key
+ * @returns The keys that maximize the scoring function
+ */
+export function getMaxKeys<T>(keys: T[], valueFn: ScoringFunction<T>): T[] {
+    if (keys.length === 0) {
+        throw new Error('Cannot determine the max key of an empty input list');
+    }
+    let maxValue = Number.MIN_SAFE_INTEGER;
+    let bestKeys: T[] = [];
+    for (const key of keys) {
+        const value = valueFn(key);
+        if (value === maxValue) {
+            bestKeys.push(key);
+        } else if (value > maxValue) {
+            bestKeys = [key];
+            maxValue = value;
+        }
+    }
+    return bestKeys;
+}
+
 /**
  * Given a list of keys and a scoring function, return the key that maximizes the scoring function.
  * In the case of a tie, the earliest key in the list takes precedence.
@@ -94,17 +120,32 @@ export function groupByProperty<T extends Object, K extends keyof T>(inputs: T[]
  * @param valueFn The scoring function that takes an input key
  * @returns The key that maximizes the scoring function
  */
-export function getMaxKey<T>(keys: T[], valueFn: (x: T) => number): T {
-    let maxValue = Number.MIN_SAFE_INTEGER;
-    let bestKey: T = keys[0];
+export function getMaxKey<T>(keys: T[], valueFn: ScoringFunction<T>): T {
+    return getMaxKeys(keys, valueFn)[0];
+}
+
+/**
+ * Given a list of keys and a scoring function, return the keys that minimize the scoring function.
+ * @param keys List of keys
+ * @param valueFn The scoring function that takes an input key
+ * @returns The keys that minimize the scoring function
+ */
+export function getMinKeys<T>(keys: T[], valueFn: ScoringFunction<T>): T[] {
+    if (keys.length === 0) {
+        throw new Error('Cannot determine the min key of an empty input list');
+    }
+    let minValue = Number.MAX_SAFE_INTEGER;
+    let bestKeys: T[] = [];
     for (const key of keys) {
         const value = valueFn(key);
-        if (value > maxValue) {
-            bestKey = key;
-            maxValue = value;
+        if (value === minValue) {
+            bestKeys.push(key);
+        } else if (value < minValue) {
+            bestKeys = [key];
+            minValue = value;
         }
     }
-    return bestKey;
+    return bestKeys;
 }
 
 /**
@@ -114,17 +155,28 @@ export function getMaxKey<T>(keys: T[], valueFn: (x: T) => number): T {
  * @param valueFn The scoring function that takes an input key
  * @returns The key that minimizes the scoring function
  */
-export function getMinKey<T>(keys: T[], valueFn: (x: T) => number): T {
-    let minValue = Number.MAX_SAFE_INTEGER;
-    let bestKey: T = keys[0];
-    for (const key of keys) {
-        const value = valueFn(key);
-        if (value < minValue) {
-            bestKey = key;
-            minValue = value;
+export function getMinKey<T>(keys: T[], valueFn: ScoringFunction<T>): T {
+    return getMinKeys(keys, valueFn)[0];
+}
+
+/**
+ * Given a list of keys and a scoring function, return a copy of the key list sorted in ascending order using the scoring function.
+ * If a list of scoring functions are provided, sort by the first function that does not produce a tie for a given pair of keys.
+ * @param keys List of keys
+ * @param valueFn The scoring function (or list of functions) that takes an input key
+ * @returns List of keys sorted by their score in ascending order
+ */
+export function getSortedKeys<T>(keys: T[], valueFn: ScoringFunction<T> | ScoringFunction<T>[]): T[] {
+    const scoringFns = (typeof valueFn === 'function') ? [valueFn] : valueFn;
+    return Array.from(keys).sort((x, y) => {
+        for (const scoringFn of scoringFns) {
+            if (scoringFn(x) === scoringFn(y)) {
+                continue;
+            }
+            return scoringFn(x) - scoringFn(y);
         }
-    }
-    return bestKey;
+        return 0;
+    });
 }
 
 /**

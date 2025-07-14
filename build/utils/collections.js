@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addObjects = exports.incrementProperty = exports.isObjectEmpty = exports.getObjectSize = exports.getEvenlyShortened = exports.getMinKey = exports.getMaxKey = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMap = void 0;
+exports.addObjects = exports.incrementProperty = exports.isObjectEmpty = exports.getObjectSize = exports.getEvenlyShortened = exports.getSortedKeys = exports.getMinKey = exports.getMinKeys = exports.getMaxKey = exports.getMaxKeys = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMap = void 0;
 /**
  * For some list of keys and some list of values of equal length, returns
  * a map with each key mapped to its respective value.
@@ -89,6 +89,31 @@ function groupByProperty(inputs, property) {
 }
 exports.groupByProperty = groupByProperty;
 /**
+ * Given a list of keys and a scoring function, return the keys that maximize the scoring function.
+ * @param keys List of keys
+ * @param valueFn The scoring function that takes an input key
+ * @returns The keys that maximize the scoring function
+ */
+function getMaxKeys(keys, valueFn) {
+    if (keys.length === 0) {
+        throw new Error('Cannot determine the max key of an empty input list');
+    }
+    let maxValue = Number.MIN_SAFE_INTEGER;
+    let bestKeys = [];
+    for (const key of keys) {
+        const value = valueFn(key);
+        if (value === maxValue) {
+            bestKeys.push(key);
+        }
+        else if (value > maxValue) {
+            bestKeys = [key];
+            maxValue = value;
+        }
+    }
+    return bestKeys;
+}
+exports.getMaxKeys = getMaxKeys;
+/**
  * Given a list of keys and a scoring function, return the key that maximizes the scoring function.
  * In the case of a tie, the earliest key in the list takes precedence.
  * @param keys List of keys
@@ -96,18 +121,34 @@ exports.groupByProperty = groupByProperty;
  * @returns The key that maximizes the scoring function
  */
 function getMaxKey(keys, valueFn) {
-    let maxValue = Number.MIN_SAFE_INTEGER;
-    let bestKey = keys[0];
-    for (const key of keys) {
-        const value = valueFn(key);
-        if (value > maxValue) {
-            bestKey = key;
-            maxValue = value;
-        }
-    }
-    return bestKey;
+    return getMaxKeys(keys, valueFn)[0];
 }
 exports.getMaxKey = getMaxKey;
+/**
+ * Given a list of keys and a scoring function, return the keys that minimize the scoring function.
+ * @param keys List of keys
+ * @param valueFn The scoring function that takes an input key
+ * @returns The keys that minimize the scoring function
+ */
+function getMinKeys(keys, valueFn) {
+    if (keys.length === 0) {
+        throw new Error('Cannot determine the min key of an empty input list');
+    }
+    let minValue = Number.MAX_SAFE_INTEGER;
+    let bestKeys = [];
+    for (const key of keys) {
+        const value = valueFn(key);
+        if (value === minValue) {
+            bestKeys.push(key);
+        }
+        else if (value < minValue) {
+            bestKeys = [key];
+            minValue = value;
+        }
+    }
+    return bestKeys;
+}
+exports.getMinKeys = getMinKeys;
 /**
  * Given a list of keys and a scoring function, return the key that minimizes the scoring function.
  * In the case of a tie, the earliest key in the list takes precedence.
@@ -116,18 +157,29 @@ exports.getMaxKey = getMaxKey;
  * @returns The key that minimizes the scoring function
  */
 function getMinKey(keys, valueFn) {
-    let minValue = Number.MAX_SAFE_INTEGER;
-    let bestKey = keys[0];
-    for (const key of keys) {
-        const value = valueFn(key);
-        if (value < minValue) {
-            bestKey = key;
-            minValue = value;
-        }
-    }
-    return bestKey;
+    return getMinKeys(keys, valueFn)[0];
 }
 exports.getMinKey = getMinKey;
+/**
+ * Given a list of keys and a scoring function, return a copy of the key list sorted in ascending order using the scoring function.
+ * If a list of scoring functions are provided, sort by the first function that does not produce a tie for a given pair of keys.
+ * @param keys List of keys
+ * @param valueFn The scoring function (or list of functions) that takes an input key
+ * @returns List of keys sorted by their score in ascending order
+ */
+function getSortedKeys(keys, valueFn) {
+    const scoringFns = (typeof valueFn === 'function') ? [valueFn] : valueFn;
+    return Array.from(keys).sort((x, y) => {
+        for (const scoringFn of scoringFns) {
+            if (scoringFn(x) === scoringFn(y)) {
+                continue;
+            }
+            return scoringFn(x) - scoringFn(y);
+        }
+        return 0;
+    });
+}
+exports.getSortedKeys = getSortedKeys;
 /**
  * Given some source list, returns a copy shortened to the desired length by removing elements at even intervals.
  * @param values Source list

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { addObjects, filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMinKey, getObjectSize, groupByProperty, incrementProperty, isObjectEmpty, toMap } from '../../src/utils/collections';
+import { addObjects, filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMaxKeys, getMinKey, getMinKeys, getObjectSize, getSortedKeys, groupByProperty, incrementProperty, isObjectEmpty, toMap } from '../../src/utils/collections';
 
 describe('Collection Utility tests', () => {
     it('constructs maps from a list of keys and values', () => {
@@ -59,11 +59,46 @@ describe('Collection Utility tests', () => {
         expect(getMaxKey(values, (x) => x.charCodeAt(0))).equals('ggg');
     });
 
+    it('determines multiple max keys using a scoring function', () => {
+        const values: Record<string, number> = { a: 1, b: 2, c: 1, d: 4, e: 2, f: 4, g: 0 };
+
+        expect(getMaxKeys(Object.keys(values), (x) => values[x] ?? 0).join(',')).equals('d,f');
+    });
+
     it('determines the min key using a scoring function', () => {
         const values: string[] = ['aaa', 'bb', 'c', 'dd', 'eee', 'ffff', 'ggg'];
 
         expect(getMinKey(values, (x) => x.length)).equals('c');
         expect(getMinKey(values, (x) => x.charCodeAt(0))).equals('aaa');
+    });
+
+    it('determines multiple min keys using a scoring function', () => {
+        const values: Record<string, number> = { a: 1, b: 2, c: 1, d: 4, e: 2, f: 4, g: 1 };
+
+        expect(getMinKeys(Object.keys(values), (x) => values[x] ?? 0).join(',')).equals('a,c,g');
+    });
+
+    it('sorts keys using a scoring function', () => {
+        const values: Record<string, number> = { a: 1, b: 4, c: 3, d: 13, e: 7, f: 5, g: 2 };
+
+        // Sort in ascending order by providing a positive scoring function
+        expect(getSortedKeys(Object.keys(values), (x) => values[x] ?? 0).join(',')).equals('a,g,c,b,f,e,d');
+
+        // Sort in descending order by providing a negative scoring function
+        expect(getSortedKeys(Object.keys(values), (x) => -(values[x] ?? 0)).join(',')).equals('d,e,f,b,c,g,a');
+    });
+
+    it('sorts keys using a tiered list of scoring functions', () => {
+        const keys: string[] = ['hello', 'apple', 'zzz abc', 'zzz z$z', 'zzz zzz', '$', 'someone', 'a very bad guy', 'b', 'app$e', 'the', 'a', 'what is going on here?'];
+
+        expect(getSortedKeys(keys, [
+            // First, sort by length descending (using a negative scoring function)
+            (x) => -x.length,
+            // Second, prioritize keys containing a dollar sign
+            (x) => x.includes('$') ? 0 : 1,
+            // Finally, sort lexicographically by first character
+            (x) => x.charCodeAt(0)
+        ]).join(',')).equals('what is going on here?,a very bad guy,zzz z$z,someone,zzz abc,zzz zzz,app$e,apple,hello,the,$,a,b');
     });
 
     it('evenly shortens lists', () => {
