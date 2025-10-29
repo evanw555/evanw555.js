@@ -263,8 +263,9 @@ export class TimeoutManager<T extends string> {
      * @param id ID of the timeout to be postponed
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
      * @throws Error if no timeout with this ID is currently scheduled
+     * @returns New date of the postponed timeout
      */
-    async postponeTimeout(id: string, value: Date | number): Promise<void> {
+    async postponeTimeout(id: string, value: Date | number): Promise<Date> {
         if (!this.instances[id] || !this.timeouts[id]) {
             throw new Error(`Cannot postpone non-existent timeout with ID ${id}`);
         }
@@ -283,6 +284,7 @@ export class TimeoutManager<T extends string> {
         await this.addTimeoutForId(id, timeout.type, newDate, timeout.options);
         // Dump the updated timeouts
         await this.dumpTimeouts();
+        return newDate;
     }
 
     /**

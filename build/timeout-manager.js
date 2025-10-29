@@ -230,6 +230,7 @@ class TimeoutManager {
      * @param id ID of the timeout to be postponed
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
      * @throws Error if no timeout with this ID is currently scheduled
+     * @returns New date of the postponed timeout
      */
     postponeTimeout(id, value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -252,6 +253,7 @@ class TimeoutManager {
             yield this.addTimeoutForId(id, timeout.type, newDate, timeout.options);
             // Dump the updated timeouts
             yield this.dumpTimeouts();
+            return newDate;
         });
     }
     /**

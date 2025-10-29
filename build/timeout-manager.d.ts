@@ -108,8 +108,9 @@ export declare class TimeoutManager<T extends string> {
      * @param id ID of the timeout to be postponed
      * @param value Either the new date (as a Date object), or a number (in milliseconds) indicating how long to postpone
      * @throws Error if no timeout with this ID is currently scheduled
+     * @returns New date of the postponed timeout
      */
-    postponeTimeout(id: string, value: Date | number): Promise<void>;
+    postponeTimeout(id: string, value: Date | number): Promise<Date>;
     /**
      * Postpones all existing timeouts of a given type to a later date. Any timeouts that are mid-invocation will not be postponed.
      * @param type Type of timeouts to postpone
