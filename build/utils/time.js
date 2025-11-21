@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysBetween = exports.isDayAfterTomorrow = exports.isTomorrow = exports.isToday = exports.isSameDay = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 function sleep(milliseconds) {
@@ -57,6 +57,54 @@ function getNumberOfDaysUntil(end) {
     return getNumberOfDaysBetween(new Date(), end);
 }
 exports.getNumberOfDaysUntil = getNumberOfDaysUntil;
+// TODO: Write tests for this
+/**
+ * Given two dates, returns true if they're on the same day.
+ * If either are null or undefined, then it returns false by default.
+ * @param a First date (or unix timestamp)
+ * @param b Second date (or unix timestamp)
+ * @returns True if these two dates are on the same day
+ */
+function isSameDay(a, b) {
+    if (!a || !b) {
+        return false;
+    }
+    const d1 = new Date(a);
+    const d2 = new Date(b);
+    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
+exports.isSameDay = isSameDay;
+/**
+ * Given some date, returns true if it's today.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is today
+ */
+function isToday(date) {
+    return isSameDay(date, new Date());
+}
+exports.isToday = isToday;
+/**
+ * Given some date, returns true if it's tomorrow.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is tomorrow
+ */
+function isTomorrow(date) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return isSameDay(date, tomorrow);
+}
+exports.isTomorrow = isTomorrow;
+/**
+ * Given some date, returns true if it falls on the day after tomorrow.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is the day after tomorrow
+ */
+function isDayAfterTomorrow(date) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 2);
+    return isSameDay(date, tomorrow);
+}
+exports.isDayAfterTomorrow = isDayAfterTomorrow;
 /**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
  * @param start date or date string

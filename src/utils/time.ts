@@ -55,6 +55,55 @@ export function getNumberOfDaysUntil(end: string | Date): number {
     return getNumberOfDaysBetween(new Date(), end);
 }
 
+
+// TODO: Write tests for this
+/**
+ * Given two dates, returns true if they're on the same day.
+ * If either are null or undefined, then it returns false by default.
+ * @param a First date (or unix timestamp)
+ * @param b Second date (or unix timestamp)
+ * @returns True if these two dates are on the same day
+ */
+export function isSameDay(a: Date | number | null | undefined, b: Date | number | null | undefined): boolean {
+    if (!a || !b) {
+        return false;
+    }
+    const d1 = new Date(a);
+    const d2 = new Date(b);
+    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
+
+/**
+ * Given some date, returns true if it's today.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is today
+ */
+export function isToday(date: Date | number | null | undefined): boolean {
+    return isSameDay(date, new Date());
+}
+
+/**
+ * Given some date, returns true if it's tomorrow.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is tomorrow
+ */
+export function isTomorrow(date: Date | number | null | undefined): boolean {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return isSameDay(date, tomorrow);
+}
+
+/**
+ * Given some date, returns true if it falls on the day after tomorrow.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is the day after tomorrow
+ */
+export function isDayAfterTomorrow(date: Date | number | null | undefined): boolean {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 2);
+    return isSameDay(date, tomorrow);
+}
+
 /**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
  * @param start date or date string

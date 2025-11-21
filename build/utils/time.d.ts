@@ -30,6 +30,32 @@ export declare function getNumberOfDaysSince(start: string | Date): number;
  */
 export declare function getNumberOfDaysUntil(end: string | Date): number;
 /**
+ * Given two dates, returns true if they're on the same day.
+ * If either are null or undefined, then it returns false by default.
+ * @param a First date (or unix timestamp)
+ * @param b Second date (or unix timestamp)
+ * @returns True if these two dates are on the same day
+ */
+export declare function isSameDay(a: Date | number | null | undefined, b: Date | number | null | undefined): boolean;
+/**
+ * Given some date, returns true if it's today.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is today
+ */
+export declare function isToday(date: Date | number | null | undefined): boolean;
+/**
+ * Given some date, returns true if it's tomorrow.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is tomorrow
+ */
+export declare function isTomorrow(date: Date | number | null | undefined): boolean;
+/**
+ * Given some date, returns true if it falls on the day after tomorrow.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is the day after tomorrow
+ */
+export declare function isDayAfterTomorrow(date: Date | number | null | undefined): boolean;
+/**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
  * @param start date or date string
  * @param end date or date string
