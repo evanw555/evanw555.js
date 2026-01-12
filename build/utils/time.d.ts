@@ -18,18 +18,6 @@ export declare function toCalendarDate(date: Date): string;
  */
 export declare function getTomorrow(): Date;
 /**
- * Gets the number of days since the provided date or date string (e.g. 1/20/2022)
- * @param start date or date string
- * @returns number of days since that date
- */
-export declare function getNumberOfDaysSince(start: string | Date): number;
-/**
- * Gets the number of days until the provided date or date string (e.g. 1/20/2022)
- * @param end date or date string
- * @returns number of days until that date
- */
-export declare function getNumberOfDaysUntil(end: string | Date): number;
-/**
  * Given two dates, returns true if they're on the same day.
  * If either are null or undefined, then it returns false by default.
  * @param a First date (or unix timestamp)
@@ -56,12 +44,30 @@ export declare function isTomorrow(date: Date | number | null | undefined): bool
  */
 export declare function isDayAfterTomorrow(date: Date | number | null | undefined): boolean;
 /**
+ * Given some date, returns true if it's some time in the past.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is in the past
+ */
+export declare function isPast(date: Date | number | null | undefined): boolean;
+/**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
- * @param start date or date string
- * @param end date or date string
+ * @param start date (or date string, or Unix timestamp)
+ * @param end date (or date string, or Unix timestamp)
  * @returns number of days between those dates
  */
-export declare function getNumberOfDaysBetween(start: string | Date, end: string | Date): number;
+export declare function getNumberOfDaysBetween(start: Date | number | string, end: Date | number | string): number;
+/**
+ * Gets the number of days since the provided date or date string (e.g. 1/20/2022)
+ * @param start date (or date string, or Unix timestamp)
+ * @returns number of days since that date
+ */
+export declare function getNumberOfDaysSince(date: Date | number | string): number;
+/**
+ * Gets the number of days until the provided date or date string (e.g. 1/20/2022)
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of days until that date
+ */
+export declare function getNumberOfDaysUntil(end: Date | number | string): number;
 /**
  * Computes a date between the two provided dates, as specified by the optional "along" factor.
  * If the user wants a date 0.5 "along", it will return a date exactly halfway between the two.

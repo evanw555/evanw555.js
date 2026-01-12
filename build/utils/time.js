@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysBetween = exports.isDayAfterTomorrow = exports.isTomorrow = exports.isToday = exports.isSameDay = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getNumberOfDaysBetween = exports.isPast = exports.isDayAfterTomorrow = exports.isTomorrow = exports.isToday = exports.isSameDay = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 function sleep(milliseconds) {
@@ -39,24 +39,6 @@ function getTomorrow() {
     return tomorrow;
 }
 exports.getTomorrow = getTomorrow;
-/**
- * Gets the number of days since the provided date or date string (e.g. 1/20/2022)
- * @param start date or date string
- * @returns number of days since that date
- */
-function getNumberOfDaysSince(start) {
-    return getNumberOfDaysBetween(start, new Date());
-}
-exports.getNumberOfDaysSince = getNumberOfDaysSince;
-/**
- * Gets the number of days until the provided date or date string (e.g. 1/20/2022)
- * @param end date or date string
- * @returns number of days until that date
- */
-function getNumberOfDaysUntil(end) {
-    return getNumberOfDaysBetween(new Date(), end);
-}
-exports.getNumberOfDaysUntil = getNumberOfDaysUntil;
 // TODO: Write tests for this
 /**
  * Given two dates, returns true if they're on the same day.
@@ -106,9 +88,22 @@ function isDayAfterTomorrow(date) {
 }
 exports.isDayAfterTomorrow = isDayAfterTomorrow;
 /**
+ * Given some date, returns true if it's some time in the past.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is in the past
+ */
+function isPast(date) {
+    if (!date) {
+        return false;
+    }
+    const d = new Date(date);
+    return d.getTime() < new Date().getTime();
+}
+exports.isPast = isPast;
+/**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
- * @param start date or date string
- * @param end date or date string
+ * @param start date (or date string, or Unix timestamp)
+ * @param end date (or date string, or Unix timestamp)
  * @returns number of days between those dates
  */
 function getNumberOfDaysBetween(start, end) {
@@ -119,6 +114,24 @@ function getNumberOfDaysBetween(start, end) {
     return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 }
 exports.getNumberOfDaysBetween = getNumberOfDaysBetween;
+/**
+ * Gets the number of days since the provided date or date string (e.g. 1/20/2022)
+ * @param start date (or date string, or Unix timestamp)
+ * @returns number of days since that date
+ */
+function getNumberOfDaysSince(date) {
+    return getNumberOfDaysBetween(date, new Date());
+}
+exports.getNumberOfDaysSince = getNumberOfDaysSince;
+/**
+ * Gets the number of days until the provided date or date string (e.g. 1/20/2022)
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of days until that date
+ */
+function getNumberOfDaysUntil(end) {
+    return getNumberOfDaysBetween(new Date(), end);
+}
+exports.getNumberOfDaysUntil = getNumberOfDaysUntil;
 /**
  * Computes a date between the two provided dates, as specified by the optional "along" factor.
  * If the user wants a date 0.5 "along", it will return a date exactly halfway between the two.

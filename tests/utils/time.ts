@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getNumberOfDaysBetween, getNumberOfDaysUntil, getPreciseDurationString } from '../../src/utils/time';
+import { getNumberOfDaysBetween, getNumberOfDaysSince, getNumberOfDaysUntil, getPreciseDurationString, isPast } from '../../src/utils/time';
 
 describe('Time Utility tests', () => {
     it ('can create precise duration strings', () => {
@@ -29,5 +29,32 @@ describe('Time Utility tests', () => {
         expect(getNumberOfDaysBetween('10/31/2021', '11/1/2021')).equals(1);
         expect(getNumberOfDaysBetween('1/15/2013', '1/15/2014')).equals(365);
         expect(getNumberOfDaysBetween('9/28/2023', '10/1/2023')).equals(3);
+
+        // Test the since/until utils as well
+        const since = new Date();
+        since.setHours(since.getHours() - 25);
+        expect(getNumberOfDaysSince(since)).equals(1);
+        expect(getNumberOfDaysSince(since.getTime())).equals(1);
+        const until = new Date();
+        until.setHours(since.getHours() + 49);
+        expect(getNumberOfDaysUntil(until)).equals(2);
+        expect(getNumberOfDaysUntil(until.getTime())).equals(2);
+    });
+
+    it('can determine if a date is in the past', () => {
+        const past = new Date();
+        past.setHours(past.getHours() - 10);
+
+        const future = new Date();
+        future.setHours(future.getHours() + 10);
+
+        expect(isPast(past)).true;
+        expect(isPast(past.getTime())).true;
+
+        expect(isPast(future)).false;
+        expect(isPast(future.getTime())).false;
+
+        expect(isPast(null)).false;
+        expect(isPast(undefined)).false;
     });
 });
