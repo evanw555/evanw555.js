@@ -39,6 +39,19 @@ export function chance(p: number): boolean {
     return Math.random() < p;
 }
 
+/**
+ * Given some input number, rounds to the nearest integer using the remainder as the probability.
+ * For example, rounding `9.9` by chance is 90% likely to round up to `10` rather than down to `9`.
+ * @param input Some input number that may contain a fraction
+ * @returns The input number rounded to the nearest integer by chance
+ */
+export function roundByChance(input: number): number {
+    const whole = Math.floor(Math.abs(input));
+    const remainder = Math.abs(input) % 1;
+    const polarity = input < 0 ? -1 : 1;
+    return (whole * polarity) + (polarity * (chance(remainder) ? 1 : 0));
+}
+
 export function shuffleWithDependencies(input: string[], dependencies: Record<string, string[]>): string[] {
     const edges: Record<string, string[]> = {};
     const initializeEdge = (node: string) => {

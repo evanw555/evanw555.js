@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments } from '../../src/utils/random';
+import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments, roundByChance } from '../../src/utils/random';
 import { getObjectSize } from '../../src/utils/collections';
 
 describe('Random Utils tests', () => {
@@ -84,5 +84,38 @@ describe('Random Utils tests', () => {
             }
             expect(usageCounts.size).lessThanOrEqual(2);
         }
+    })
+
+    it('rounds numbers by chance', () => {
+        const runTest = (n: number) => {
+            const result: Record<string, number> = {};
+            for (let i = 0; i < 1000; i++) {
+                const r = roundByChance(n);
+                result[r] = (result[r] ?? 0) + 1;
+            }
+            return result;
+        }
+
+        // Round a number way more likely up than down
+        const r1 = runTest(9.9);
+        expect(getObjectSize(r1)).equals(2);
+        expect(r1[10]).greaterThan(500);
+        expect(r1[9]).lessThan(500);
+
+        // Same thing but negative
+        const r2 = runTest(-9.9);
+        expect(getObjectSize(r2)).equals(2);
+        expect(r2[-10]).greaterThan(500);
+        expect(r2[-9]).lessThan(500);
+
+        // Whole numbers should not be rounded
+        const r3 = runTest(10);
+        expect(getObjectSize(r3)).equals(1);
+        expect(r3[10]).equals(1000);
+
+        // Zero should behave normally
+        const r4 = runTest(0);
+        expect(getObjectSize(r4)).equals(1);
+        expect(r4[0]).equals(1000);
     })
 });

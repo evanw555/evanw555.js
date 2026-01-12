@@ -20,6 +20,13 @@ export declare function shuffle<T>(input: T[]): T[];
  * @returns True with probability p
  */
 export declare function chance(p: number): boolean;
+/**
+ * Given some input number, rounds to the nearest integer using the remainder as the probability.
+ * For example, rounding `9.9` by chance is 90% likely to round up to `10` rather than down to `9`.
+ * @param input Some input number that may contain a fraction
+ * @returns The input number rounded to the nearest integer by chance
+ */
+export declare function roundByChance(input: number): number;
 export declare function shuffleWithDependencies(input: string[], dependencies: Record<string, string[]>): string[];
 /**
  * Given a list of strings, assign each input a target such that the graph of targets form one large cycle.

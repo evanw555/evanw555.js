@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomlyDistributedAssignments = exports.shuffleCycle = exports.shuffleWithDependencies = exports.chance = exports.shuffle = exports.randChoice = exports.randInt = void 0;
+exports.getRandomlyDistributedAssignments = exports.shuffleCycle = exports.shuffleWithDependencies = exports.roundByChance = exports.chance = exports.shuffle = exports.randChoice = exports.randInt = void 0;
 const dag_1 = require("./dag");
 /**
  * @param lo Lower bound (inclusive)
@@ -43,6 +43,19 @@ function chance(p) {
     return Math.random() < p;
 }
 exports.chance = chance;
+/**
+ * Given some input number, rounds to the nearest integer using the remainder as the probability.
+ * For example, rounding `9.9` by chance is 90% likely to round up to `10` rather than down to `9`.
+ * @param input Some input number that may contain a fraction
+ * @returns The input number rounded to the nearest integer by chance
+ */
+function roundByChance(input) {
+    const whole = Math.floor(Math.abs(input));
+    const remainder = Math.abs(input) % 1;
+    const polarity = input < 0 ? -1 : 1;
+    return (whole * polarity) + (polarity * (chance(remainder) ? 1 : 0));
+}
+exports.roundByChance = roundByChance;
 function shuffleWithDependencies(input, dependencies) {
     const edges = {};
     const initializeEdge = (node) => {
