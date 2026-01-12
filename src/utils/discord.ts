@@ -16,12 +16,13 @@ export enum DiscordTimestampFormat {
 
 /**
  * Given some date/time, returns a Discord timestamp string in some particular format.
- * @param date The provided date
+ * @param date The provided date (or Unix timestamp)
  * @param format The format of the output timestamp
  * @returns Discord timestamp string
  */
-export function toDiscordTimestamp(date: Date, format: DiscordTimestampFormat = DiscordTimestampFormat.ShortDateTime): string {
-    return `<t:${Math.round(date.getTime() / 1000)}:${format}>`;
+export function toDiscordTimestamp(date: Date | number, format: DiscordTimestampFormat = DiscordTimestampFormat.ShortDateTime): string {
+    const d = new Date(date);
+    return `<t:${Math.round(d.getTime() / 1000)}:${format}>`;
 }
 
 export function getJoinedMentions(userIds: Snowflake[], conjunction: string = 'and'): string {
@@ -33,7 +34,7 @@ export function getJoinedMentions(userIds: Snowflake[], conjunction: string = 'a
  * @param channel the target channel
  * @param text the text to send
  */
-export async function sendLargeMonospaced (channel: TextBasedChannel, text: string): Promise<void> {
+export async function sendLargeMonospaced(channel: TextBasedChannel, text: string): Promise<void> {
     const lines: string[] = text.split('\n');
     let buffer: string = '';
     let segmentIndex: number = 0;

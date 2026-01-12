@@ -8,6 +8,7 @@ describe('Discord Utils tests', () => {
         expect(toDiscordTimestamp(d, DiscordTimestampFormat.ShortDateTime)).to.equal('<t:1234567890:f>');
         expect(toDiscordTimestamp(d, DiscordTimestampFormat.LongTime)).to.equal('<t:1234567890:T>');
         expect(toDiscordTimestamp(d, DiscordTimestampFormat.Relative)).to.equal('<t:1234567890:R>');
+        expect(toDiscordTimestamp(1234567890123, DiscordTimestampFormat.Relative)).to.equal('<t:1234567890:R>');
     });
 
     it('gets poll choice keys for basic cases', () => {

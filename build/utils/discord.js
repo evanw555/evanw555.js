@@ -26,12 +26,13 @@ var DiscordTimestampFormat;
 ;
 /**
  * Given some date/time, returns a Discord timestamp string in some particular format.
- * @param date The provided date
+ * @param date The provided date (or Unix timestamp)
  * @param format The format of the output timestamp
  * @returns Discord timestamp string
  */
 function toDiscordTimestamp(date, format = DiscordTimestampFormat.ShortDateTime) {
-    return `<t:${Math.round(date.getTime() / 1000)}:${format}>`;
+    const d = new Date(date);
+    return `<t:${Math.round(d.getTime() / 1000)}:${format}>`;
 }
 exports.toDiscordTimestamp = toDiscordTimestamp;
 function getJoinedMentions(userIds, conjunction = 'and') {

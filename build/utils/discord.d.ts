@@ -10,11 +10,11 @@ export declare enum DiscordTimestampFormat {
 }
 /**
  * Given some date/time, returns a Discord timestamp string in some particular format.
- * @param date The provided date
+ * @param date The provided date (or Unix timestamp)
  * @param format The format of the output timestamp
  * @returns Discord timestamp string
  */
-export declare function toDiscordTimestamp(date: Date, format?: DiscordTimestampFormat): string;
+export declare function toDiscordTimestamp(date: Date | number, format?: DiscordTimestampFormat): string;
 export declare function getJoinedMentions(userIds: Snowflake[], conjunction?: string): string;
 /**
  * Send the provided text as a series of boxed (monospaced) messages limited to no more than 2000 characters each.
