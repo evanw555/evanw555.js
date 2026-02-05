@@ -34,6 +34,7 @@ __exportStar(require("./utils/edit-distance"), exports);
 __exportStar(require("./utils/graph"), exports);
 __exportStar(require("./utils/k-means"), exports);
 __exportStar(require("./utils/load-json"), exports);
+__exportStar(require("./utils/math"), exports);
 __exportStar(require("./utils/misc"), exports);
 __exportStar(require("./utils/pretty"), exports);
 __exportStar(require("./utils/random"), exports);

@@ -17,6 +17,7 @@ export * from './utils/edit-distance';
 export * from './utils/graph';
 export * from './utils/k-means';
 export * from './utils/load-json';
+export * from './utils/math';
 export * from './utils/misc';
 export * from './utils/pretty';
 export * from './utils/random';

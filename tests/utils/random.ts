@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments, roundByChance, randInt, randFloat } from '../../src/utils/random';
 import { getObjectSize } from '../../src/utils/collections';
+import { stddev } from '../../src/utils/math';
 
 describe('Random Utils tests', () => {
     it('generates random integers', () => {
@@ -60,17 +61,13 @@ describe('Random Utils tests', () => {
             // console.log('OK');
 
             // Compute the standard deviation
-            const sum = results.reduce((x, y) => x + y, 0);
-            const mean = sum / results.length;
-            const deviations = results.map(r => Math.pow(r - mean, 2));
-            const sumDeviations = deviations.reduce((x, y) => x + y, 0);
-            const stddev = Math.sqrt(sumDeviations / deviations.length);
-            // console.log(`STDDEV = ${stddev.toFixed(4)}`);
+            const sd = stddev(results);
+            // console.log(`STDDEV = ${sd.toFixed(4)}`);
             // console.log();
 
             // Assert that as the bates value increases, the stddev decreases
-            expect(stddev).lessThan(previousStddev, 'The standard deviation should decrease as the bates factor increases');
-            previousStddev = stddev;
+            expect(sd).lessThan(previousStddev, 'The standard deviation should decrease as the bates factor increases');
+            previousStddev = sd;
         }
     });
 
