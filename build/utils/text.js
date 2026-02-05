@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPercentChangeString = exports.getUnambiguousQuantitiesWithUnits = exports.getQuantityWithUnits = exports.canonicalizeText = void 0;
+exports.s = exports.getPercentChangeString = exports.getUnambiguousQuantitiesWithUnits = exports.getQuantityWithUnits = exports.canonicalizeText = void 0;
 /**
  * Canonicalizes a string of text. For example `"Hello, World!""` becomes `"helloworld"`.
  * @returns The given text in lower-case with all non-alphanumeric characters removed
@@ -74,4 +74,14 @@ function getPercentChangeString(before, after, fractionDigits = 1) {
     return `${diff < 0 ? '' : '+'}${(100 * diff / before).toFixed(fractionDigits)}%`;
 }
 exports.getPercentChangeString = getPercentChangeString;
+/**
+ * Returns an "s" if the provided number is NOT equal to 1.
+ * This is useful for conditional pluralization of strings, which happens often.
+ * @param n Some number
+ * @returns "s" if that number is anything but 1
+ */
+function s(n) {
+    return n === 1 ? '' : 's';
+}
+exports.s = s;
 //# sourceMappingURL=text.js.map

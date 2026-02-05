@@ -27,7 +27,9 @@ export declare function collapseRedundantStrings(input: string[], transformer: (
  * @param selector the dot-delimited selector
  * @returns the subnode of the input node specified by the provided selector
  */
-export declare function getSelectedNode(root: any, selector?: string): any;
+export declare function getSelectedNode(root: any, selector?: string, options?: {
+    ignoreCase?: boolean;
+}): any;
 /**
  * Take a given input float and return it rounded to some fixed number of decimal places.
  * @param input the float

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { toLetterId, fromLetterId, getWordRepetitionScore, collapseRedundantStrings, naturalJoin, getNumberBetween, splitTextNaturally } from '../../src/utils/misc';
+import { toLetterId, fromLetterId, getWordRepetitionScore, collapseRedundantStrings, naturalJoin, getNumberBetween, splitTextNaturally, getSelectedNode } from '../../src/utils/misc';
 
 describe('Misc. Utility tests', () => {
     it ('can naturally join strings', () => {
@@ -66,6 +66,53 @@ describe('Misc. Utility tests', () => {
         expect(collapseRedundantStrings(['a', 'b', 'a', 'b'], transformer).join(',')).to.equal('a,b,a,b');
         expect(collapseRedundantStrings(['a', 'a', 'a', 'b', 'a', 'a'], transformer).join(',')).to.equal('a (x3),b,a (x2)');
         expect(collapseRedundantStrings(['a', 'b', 'c', 'c', 'c', 'd'], transformer).join(',')).to.equal('a,b,c (x3),d');
+    });
+
+    it('can select nodes in an object via selector string', () => {
+        const d = {
+            a: {
+                b: {
+                    c: 123
+                }
+            },
+            other: ['one', 'two', 'three'],
+            ambiguous: {
+                aaa: true,
+                AAA: false,
+                AaA: null
+            }
+        };
+
+        // Standard cases
+        expect(getSelectedNode(d, '.')).equals(d, 'Root select should return the whole object back');
+        expect(getSelectedNode(d, '')).equals(d, 'Empty select should return the whole object back');
+        expect(getSelectedNode(d, 'a')).equals(d.a, 'Can select one node deep');
+        expect(getSelectedNode(d, '.a')).equals(d.a, 'Can select one node deep with leading separator');
+        expect(getSelectedNode(d, 'a.b')).equals(d.a.b, 'Can select two nodes deep');
+        expect(getSelectedNode(d, 'a.b.c')).equals(d.a.b.c, 'Can select three nodes deep');
+        expect(getSelectedNode(d, 'a.b.c')).equals(123, 'Can select three nodes deep');
+        expect(getSelectedNode(d, '.other')).equals(d.other, 'Can select an array');
+        expect(getSelectedNode(d, '.other.0')).equals('one', 'Can select within an array');
+        expect(getSelectedNode(d, '.other.1')).equals('two', 'Can select within an array');
+        expect(getSelectedNode(d, '.other.2')).equals('three', 'Can select within an array');
+        expect(getSelectedNode(d, '.ambiguous.aaa')).equals(true, 'Selectors are case-sensitive');
+        expect(getSelectedNode(d, '.ambiguous.AAA')).equals(false, 'Selectors are case-sensitive');
+        expect(getSelectedNode(d, '.ambiguous.AaA')).equals(null, 'Selectors are case-sensitive');
+        expect(getSelectedNode(d, '.ambiguous.aAa')).equals(undefined, 'Selectors are case-sensitive');
+
+        // Failure cases
+        expect(getSelectedNode(d, 'a.b.x')).equals(undefined, 'Nonexistent property returns undefined');
+        expect(() => getSelectedNode(d, 'a.b.x.y')).throws(Error, '`a.b.x.y` is not a valid selector! (failed at `y`)');
+        expect(() => getSelectedNode(d, 'a.b.x.y.z')).throws(Error, '`a.b.x.y.z` is not a valid selector! (failed at `y`)');
+        expect(getSelectedNode(d, '.other.3')).equals(undefined, 'OOB array index returns undefined');
+        expect(() => getSelectedNode(d, '.other.0.11')).throws(Error, '`.other.0.11` is not a valid selector! (failed at `11`)');
+
+        // Ignoring case
+        expect(getSelectedNode(d, 'a.b.c', { ignoreCase: true })).equals(123, 'Can ignore case when it doesn\'t matter');
+        expect(getSelectedNode(d, 'A.B.c', { ignoreCase: true })).equals(123, 'Can ignore case when selecting objects');
+        expect(getSelectedNode(d, '.OtHeR.1', { ignoreCase: true })).equals('two', 'Can ignore case when selecting arrays');
+        expect(() => getSelectedNode(d, '.ambiguous.aAa', { ignoreCase: true })).throws(Error, '`.ambiguous.aAa` selects multiple nodes when ignoring case! (failed at `aAa`)');
+
     });
 
     it('can get numbers between two numbers', () => {

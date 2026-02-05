@@ -67,18 +67,39 @@ export function collapseRedundantStrings(input: string[], transformer: (element:
  * @param selector the dot-delimited selector
  * @returns the subnode of the input node specified by the provided selector
  */
-export function getSelectedNode(root: any, selector: string = ''): any {
+export function getSelectedNode(root: any, selector: string = '', options?: { ignoreCase?: boolean }): any {
+    const ignoreCase = options?.ignoreCase ?? false;
     // If a selector was specified, select a specific part of the state
     const selectors: string[] = selector.split('.');
     let node: any = root;
     for (const s of selectors) {
-        // Skip empty selectors (due to extra spaces)
+        // Skip empty selectors (due to extra separators)
         if (!s) {
             continue;
         }
         // Continue selection if the current node is an object/array, otherwise fail
-        if (node instanceof Object && s in node) {
-            node = node[s];
+        if (node instanceof Object) {
+            // If this property doesn't exist and we're ignoring case, look harder...
+            if (node[s] === undefined && ignoreCase) {
+                // See if there are any keys that match without considering case
+                const similarKeys = Object.keys(node).filter(k => k.toLowerCase() === s.toLowerCase());
+                // Fail if there's any ambiguity
+                if (similarKeys.length > 1) {
+                    throw new Error(`\`${selector}\` selects multiple nodes when ignoring case! (failed at \`${s}\`)`);
+                }
+                // If there's exactly one match, select it and proceed
+                if (similarKeys.length === 1) {
+                    node = node[similarKeys[0]];
+                }
+                // If nothing matches, select using original key
+                else {
+                    node = node[s];
+                }
+            }
+            // Else, just select as usual
+            else {
+                node = node[s];
+            }
         } else {
             throw new Error(`\`${selector}\` is not a valid selector! (failed at \`${s}\`)`);
         }

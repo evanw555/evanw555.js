@@ -35,10 +35,10 @@ describe('Random Utils tests', () => {
             // First, generate a ton of numbers
             const results: number[] = [];
             for (let i = 0; i < N; i++) {
-                const n = randFloat(0, 1.5, b);
+                const n = randFloat(0.75, 1.5, b);
                 results.push(n);
                 // Validate that this value is within the expected range
-                expect(n).greaterThanOrEqual(0, 'Random float must be GTE the lower bound');
+                expect(n).greaterThanOrEqual(0.75, 'Random float must be GTE the lower bound');
                 expect(n).lessThan(1.5, 'Random float must be less than the upper bound');
             }
 

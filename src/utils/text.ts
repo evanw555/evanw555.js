@@ -68,3 +68,13 @@ export function getPercentChangeString(before: number, after: number, fractionDi
     const diff = after - before;
     return `${diff < 0 ? '' : '+'}${(100 * diff / before).toFixed(fractionDigits)}%`;
 }
+
+/**
+ * Returns an "s" if the provided number is NOT equal to 1.
+ * This is useful for conditional pluralization of strings, which happens often.
+ * @param n Some number
+ * @returns "s" if that number is anything but 1
+ */
+export function s(n: number): string {
+    return n === 1 ? '' : 's';
+}

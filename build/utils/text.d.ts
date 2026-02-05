@@ -27,4 +27,11 @@ export declare function getUnambiguousQuantitiesWithUnits(quantities: number[]):
  * @returns The explicitly positive or negative number representing the percentage change
  */
 export declare function getPercentChangeString(before: number, after: number, fractionDigits?: number): string;
+/**
+ * Returns an "s" if the provided number is NOT equal to 1.
+ * This is useful for conditional pluralization of strings, which happens often.
+ * @param n Some number
+ * @returns "s" if that number is anything but 1
+ */
+export declare function s(n: number): string;
 //# sourceMappingURL=text.d.ts.map
