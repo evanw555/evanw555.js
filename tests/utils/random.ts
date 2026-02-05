@@ -1,8 +1,79 @@
 import { expect } from 'chai';
-import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments, roundByChance } from '../../src/utils/random';
+import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments, roundByChance, randInt, randFloat } from '../../src/utils/random';
 import { getObjectSize } from '../../src/utils/collections';
 
 describe('Random Utils tests', () => {
+    it('generates random integers', () => {
+        const N = 2000;
+        // For each bates distribution value
+        for (let b = 1; b < 5; b++) {
+            // First, generate a ton of numbers
+            const result: Record<number, number> = {};
+            for (let i = 0; i < N; i++) {
+                const n = randInt(0, 20, b);
+                result[n] = (result[n] ?? 0) + 1;
+                // Validate that this value is within the expected range
+                expect(n).greaterThanOrEqual(0, 'Random int must be GTE the lower bound');
+                expect(n).lessThan(20, 'Random int must be less than the upper bound');
+                // Validate that the value is an integer
+                expect(n === Math.floor(n)).true;
+            }
+
+            // If the bates value is above 1, assert that outliers are less frequent
+            if (b > 1) {
+                expect(result[10]).greaterThan(result[5], 'Mean values should be more likely than lower values');
+                expect(result[10]).greaterThan(result[15], 'Mean values should be more likely than higher values');
+            }
+        }
+    });
+
+    it('generates random floats', () => {
+        const N = 1000;
+        let previousStddev = Number.MAX_SAFE_INTEGER;
+        // For each bates distribution value
+        for (let b = 1; b < 6; b++) {
+            // First, generate a ton of numbers
+            const results: number[] = [];
+            for (let i = 0; i < N; i++) {
+                const n = randFloat(0, 1.5, b);
+                results.push(n);
+                // Validate that this value is within the expected range
+                expect(n).greaterThanOrEqual(0, 'Random float must be GTE the lower bound');
+                expect(n).lessThan(1.5, 'Random float must be less than the upper bound');
+            }
+
+            // Put each value in a bucket
+            const buckets: boolean[] = new Array(140);
+            for (let i = 0; i < buckets.length; i++) {
+                buckets[i] = false;
+            }
+            for (const n of results) {
+                const bucket = Math.floor(buckets.length * n / 1.5);
+                buckets[bucket] = true;
+            }
+
+            // Draw each bucket
+            // console.log(`Bates = ${b}`);
+            // for (let i = 0; i < buckets.length; i++) {
+            //     process.stdout.write(buckets[i] ? '#' : '.');
+            // }
+            // console.log('OK');
+
+            // Compute the standard deviation
+            const sum = results.reduce((x, y) => x + y, 0);
+            const mean = sum / results.length;
+            const deviations = results.map(r => Math.pow(r - mean, 2));
+            const sumDeviations = deviations.reduce((x, y) => x + y, 0);
+            const stddev = Math.sqrt(sumDeviations / deviations.length);
+            // console.log(`STDDEV = ${stddev.toFixed(4)}`);
+            // console.log();
+
+            // Assert that as the bates value increases, the stddev decreases
+            expect(stddev).lessThan(previousStddev, 'The standard deviation should decrease as the bates factor increases');
+            previousStddev = stddev;
+        }
+    });
+
     it('shuffles with dependencies', () => {
         const data = ['second', 'third', 'first', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'three', 'two', 'one', 'second2', 'third2', 'last'];
         const dependencies = {

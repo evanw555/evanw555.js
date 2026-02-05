@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomlyDistributedAssignments = exports.shuffleCycle = exports.shuffleWithDependencies = exports.roundByChance = exports.chance = exports.shuffle = exports.randChoice = exports.randInt = void 0;
+exports.getRandomlyDistributedAssignments = exports.shuffleCycle = exports.shuffleWithDependencies = exports.roundByChance = exports.chance = exports.shuffle = exports.randChoice = exports.randFloat = exports.randInt = void 0;
 const dag_1 = require("./dag");
 /**
  * @param lo Lower bound (inclusive)
@@ -9,15 +9,28 @@ const dag_1 = require("./dag");
  * @return integer in the range [lo, hi)
  */
 function randInt(lo, hi, bates = 1) {
-    let total = 0;
-    const b = Math.floor(bates);
-    for (let i = 0; i < b; i++) {
-        total += Math.floor(Math.random() * (hi - lo)) + lo;
+    if (lo !== Math.floor(lo)) {
+        throw new Error(`Expected integer lower bound arg but got: ${lo}`);
     }
-    return Math.floor(total / b);
+    if (hi !== Math.floor(hi)) {
+        throw new Error(`Expected integer upper bound arg but got: ${hi}`);
+    }
+    return Math.floor(randFloat(lo, hi, bates));
 }
 exports.randInt = randInt;
 ;
+function randFloat(lo, hi, bates = 1) {
+    let total = 0;
+    const b = Math.floor(bates);
+    if (b < 1) {
+        throw new Error(`Invalid non-positive Bates distribution value: ${b}`);
+    }
+    for (let i = 0; i < b; i++) {
+        total += Math.random() * (hi - lo) + lo;
+    }
+    return total / b;
+}
+exports.randFloat = randFloat;
 /**
  * @param choices Array of objects to choose from
  * @returns A random element from the input array

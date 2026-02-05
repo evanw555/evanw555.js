@@ -7,13 +7,26 @@ import { flattenDAG } from "./dag";
  * @return integer in the range [lo, hi)
  */
  export function randInt(lo: number, hi: number, bates: number = 1): number {
+    if (lo !== Math.floor(lo)) {
+        throw new Error(`Expected integer lower bound arg but got: ${lo}`);
+    }
+    if (hi !== Math.floor(hi)) {
+        throw new Error(`Expected integer upper bound arg but got: ${hi}`);
+    }
+    return Math.floor(randFloat(lo, hi, bates));
+};
+
+export function randFloat(lo: number, hi: number, bates: number = 1): number {
     let total: number = 0;
     const b = Math.floor(bates);
-    for (let i = 0; i < b; i++) {
-        total += Math.floor(Math.random() * (hi - lo)) + lo;
+    if (b < 1) {
+        throw new Error(`Invalid non-positive Bates distribution value: ${b}`);
     }
-    return Math.floor(total / b);
-};
+    for (let i = 0; i < b; i++) {
+        total += Math.random() * (hi - lo) + lo;
+    }
+    return total / b;
+}
 
 /**
  * @param choices Array of objects to choose from

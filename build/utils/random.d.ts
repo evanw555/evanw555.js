@@ -5,6 +5,7 @@
  * @return integer in the range [lo, hi)
  */
 export declare function randInt(lo: number, hi: number, bates?: number): number;
+export declare function randFloat(lo: number, hi: number, bates?: number): number;
 /**
  * @param choices Array of objects to choose from
  * @returns A random element from the input array
