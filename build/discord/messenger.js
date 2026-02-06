@@ -13,6 +13,7 @@ exports.Messenger = void 0;
 const discord_js_1 = require("discord.js");
 const random_1 = require("../utils/random");
 const time_1 = require("../utils/time");
+const discord_1 = require("../utils/discord");
 class Messenger {
     /**
      * @param options.alwaysImmediate If true, then every message sent with this messenger will be immediate (no typing delay)
@@ -209,34 +210,14 @@ class Messenger {
         });
     }
     /**
+     * // TODO: This should probably be deleted to reduce redundancy
      * Send the provided text as a series of boxed (monospaced) messages limited to no more than 2000 characters each.
      * @param channel the target channel
      * @param text the text to send
      */
     sendLargeMonospaced(channel, text) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Avoid errors just in case an undefined is passed in
-            if (text === undefined) {
-                yield channel.send('`undefined`');
-                return;
-            }
-            const lines = text.split('\n');
-            let buffer = '';
-            let segmentIndex = 0;
-            while (lines.length !== 0) {
-                const prefix = buffer ? '\n' : '';
-                buffer += prefix + lines.shift();
-                if (lines.length === 0 || buffer.length + lines[0].length > 1990) {
-                    try {
-                        yield channel.send(`\`\`\`${buffer}\`\`\``);
-                    }
-                    catch (err) {
-                        yield channel.send(`Failed sending segment **${segmentIndex}**`);
-                    }
-                    buffer = '';
-                    segmentIndex++;
-                }
-            }
+            yield (0, discord_1.sendLargeMonospaced)(channel, text);
         });
     }
     log(text) {

@@ -70,6 +70,7 @@ export declare class Messenger {
     private _send;
     private _processEntry;
     /**
+     * // TODO: This should probably be deleted to reduce redundancy
      * Send the provided text as a series of boxed (monospaced) messages limited to no more than 2000 characters each.
      * @param channel the target channel
      * @param text the text to send

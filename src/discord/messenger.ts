@@ -1,6 +1,7 @@
-import { BaseMessageOptions, DMChannel, GuildMember, Message, MessageCreateOptions, Snowflake, TextBasedChannel } from "discord.js";
+import { DMChannel, GuildMember, Message, MessageCreateOptions, Snowflake, TextBasedChannel } from "discord.js";
 import { randInt } from "../utils/random";
 import { sleep } from "../utils/time";
+import { sendLargeMonospaced } from "../utils/discord";
 
 interface MessengerBacklogEntry {
     channel: TextBasedChannel,
@@ -209,32 +210,13 @@ export class Messenger {
     }
 
     /**
+     * // TODO: This should probably be deleted to reduce redundancy
      * Send the provided text as a series of boxed (monospaced) messages limited to no more than 2000 characters each.
      * @param channel the target channel
      * @param text the text to send
      */
     async sendLargeMonospaced(channel: TextBasedChannel, text: string): Promise<void> {
-        // Avoid errors just in case an undefined is passed in
-        if (text === undefined) {
-            await channel.send('`undefined`');
-            return;
-        }
-        const lines: string[] = text.split('\n');
-        let buffer: string = '';
-        let segmentIndex: number = 0;
-        while (lines.length !== 0) {
-            const prefix: string = buffer ? '\n' : '';
-            buffer += prefix + lines.shift();
-            if (lines.length === 0 || buffer.length + lines[0].length > 1990) {
-                try {
-                    await channel.send(`\`\`\`${buffer}\`\`\``);
-                } catch (err) {
-                    await channel.send(`Failed sending segment **${segmentIndex}**`);
-                }
-                buffer = '';
-                segmentIndex++;
-            }
-        }
+        await sendLargeMonospaced(channel, text);
     }
 
     private log(text: string): void {
