@@ -214,6 +214,11 @@ export class Messenger {
      * @param text the text to send
      */
     async sendLargeMonospaced(channel: TextBasedChannel, text: string): Promise<void> {
+        // Avoid errors just in case an undefined is passed in
+        if (text === undefined) {
+            await channel.send('`undefined`');
+            return;
+        }
         const lines: string[] = text.split('\n');
         let buffer: string = '';
         let segmentIndex: number = 0;

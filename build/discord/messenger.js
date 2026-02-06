@@ -215,6 +215,11 @@ class Messenger {
      */
     sendLargeMonospaced(channel, text) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Avoid errors just in case an undefined is passed in
+            if (text === undefined) {
+                yield channel.send('`undefined`');
+                return;
+            }
             const lines = text.split('\n');
             let buffer = '';
             let segmentIndex = 0;
