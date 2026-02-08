@@ -7,13 +7,7 @@ import { flattenDAG } from "./dag";
  * @return integer in the range [lo, hi)
  */
  export function randInt(lo: number, hi: number, bates: number = 1): number {
-    if (lo !== Math.floor(lo)) {
-        throw new Error(`Expected integer lower bound arg but got: ${lo}`);
-    }
-    if (hi !== Math.floor(hi)) {
-        throw new Error(`Expected integer upper bound arg but got: ${hi}`);
-    }
-    return Math.floor(randFloat(lo, hi, bates));
+    return Math.floor(randFloat(Math.round(lo), Math.round(hi), bates));
 };
 
 export function randFloat(lo: number, hi: number, bates: number = 1): number {

@@ -9,13 +9,7 @@ const dag_1 = require("./dag");
  * @return integer in the range [lo, hi)
  */
 function randInt(lo, hi, bates = 1) {
-    if (lo !== Math.floor(lo)) {
-        throw new Error(`Expected integer lower bound arg but got: ${lo}`);
-    }
-    if (hi !== Math.floor(hi)) {
-        throw new Error(`Expected integer upper bound arg but got: ${hi}`);
-    }
-    return Math.floor(randFloat(lo, hi, bates));
+    return Math.floor(randFloat(Math.round(lo), Math.round(hi), bates));
 }
 exports.randInt = randInt;
 ;
