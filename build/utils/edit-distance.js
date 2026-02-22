@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMostSimilarByNormalizedEditDistance = exports.getNormalizedEditDistance = exports.getEditDistance = void 0;
+exports.getMostSimilarsByNormalizedEditDistance = exports.getMostSimilarByNormalizedEditDistance = exports.getNormalizedEditDistance = exports.getEditDistance = void 0;
 function getEditDistance(a, b) {
     // for all i and j, d[i,j] will hold the Levenshtein distance between
     // the first i characters of s and the first j characters of t
@@ -40,26 +40,33 @@ function getNormalizedEditDistance(a, b) {
 }
 exports.getNormalizedEditDistance = getNormalizedEditDistance;
 function getMostSimilarByNormalizedEditDistance(input, values) {
-    let bestIndex = -1;
+    const result = getMostSimilarsByNormalizedEditDistance(input, values);
+    return result[0];
+}
+exports.getMostSimilarByNormalizedEditDistance = getMostSimilarByNormalizedEditDistance;
+function getMostSimilarsByNormalizedEditDistance(input, values) {
     let bestDistance = Number.MAX_SAFE_INTEGER;
-    let bestValue = '';
+    let best = [];
     for (let i = 0; i < values.length; i++) {
         const value = values[i];
         const distance = getNormalizedEditDistance(input, value);
         if (distance < bestDistance) {
             bestDistance = distance;
-            bestValue = value;
-            bestIndex = i;
+            best = [{
+                    value,
+                    distance,
+                    index: i
+                }];
+        }
+        else if (distance === bestDistance) {
+            best.push({
+                value,
+                distance,
+                index: i
+            });
         }
     }
-    if (bestIndex === -1) {
-        return undefined;
-    }
-    return {
-        value: bestValue,
-        distance: bestDistance,
-        index: bestIndex
-    };
+    return best;
 }
-exports.getMostSimilarByNormalizedEditDistance = getMostSimilarByNormalizedEditDistance;
+exports.getMostSimilarsByNormalizedEditDistance = getMostSimilarsByNormalizedEditDistance;
 //# sourceMappingURL=edit-distance.js.map

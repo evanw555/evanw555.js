@@ -46,27 +46,32 @@ export function getNormalizedEditDistance(a: Indexable, b: Indexable): number {
 }
 
 export function getMostSimilarByNormalizedEditDistance(input: Indexable, values: Indexable[]): { value: Indexable, distance: number, index: number } | undefined {
-    let bestIndex: number = -1;
+    const result = getMostSimilarsByNormalizedEditDistance(input, values);
+    return result[0];
+}
+
+export function getMostSimilarsByNormalizedEditDistance(input: Indexable, values: Indexable[]): { value: Indexable, distance: number, index: number }[] {
     let bestDistance: number = Number.MAX_SAFE_INTEGER;
-    let bestValue: Indexable = '';
+    let best: { value: Indexable, distance: number, index: number }[] = [];
 
     for (let i = 0; i < values.length; i++) {
         const value = values[i];
         const distance = getNormalizedEditDistance(input, value);
         if (distance < bestDistance) {
             bestDistance = distance;
-            bestValue = value;
-            bestIndex = i;
+            best = [{
+                value,
+                distance,
+                index: i
+            }];
+        } else if (distance === bestDistance) {
+            best.push({
+                value,
+                distance,
+                index: i
+            });
         }
     }
 
-    if (bestIndex === -1) {
-        return undefined;
-    }
-
-    return {
-        value: bestValue,
-        distance: bestDistance,
-        index: bestIndex
-    };
+    return best;
 }

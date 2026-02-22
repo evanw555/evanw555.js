@@ -6,5 +6,10 @@ export declare function getMostSimilarByNormalizedEditDistance(input: Indexable,
     distance: number;
     index: number;
 } | undefined;
+export declare function getMostSimilarsByNormalizedEditDistance(input: Indexable, values: Indexable[]): {
+    value: Indexable;
+    distance: number;
+    index: number;
+}[];
 export {};
 //# sourceMappingURL=edit-distance.d.ts.map
