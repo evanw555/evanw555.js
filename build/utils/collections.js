@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addObjects = exports.incrementProperty = exports.isObjectEmpty = exports.getObjectSize = exports.getEvenlyShortened = exports.getSortedKeys = exports.getMinKey = exports.getMinKeys = exports.getMaxKey = exports.getMaxKeys = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMap = void 0;
+exports.withoutDuplicates = exports.addObjects = exports.incrementProperty = exports.isObjectEmpty = exports.getObjectSize = exports.getEvenlyShortened = exports.getSortedKeys = exports.getMinKey = exports.getMinKeys = exports.getMaxKey = exports.getMaxKeys = exports.groupByProperty = exports.filterValueFromMap = exports.filterMap = exports.toMapWithDefault = exports.toMap = void 0;
 /**
  * For some list of keys and some list of values of equal length, returns
  * a map with each key mapped to its respective value.
@@ -22,6 +22,18 @@ function toMap(keys, values) {
     return result;
 }
 exports.toMap = toMap;
+/**
+ * For some list of keys and some default value, returns a map
+ * with each key mapped to that default value. Note that the
+ * same instance of the default value is used for each entry.
+ * @param keys List of unique keys of length N
+ * @param value Some default value to populate the map with
+ * @returns The constructed map
+ */
+function toMapWithDefault(keys, value) {
+    return toMap(keys, new Array(keys.length).fill(value));
+}
+exports.toMapWithDefault = toMapWithDefault;
 /**
  * Returns a new map including key-value pairs from the input map,
  * but only those entries which don't violate the provided filtering parameters.
@@ -264,4 +276,22 @@ function addObjects(...objects) {
     return result;
 }
 exports.addObjects = addObjects;
+/**
+ * Given some input list, returns a new list comprised of the same elements in the same order,
+ * but with duplicates omitted. The first instance of a value is always the one that's kept.
+ * @param input Input list of elements
+ * @returns New list
+ */
+function withoutDuplicates(input) {
+    const result = [];
+    const seen = new Set();
+    for (const element of input) {
+        if (!seen.has(element)) {
+            seen.add(element);
+            result.push(element);
+        }
+    }
+    return result;
+}
+exports.withoutDuplicates = withoutDuplicates;
 //# sourceMappingURL=collections.js.map

@@ -21,6 +21,18 @@ export function toMap<T>(keys: string[], values: T[]): Record<string, T> {
 }
 
 /**
+ * For some list of keys and some default value, returns a map
+ * with each key mapped to that default value. Note that the
+ * same instance of the default value is used for each entry.
+ * @param keys List of unique keys of length N
+ * @param value Some default value to populate the map with
+ * @returns The constructed map
+ */
+export function toMapWithDefault<T>(keys: string[], value: T): Record<string, T> {
+    return toMap(keys, new Array(keys.length).fill(value));
+}
+
+/**
  * Returns a new map including key-value pairs from the input map,
  * but only those entries which don't violate the provided filtering parameters.
  * @param input Input map
@@ -256,6 +268,24 @@ export function addObjects(...objects: Record<string, number>[]): Record<string,
     for (const o of objects) {
         for (const [key, value] of Object.entries(o)) {
             result[key] = (result[key] ?? 0) + value;
+        }
+    }
+    return result;
+}
+
+/**
+ * Given some input list, returns a new list comprised of the same elements in the same order,
+ * but with duplicates omitted. The first instance of a value is always the one that's kept.
+ * @param input Input list of elements
+ * @returns New list 
+ */
+export function withoutDuplicates<T>(input: T[]): T[] {
+    const result: T[] = [];
+    const seen: Set<T> = new Set();
+    for (const element of input) {
+        if (!seen.has(element)) {
+            seen.add(element);
+            result.push(element);
         }
     }
     return result;

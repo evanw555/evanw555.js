@@ -1,9 +1,13 @@
 import { expect } from 'chai';
-import { addObjects, filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMaxKeys, getMinKey, getMinKeys, getObjectSize, getSortedKeys, groupByProperty, incrementProperty, isObjectEmpty, toMap } from '../../src/utils/collections';
+import { addObjects, filterMap, filterValueFromMap, getEvenlyShortened, getMaxKey, getMaxKeys, getMinKey, getMinKeys, getObjectSize, getSortedKeys, groupByProperty, incrementProperty, isObjectEmpty, toMap, toMapWithDefault, withoutDuplicates } from '../../src/utils/collections';
 
 describe('Collection Utility tests', () => {
     it('constructs maps from a list of keys and values', () => {
         expect(JSON.stringify(toMap(['a','b','c'],[1,2,3]))).equals('{"a":1,"b":2,"c":3}');
+    });
+
+    it('constructs maps from a list of keys and a default value', () => {
+        expect(JSON.stringify(toMapWithDefault(['a','b','c'],9))).equals('{"a":9,"b":9,"c":9}');
     });
 
     it('filters maps', () => {
@@ -186,5 +190,13 @@ describe('Collection Utility tests', () => {
         expect(JSON.stringify(addObjects(o1, o2, o3, o4))).equals('{"a":111,"b":2,"c":23,"d":4,"e":35,"f":1006,"g":99}');
 
         expect(JSON.stringify(addObjects(o1, o3))).equals('{"a":11,"b":2,"c":23,"e":30}');11
+    });
+
+    it('filters out duplicate list values', () => {
+        expect(JSON.stringify(withoutDuplicates([]))).equals('[]');
+        expect(JSON.stringify(withoutDuplicates([1,1,1]))).equals('[1]');
+        expect(JSON.stringify(withoutDuplicates([1,2,3]))).equals('[1,2,3]');
+        expect(JSON.stringify(withoutDuplicates([1,2,3,1,2,3]))).equals('[1,2,3]');
+        expect(JSON.stringify(withoutDuplicates([1,1,2,2,3,3,1,1]))).equals('[1,2,3]');
     });
 });

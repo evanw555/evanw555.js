@@ -7,6 +7,15 @@
  */
 export declare function toMap<T>(keys: string[], values: T[]): Record<string, T>;
 /**
+ * For some list of keys and some default value, returns a map
+ * with each key mapped to that default value. Note that the
+ * same instance of the default value is used for each entry.
+ * @param keys List of unique keys of length N
+ * @param value Some default value to populate the map with
+ * @returns The constructed map
+ */
+export declare function toMapWithDefault<T>(keys: string[], value: T): Record<string, T>;
+/**
  * Returns a new map including key-value pairs from the input map,
  * but only those entries which don't violate the provided filtering parameters.
  * @param input Input map
@@ -105,5 +114,12 @@ export declare function incrementProperty<K extends string>(map: Record<K, numbe
  * @returns New object containing the sum of all properties by name
  */
 export declare function addObjects(...objects: Record<string, number>[]): Record<string, number>;
+/**
+ * Given some input list, returns a new list comprised of the same elements in the same order,
+ * but with duplicates omitted. The first instance of a value is always the one that's kept.
+ * @param input Input list of elements
+ * @returns New list
+ */
+export declare function withoutDuplicates<T>(input: T[]): T[];
 export {};
 //# sourceMappingURL=collections.d.ts.map
