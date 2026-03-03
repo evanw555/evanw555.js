@@ -202,6 +202,12 @@ export function getEvenlyShortened<T>(values: T[], newLength: number, options?: 
     if (newLength === 0) {
         return [];
     }
+    // If we only want one element, explicitly prioritize the middle (the standard logic would use the last element)
+    if (newLength === 1) {
+        // Subtract length by one before dividing to prioritize prior-to-middle in even-length lists
+        const middle = Math.floor((values.length - 1) / 2);
+        return [values[middle]];
+    }
     if (newLength < 0) {
         throw new Error('Cannot shorten list to a negative length');
     }

@@ -107,7 +107,7 @@ describe('Collection Utility tests', () => {
 
     it('evenly shortens lists', () => {
         // Shorten an odd-length list
-        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 1).join(',')).equals('9');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 1).join(',')).equals('5', 'Select from middle when N=1');
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 2).join(',')).equals('1,9');
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 3).join(',')).equals('1,5,9');
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 4).join(',')).equals('1,4,7,9');
@@ -116,7 +116,7 @@ describe('Collection Utility tests', () => {
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 9).join(',')).equals('1,2,3,4,5,6,7,8,9');
 
         // Shorten an even-length list
-        expect(getEvenlyShortened([1,2,3,4,5,6], 1).join(',')).equals('6');
+        expect(getEvenlyShortened([1,2,3,4,5,6], 1).join(',')).equals('3', 'Select prior-to-middle when N=1 in even-length lists');
         expect(getEvenlyShortened([1,2,3,4,5,6], 2).join(',')).equals('1,6');
         expect(getEvenlyShortened([1,2,3,4,5,6], 3).join(',')).equals('1,4,6');
         expect(getEvenlyShortened([1,2,3,4,5,6], 4).join(',')).equals('1,3,5,6');
@@ -124,14 +124,18 @@ describe('Collection Utility tests', () => {
         expect(getEvenlyShortened([1,2,3,4,5,6], 6).join(',')).equals('1,2,3,4,5,6');
 
         // Duplicates elements if attempting to lengthen the list
-        expect(getEvenlyShortened([1,2,3], 4).join(',')).equals('1,2,3,3');
-        expect(getEvenlyShortened([1,2,3], 5).join(',')).equals('1,1,2,3,3');
-        expect(getEvenlyShortened([1,2,3], 6).join(',')).equals('1,1,2,2,3,3');
+        expect(getEvenlyShortened([1,2,3], 4).join(',')).equals('1,2,3,3', 'Duplicate tail first when lengthening');
+        expect(getEvenlyShortened([1,2,3], 5).join(',')).equals('1,1,2,3,3', 'Duplicate head second when lengthening');
+        expect(getEvenlyShortened([1,2,3], 6).join(',')).equals('1,1,2,2,3,3', 'Duplicate middle after tail and head when lengthening');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 10).join(',')).equals('1,2,3,4,5,6,7,8,9,9', 'Duplicate tail first when lengthening');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 11).join(',')).equals('1,1,2,3,4,5,6,7,8,9,9', 'Duplicate head second when lengthening');
+        expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 12).join(',')).equals('1,1,2,3,4,5,5,6,7,8,9,9', 'Duplicate middle after tail and head when lengthening');
 
         // Test weird small values
-        expect(getEvenlyShortened([1,2,3], 2).join(',')).equals('1,3');
-        expect(getEvenlyShortened([1,2,3], 1).join(',')).equals('3');
-        expect(getEvenlyShortened([1,2,3], 0).join(',')).equals('');
+        expect(getEvenlyShortened([1,2,3], 2).join(',')).equals('1,3', 'Select head and tail first');
+        expect(getEvenlyShortened([1,2,3], 1).join(',')).equals('2', 'Select from middle when N=1');
+        expect(getEvenlyShortened([1,2], 1).join(',')).equals('1', 'Select prior-to-middle when N=1 in even-length lists');
+        expect(getEvenlyShortened([1,2,3], 0).join(',')).equals('', 'Return empty list when N=0');
 
         // Misc big case
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 12).join(',')).equals('1,2,3,5,6,8,9,11,12,14,15,16');
@@ -141,6 +145,8 @@ describe('Collection Utility tests', () => {
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9], 5, { padding: 1 }).join(',')).equals('1,2,5,8,9');
         expect(getEvenlyShortened([1,2,3,4], 4, { padding: 2 }).join(',')).equals('1,2,3,4');
         expect(getEvenlyShortened([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], 15, { padding: 5 }).join(',')).equals('1,2,3,4,5,6,9,13,17,20,21,22,23,24,25');
+        // For the middle 3 elements, only choose one and thus choose the middle element
+        expect(getEvenlyShortened([1,2,3,4,5,6,7], 5, { padding: 2 }).join(',')).equals('1,2,4,6,7');
     });
 
     // This also tests object size/emptiness functions
