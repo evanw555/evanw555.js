@@ -6,6 +6,10 @@ describe('Collection Utility tests', () => {
         expect(JSON.stringify(toMap(['a','b','c'],[1,2,3]))).equals('{"a":1,"b":2,"c":3}');
     });
 
+    it('constructs maps from a list of keys and a value function', () => {
+        expect(JSON.stringify(toMap(['a','bbb','c'], (key) => key.length))).equals('{"a":1,"bbb":3,"c":1}');
+    });
+
     it('constructs maps from a list of keys and a default value', () => {
         expect(JSON.stringify(toMapWithDefault(['a','b','c'],9))).equals('{"a":9,"b":9,"c":9}');
     });

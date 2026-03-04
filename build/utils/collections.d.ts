@@ -1,11 +1,12 @@
 /**
  * For some list of keys and some list of values of equal length, returns
- * a map with each key mapped to its respective value.
+ * a map with each key mapped to its respective value. Alternatively, a value
+ * function can be provided to map each key to its respective value.
  * @param keys List of unique keys of length N
- * @param values List of values of length N
+ * @param values List of values of length N (or a value function that transforms each key to a value)
  * @returns The constructed map
  */
-export declare function toMap<T>(keys: string[], values: T[]): Record<string, T>;
+export declare function toMap<K extends string, T>(keys: K[], values: T[] | ((key: string) => T)): Record<K, T>;
 /**
  * For some list of keys and some default value, returns a map
  * with each key mapped to that default value. Note that the

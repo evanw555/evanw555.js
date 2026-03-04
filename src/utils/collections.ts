@@ -1,23 +1,33 @@
 
 /**
  * For some list of keys and some list of values of equal length, returns
- * a map with each key mapped to its respective value.
+ * a map with each key mapped to its respective value. Alternatively, a value
+ * function can be provided to map each key to its respective value.
  * @param keys List of unique keys of length N
- * @param values List of values of length N
+ * @param values List of values of length N (or a value function that transforms each key to a value)
  * @returns The constructed map
  */
-export function toMap<T>(keys: string[], values: T[]): Record<string, T> {
-    if (keys.length !== values.length) {
-        throw new Error(`Cannot create a map with ${keys.length} keys and ${values.length} values!`);
+export function toMap<K extends string, T>(keys: K[], values: T[] | ((key: string) => T)): Record<K, T> {
+    // If constructing map by zipping two lists...
+    if (values instanceof Array) {
+        if (keys.length !== values.length) {
+            throw new Error(`Cannot create a map with ${keys.length} keys and ${values.length} values!`);
+        }
+        if (keys.length !== new Set(keys).size) {
+            throw new Error(`Cannot create a map with duplicate keys!`);
+        }
+        const result: Record<string, T> = {};
+        for (let i = 0; i < keys.length; i++) {
+            result[keys[i]] = values[i];
+        }
+        return result as Record<K, T>;
     }
-    if (keys.length !== new Set(keys).size) {
-        throw new Error(`Cannot create a map with duplicate keys!`);
-    }
+    // Otherwise, construct using value function...
     const result: Record<string, T> = {};
-    for (let i = 0; i < keys.length; i++) {
-        result[keys[i]] = values[i];
+    for (const key of keys) {
+        result[key] = values(key);
     }
-    return result;
+    return result as Record<K, T>;
 }
 
 /**
