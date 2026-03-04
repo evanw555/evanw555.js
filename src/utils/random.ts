@@ -1,4 +1,6 @@
+import { isObjectEmpty } from "./collections";
 import { flattenDAG } from "./dag";
+import { sum } from "./math";
 
 /**
  * @param lo Lower bound (inclusive)
@@ -29,6 +31,29 @@ export function randFloat(lo: number, hi: number, bates: number = 1): number {
 export function randChoice<T>(...choices: T[]): T {
     return choices[randInt(0, choices.length)];
 };
+
+/**
+ * Given a mapping from keys to their respective weight, return a random key using the probability
+ * of its weight relative to the total weight of all choices.
+ * @param choices Mapping from key to weight
+ * @returns Random key, considering each key's weight
+ */
+export function randWeightedChoice<T extends string>(choices: Record<T, number>): T {
+    if (isObjectEmpty(choices)) {
+        throw new Error('Cannot pick random weighted choice from empty object');
+    }
+    const total = sum(Object.values(choices));
+    const roll = randInt(0, total);
+    // Add weight of each choice until it exceeds the roll
+    let cumulative = 0;
+    for (const [key, weight] of Object.entries<number>(choices)) {
+        cumulative += weight;
+        if (roll < cumulative) {
+            return key as T;
+        }
+    }
+    throw new Error('Unable to pick a random weighted choice after iterating');
+}
 
 /**
  * Shuffles an array in-place.

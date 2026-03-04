@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments, roundByChance, randInt, randFloat } from '../../src/utils/random';
+import { shuffleWithDependencies, shuffleCycle, getRandomlyDistributedAssignments, roundByChance, randInt, randFloat, randWeightedChoice } from '../../src/utils/random';
 import { getObjectSize } from '../../src/utils/collections';
 import { stddev } from '../../src/utils/math';
 
@@ -70,6 +70,21 @@ describe('Random Utils tests', () => {
             previousStddev = sd;
         }
     });
+
+    it('randomly picks weighted choices', () => {
+        const choices = { rare: 1, uncommon: 3, common: 6 };
+        const counts = { rare: 0, uncommon: 0, common: 0 };
+        const NUM_SAMPLES = 1000;
+        for (let i = 0; i < NUM_SAMPLES; i++) {
+            const pick = randWeightedChoice(choices);
+            counts[pick] = (counts[pick] ?? 0) + 1;
+        }
+        expect(Math.round(counts.rare * 10 / NUM_SAMPLES)).equals(1);
+        expect(Math.round(counts.uncommon * 10 / NUM_SAMPLES)).equals(3);
+        expect(Math.round(counts.common * 10 / NUM_SAMPLES)).equals(6);
+    })
+    // Allow retries when testing random functionality
+    .retries(3);
 
     it('shuffles with dependencies', () => {
         const data = ['second', 'third', 'first', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'three', 'two', 'one', 'second2', 'third2', 'last'];

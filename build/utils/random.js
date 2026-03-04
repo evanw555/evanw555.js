@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomlyDistributedAssignments = exports.shuffleCycle = exports.shuffleWithDependencies = exports.roundByChance = exports.chance = exports.shuffle = exports.randChoice = exports.randFloat = exports.randInt = void 0;
+exports.getRandomlyDistributedAssignments = exports.shuffleCycle = exports.shuffleWithDependencies = exports.roundByChance = exports.chance = exports.shuffle = exports.randWeightedChoice = exports.randChoice = exports.randFloat = exports.randInt = void 0;
+const collections_1 = require("./collections");
 const dag_1 = require("./dag");
+const math_1 = require("./math");
 /**
  * @param lo Lower bound (inclusive)
  * @param hi Upper bound (exclusive)
@@ -34,6 +36,29 @@ function randChoice(...choices) {
 }
 exports.randChoice = randChoice;
 ;
+/**
+ * Given a mapping from keys to their respective weight, return a random key using the probability
+ * of its weight relative to the total weight of all choices.
+ * @param choices Mapping from key to weight
+ * @returns Random key, considering each key's weight
+ */
+function randWeightedChoice(choices) {
+    if ((0, collections_1.isObjectEmpty)(choices)) {
+        throw new Error('Cannot pick random weighted choice from empty object');
+    }
+    const total = (0, math_1.sum)(Object.values(choices));
+    const roll = randInt(0, total);
+    // Add weight of each choice until it exceeds the roll
+    let cumulative = 0;
+    for (const [key, weight] of Object.entries(choices)) {
+        cumulative += weight;
+        if (roll < cumulative) {
+            return key;
+        }
+    }
+    throw new Error('Unable to pick a random weighted choice after iterating');
+}
+exports.randWeightedChoice = randWeightedChoice;
 /**
  * Shuffles an array in-place.
  * @param input Input array

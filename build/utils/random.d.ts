@@ -12,6 +12,13 @@ export declare function randFloat(lo: number, hi: number, bates?: number): numbe
  */
 export declare function randChoice<T>(...choices: T[]): T;
 /**
+ * Given a mapping from keys to their respective weight, return a random key using the probability
+ * of its weight relative to the total weight of all choices.
+ * @param choices Mapping from key to weight
+ * @returns Random key, considering each key's weight
+ */
+export declare function randWeightedChoice<T extends string>(choices: Record<T, number>): T;
+/**
  * Shuffles an array in-place.
  * @param input Input array
  * @returns Shuffled array
