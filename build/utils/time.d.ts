@@ -7,16 +7,25 @@ export declare function getTodayDateString(): string;
  * @param date input date
  * @returns e.g. "12/25/2020"
  */
-export declare function toDateString(date: Date): string;
+export declare function toDateString(date: Date | number | string): string;
 /**
  * @param date input date
  * @returns e.g. "12/25"
  */
-export declare function toCalendarDate(date: Date): string;
+export declare function toCalendarDate(date: Date | number | string): string;
 /**
  * @returns The current date-time plus 24 hours
  */
 export declare function getTomorrow(): Date;
+/**
+ * Given two dates, returns true if they're on the same day-of-the-year.
+ * This means the month and day-of-the-month are matching, but the year can be anything.
+ * If either are null or undefined, then it returns false by default.
+ * @param a First date (or unix timestamp)
+ * @param b Second date (or unix timestamp)
+ * @returns True if these two dates are on the same day-of-the-year
+ */
+export declare function isSameDayOfYear(a: Date | number | string | null | undefined, b: Date | number | string | null | undefined): boolean;
 /**
  * Given two dates, returns true if they're on the same day.
  * If either are null or undefined, then it returns false by default.
@@ -24,7 +33,7 @@ export declare function getTomorrow(): Date;
  * @param b Second date (or unix timestamp)
  * @returns True if these two dates are on the same day
  */
-export declare function isSameDay(a: Date | number | null | undefined, b: Date | number | null | undefined): boolean;
+export declare function isSameDay(a: Date | number | string | null | undefined, b: Date | number | string | null | undefined): boolean;
 /**
  * Given some date, returns true if it's today.
  * @param date Date (or unix timestamp)

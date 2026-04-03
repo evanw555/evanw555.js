@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getNumberOfDaysBetween = exports.isPast = exports.isDayAfterTomorrow = exports.isTomorrow = exports.isToday = exports.isSameDay = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getNumberOfDaysBetween = exports.isPast = exports.isDayAfterTomorrow = exports.isTomorrow = exports.isToday = exports.isSameDay = exports.isSameDayOfYear = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 function sleep(milliseconds) {
@@ -19,7 +19,8 @@ exports.getTodayDateString = getTodayDateString;
  * @returns e.g. "12/25/2020"
  */
 function toDateString(date) {
-    return date.toLocaleDateString('en-US', { dateStyle: 'short' });
+    const d = new Date(date);
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
 }
 exports.toDateString = toDateString;
 /**
@@ -27,7 +28,8 @@ exports.toDateString = toDateString;
  * @returns e.g. "12/25"
  */
 function toCalendarDate(date) {
-    return `${date.getMonth() + 1}/${date.getDate()}`;
+    const d = new Date(date);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 exports.toCalendarDate = toCalendarDate;
 /**
@@ -39,7 +41,23 @@ function getTomorrow() {
     return tomorrow;
 }
 exports.getTomorrow = getTomorrow;
-// TODO: Write tests for this
+/**
+ * Given two dates, returns true if they're on the same day-of-the-year.
+ * This means the month and day-of-the-month are matching, but the year can be anything.
+ * If either are null or undefined, then it returns false by default.
+ * @param a First date (or unix timestamp)
+ * @param b Second date (or unix timestamp)
+ * @returns True if these two dates are on the same day-of-the-year
+ */
+function isSameDayOfYear(a, b) {
+    if (!a || !b) {
+        return false;
+    }
+    const d1 = new Date(a);
+    const d2 = new Date(b);
+    return d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
+exports.isSameDayOfYear = isSameDayOfYear;
 /**
  * Given two dates, returns true if they're on the same day.
  * If either are null or undefined, then it returns false by default.

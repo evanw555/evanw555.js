@@ -1,8 +1,46 @@
 import { expect } from 'chai';
-import { getNumberOfDaysBetween, getNumberOfDaysSince, getNumberOfDaysUntil, getPreciseDurationString, isPast } from '../../src/utils/time';
+import { getNumberOfDaysBetween, getNumberOfDaysSince, getNumberOfDaysUntil, getPreciseDurationString, isPast, isSameDay, isSameDayOfYear, toCalendarDate, toDateString } from '../../src/utils/time';
 
 describe('Time Utility tests', () => {
-    it ('can create precise duration strings', () => {
+    it('can produce date strings', () => {
+        expect(toDateString(new Date('January 1, 2020'))).equals('1/1/2020', 'From date object');
+        expect(toDateString(1234567890000)).equals('2/13/2009', 'From numeric timestamp');
+        expect(toDateString('April 10, 2012')).equals('4/10/2012', 'From string');
+    });
+
+    it('can produce calendar date strings', () => {
+        expect(toCalendarDate(new Date('January 1, 2020'))).equals('1/1', 'From date object');
+        expect(toCalendarDate(1234567890000)).equals('2/13', 'From numeric timestamp');
+        expect(toCalendarDate('April 10, 2012')).equals('4/10', 'From string');
+    });
+
+    it('can check if dates are the same day of the year', () => {
+        expect(isSameDayOfYear(new Date('January 1, 2020'), new Date('January 1, 2001'))).true;
+        expect(isSameDayOfYear(new Date('January 1, 2020'), new Date('January 1, 2020'))).true;
+        expect(isSameDayOfYear(1234567890000, new Date('February 13, 1992'))).true;
+        expect(isSameDayOfYear(1234567890000, new Date('February 13, 2009'))).true;
+        expect(isSameDayOfYear('April 10, 2012', 'April 10, 2013')).true;
+        expect(isSameDayOfYear('April 10, 2012', 'April 10, 2012')).true;
+        expect(isSameDayOfYear('April 10, 2012', 'April 9, 2012')).false;
+        expect(isSameDayOfYear('April 10, 2012', 'April 11, 2012')).false;
+        expect(isSameDayOfYear(null, null)).false;
+        expect(isSameDayOfYear(undefined, undefined)).false;
+    });
+
+    it('can check if dates are the same day', () => {
+        expect(isSameDay(new Date('January 1, 2020'), new Date('January 1, 2001'))).false;
+        expect(isSameDay(new Date('January 1, 2020'), new Date('January 1, 2020'))).true;
+        expect(isSameDay(1234567890000, new Date('February 13, 1992'))).false;
+        expect(isSameDay(1234567890000, new Date('February 13, 2009'))).true;
+        expect(isSameDay('April 10, 2012', 'April 10, 2013')).false;
+        expect(isSameDay('April 10, 2012', 'April 10, 2012')).true;
+        expect(isSameDay('April 10, 2012', 'April 9, 2012')).false;
+        expect(isSameDay('April 10, 2012', 'April 11, 2012')).false;
+        expect(isSameDay(null, null)).false;
+        expect(isSameDay(undefined, undefined)).false;
+    });
+
+    it('can create precise duration strings', () => {
         expect(getPreciseDurationString(0)).equals('0s');
         expect(getPreciseDurationString(999)).equals('0s');
         expect(getPreciseDurationString(1000)).equals('1s');
@@ -24,7 +62,7 @@ describe('Time Utility tests', () => {
         expect(getPreciseDurationString(31449600000)).equals('52w');
     });
 
-    it ('can count the number of days between two dates', () => {
+    it('can count the number of days between two dates', () => {
         expect(getNumberOfDaysBetween('9/1/2020', '9/1/2020')).equals(0);
         expect(getNumberOfDaysBetween('10/31/2021', '11/1/2021')).equals(1);
         expect(getNumberOfDaysBetween('1/15/2013', '1/15/2014')).equals(365);

@@ -16,16 +16,18 @@ export function getTodayDateString(): string {
  * @param date input date
  * @returns e.g. "12/25/2020"
  */
-export function toDateString(date: Date): string {
-    return date.toLocaleDateString('en-US', { dateStyle: 'short' });
+export function toDateString(date: Date | number | string): string {
+    const d = new Date(date);
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
 }
 
 /**
  * @param date input date
  * @returns e.g. "12/25"
  */
-export function toCalendarDate(date: Date): string {
-    return `${date.getMonth() + 1}/${date.getDate()}`;
+export function toCalendarDate(date: Date | number | string): string {
+    const d = new Date(date);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
 /**
@@ -37,8 +39,23 @@ export function getTomorrow(): Date {
     return tomorrow;
 }
 
+/**
+ * Given two dates, returns true if they're on the same day-of-the-year.
+ * This means the month and day-of-the-month are matching, but the year can be anything.
+ * If either are null or undefined, then it returns false by default.
+ * @param a First date (or unix timestamp)
+ * @param b Second date (or unix timestamp)
+ * @returns True if these two dates are on the same day-of-the-year
+ */
+export function isSameDayOfYear(a: Date | number | string | null | undefined, b: Date | number | string | null | undefined): boolean {
+    if (!a || !b) {
+        return false;
+    }
+    const d1 = new Date(a);
+    const d2 = new Date(b);
+    return d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
 
-// TODO: Write tests for this
 /**
  * Given two dates, returns true if they're on the same day.
  * If either are null or undefined, then it returns false by default.
@@ -46,7 +63,7 @@ export function getTomorrow(): Date {
  * @param b Second date (or unix timestamp)
  * @returns True if these two dates are on the same day
  */
-export function isSameDay(a: Date | number | null | undefined, b: Date | number | null | undefined): boolean {
+export function isSameDay(a: Date | number | string | null | undefined, b: Date | number | string | null | undefined): boolean {
     if (!a || !b) {
         return false;
     }
