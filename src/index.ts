@@ -8,6 +8,7 @@ export * from './discord/poller';
 export * from './file-record-storage';
 export * from './file-storage';
 export * from './language-generator';
+export * from './language-generator-v2';
 export * from './multi-logger';
 export * from './r9k';
 export * from './tile-map';

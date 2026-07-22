@@ -23,6 +23,7 @@ __exportStar(require("./discord/poller"), exports);
 __exportStar(require("./file-record-storage"), exports);
 __exportStar(require("./file-storage"), exports);
 __exportStar(require("./language-generator"), exports);
+__exportStar(require("./language-generator-v2"), exports);
 __exportStar(require("./multi-logger"), exports);
 __exportStar(require("./r9k"), exports);
 __exportStar(require("./tile-map"), exports);
