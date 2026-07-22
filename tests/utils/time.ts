@@ -25,6 +25,7 @@ describe('Time Utility tests', () => {
         expect(isSameDayOfYear('April 10, 2012', 'April 11, 2012')).false;
         expect(isSameDayOfYear(null, null)).false;
         expect(isSameDayOfYear(undefined, undefined)).false;
+        expect(isSameDayOfYear(0, 0), 'doesn\'t fail for a timestamp of zero').true;
     });
 
     it('can check if dates are the same day', () => {
@@ -38,6 +39,7 @@ describe('Time Utility tests', () => {
         expect(isSameDay('April 10, 2012', 'April 11, 2012')).false;
         expect(isSameDay(null, null)).false;
         expect(isSameDay(undefined, undefined)).false;
+        expect(isSameDay(0, 0), 'doesn\'t fail for a timestamp of zero').true;
     });
 
     it('can create precise duration strings', () => {
@@ -94,5 +96,7 @@ describe('Time Utility tests', () => {
 
         expect(isPast(null)).false;
         expect(isPast(undefined)).false;
+
+        expect(isPast(0), 'doesn\'t fail for a timestamp of zero').true;
     });
 });

@@ -50,7 +50,7 @@ exports.getTomorrow = getTomorrow;
  * @returns True if these two dates are on the same day-of-the-year
  */
 function isSameDayOfYear(a, b) {
-    if (!a || !b) {
+    if (a === null || a === undefined || b === null || b === undefined) {
         return false;
     }
     const d1 = new Date(a);
@@ -66,7 +66,7 @@ exports.isSameDayOfYear = isSameDayOfYear;
  * @returns True if these two dates are on the same day
  */
 function isSameDay(a, b) {
-    if (!a || !b) {
+    if (a === null || a === undefined || b === null || b === undefined) {
         return false;
     }
     const d1 = new Date(a);
@@ -111,7 +111,7 @@ exports.isDayAfterTomorrow = isDayAfterTomorrow;
  * @returns True if the provided date is in the past
  */
 function isPast(date) {
-    if (!date) {
+    if (date === null || date === undefined) {
         return false;
     }
     const d = new Date(date);
