@@ -87,4 +87,32 @@ export class FileStorage implements AsyncStorageInterface {
     exists(id: string): boolean {
         return fs.existsSync(join(this._basePath, id));
     }
+
+    /**
+     * Recursively makes the given directory and all required parent directories.
+     */
+    mkdir(id: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            fs.mkdir(join(this._basePath, id), { recursive: true }, (err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
+    }
+
+    /**
+     * Deletes the given file or non-empty directory. Directories must be emptied before being removed.
+     */
+    delete(id: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            fs.rm(join(this._basePath, id), (err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
+    }
 }

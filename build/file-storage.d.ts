@@ -28,5 +28,13 @@ export declare class FileStorage implements AsyncStorageInterface {
      * @returns True if the file with the given ID exists
      */
     exists(id: string): boolean;
+    /**
+     * Recursively makes the given directory and all required parent directories.
+     */
+    mkdir(id: string): Promise<void>;
+    /**
+     * Deletes the given file or non-empty directory. Directories must be emptied before being removed.
+     */
+    delete(id: string): Promise<void>;
 }
 //# sourceMappingURL=file-storage.d.ts.map
