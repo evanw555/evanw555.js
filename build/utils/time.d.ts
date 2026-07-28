@@ -59,6 +59,31 @@ export declare function isDayAfterTomorrow(date: Date | number | null | undefine
  */
 export declare function isPast(date: Date | number | null | undefined): boolean;
 /**
+ * Given some date, returns true if it's some time in the future.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is in the future
+ */
+export declare function isFuture(date: Date | number | null | undefined): boolean;
+/**
+ * Gets the number of milliseconds between the provided dates, date strings, or timestamps.
+ * @param start date (or date string, or Unix timestamp)
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of milliseconds between those dates
+ */
+export declare function getTimeBetween(start: Date | number | string, end: Date | number | string): number;
+/**
+ * Gets the number of milliseconds since the provided date, date string, or timestamp.
+ * @param start date (or date string, or Unix timestamp)
+ * @returns number of milliseconds since that date
+ */
+export declare function getTimeSince(date: Date | number | string): number;
+/**
+ * Gets the number of milliseconds until the provided date, date string, or timestamp.
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of milliseconds until that date
+ */
+export declare function getTimeUntil(end: Date | number | string): number;
+/**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
  * @param start date (or date string, or Unix timestamp)
  * @param end date (or date string, or Unix timestamp)

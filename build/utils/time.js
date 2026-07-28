@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getNumberOfDaysBetween = exports.isPast = exports.isDayAfterTomorrow = exports.isTomorrow = exports.isToday = exports.isSameDay = exports.isSameDayOfYear = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
+exports.getRelativeDateTimeString = exports.getPreciseDurationString = exports.getDurationString = exports.getMonthName = exports.getDayOfWeekName = exports.toTimeString = exports.getClockTime = exports.getRandomDateBetween = exports.getDateBetween = exports.getNumberOfDaysUntil = exports.getNumberOfDaysSince = exports.getNumberOfDaysBetween = exports.getTimeUntil = exports.getTimeSince = exports.getTimeBetween = exports.isFuture = exports.isPast = exports.isDayAfterTomorrow = exports.isTomorrow = exports.isToday = exports.isSameDay = exports.isSameDayOfYear = exports.getTomorrow = exports.toCalendarDate = exports.toDateString = exports.getTodayDateString = exports.sleep = void 0;
 const misc_1 = require("./misc");
 const random_1 = require("./random");
 function sleep(milliseconds) {
@@ -119,17 +119,56 @@ function isPast(date) {
 }
 exports.isPast = isPast;
 /**
+ * Given some date, returns true if it's some time in the future.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is in the future
+ */
+function isFuture(date) {
+    if (date === null || date === undefined) {
+        return false;
+    }
+    const d = new Date(date);
+    return d.getTime() > new Date().getTime();
+}
+exports.isFuture = isFuture;
+/**
+ * Gets the number of milliseconds between the provided dates, date strings, or timestamps.
+ * @param start date (or date string, or Unix timestamp)
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of milliseconds between those dates
+ */
+function getTimeBetween(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    return endDate.getTime() - startDate.getTime();
+}
+exports.getTimeBetween = getTimeBetween;
+/**
+ * Gets the number of milliseconds since the provided date, date string, or timestamp.
+ * @param start date (or date string, or Unix timestamp)
+ * @returns number of milliseconds since that date
+ */
+function getTimeSince(date) {
+    return getTimeBetween(date, new Date());
+}
+exports.getTimeSince = getTimeSince;
+/**
+ * Gets the number of milliseconds until the provided date, date string, or timestamp.
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of milliseconds until that date
+ */
+function getTimeUntil(end) {
+    return getTimeBetween(new Date(), end);
+}
+exports.getTimeUntil = getTimeUntil;
+/**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
  * @param start date (or date string, or Unix timestamp)
  * @param end date (or date string, or Unix timestamp)
  * @returns number of days between those dates
  */
 function getNumberOfDaysBetween(start, end) {
-    const startDate = new Date(start);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(end);
-    endDate.setHours(0, 0, 0, 0);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.round(getTimeBetween(start, end) / (1000 * 60 * 60 * 24));
 }
 exports.getNumberOfDaysBetween = getNumberOfDaysBetween;
 /**

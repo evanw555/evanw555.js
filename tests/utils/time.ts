@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getNumberOfDaysBetween, getNumberOfDaysSince, getNumberOfDaysUntil, getPreciseDurationString, isPast, isSameDay, isSameDayOfYear, toCalendarDate, toDateString } from '../../src/utils/time';
+import { getNumberOfDaysBetween, getNumberOfDaysSince, getNumberOfDaysUntil, getPreciseDurationString, getTimeBetween, getTimeSince, getTimeUntil, isFuture, isPast, isSameDay, isSameDayOfYear, toCalendarDate, toDateString } from '../../src/utils/time';
 
 describe('Time Utility tests', () => {
     it('can produce date strings', () => {
@@ -64,6 +64,25 @@ describe('Time Utility tests', () => {
         expect(getPreciseDurationString(31449600000)).equals('52w');
     });
 
+    it('can determine the time between two dates', () => {
+        const DAY_MILLIS = 86_400_000;
+        expect(getTimeBetween('9/1/2020', '9/1/2020')).equals(0);
+        expect(getTimeBetween('10/31/2021', '11/1/2021')).equals(DAY_MILLIS);
+        expect(getTimeBetween('1/15/2013', '1/15/2014')).equals(365 * DAY_MILLIS);
+        expect(getTimeBetween('9/28/2023', '10/1/2023')).equals(3 * DAY_MILLIS);
+
+        // May be a few milliseconds more
+        const since = new Date();
+        since.setSeconds(since.getSeconds() - 5);
+        expect(getTimeSince(since)).gte(5000).and.lte(5005);
+        expect(getTimeSince(since.getTime())).gte(5000).and.lte(5005);
+        // May be a few milliseconds less
+        const until = new Date();
+        until.setSeconds(until.getSeconds() + 7);
+        expect(getTimeUntil(until)).gte(6995).and.lte(7000);
+        expect(getTimeUntil(until.getTime())).gte(6995).and.lte(7000);
+    });
+
     it('can count the number of days between two dates', () => {
         expect(getNumberOfDaysBetween('9/1/2020', '9/1/2020')).equals(0);
         expect(getNumberOfDaysBetween('10/31/2021', '11/1/2021')).equals(1);
@@ -81,7 +100,7 @@ describe('Time Utility tests', () => {
         expect(getNumberOfDaysUntil(until.getTime())).equals(2);
     });
 
-    it('can determine if a date is in the past', () => {
+    it('can determine if a date is in the past or future', () => {
         const past = new Date();
         past.setHours(past.getHours() - 10);
 
@@ -90,13 +109,20 @@ describe('Time Utility tests', () => {
 
         expect(isPast(past)).true;
         expect(isPast(past.getTime())).true;
+        expect(isFuture(past)).false;
+        expect(isFuture(past.getTime())).false;
 
         expect(isPast(future)).false;
         expect(isPast(future.getTime())).false;
+        expect(isFuture(future)).true;
+        expect(isFuture(future.getTime())).true;
 
         expect(isPast(null)).false;
         expect(isPast(undefined)).false;
+        expect(isFuture(null)).false;
+        expect(isFuture(undefined)).false;
 
         expect(isPast(0), 'doesn\'t fail for a timestamp of zero').true;
+        expect(isFuture(0), 'doesn\'t fail for a timestamp of zero').false;
     });
 });

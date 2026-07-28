@@ -117,17 +117,56 @@ export function isPast(date: Date | number | null | undefined): boolean {
 }
 
 /**
+ * Given some date, returns true if it's some time in the future.
+ * @param date Date (or unix timestamp)
+ * @returns True if the provided date is in the future
+ */
+export function isFuture(date: Date | number | null | undefined): boolean {
+    if (date === null || date === undefined) {
+        return false;
+    }
+    const d = new Date(date);
+    return d.getTime() > new Date().getTime();
+}
+
+/**
+ * Gets the number of milliseconds between the provided dates, date strings, or timestamps.
+ * @param start date (or date string, or Unix timestamp)
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of milliseconds between those dates
+ */
+export function getTimeBetween(start: Date | number | string, end: Date | number | string): number {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    return endDate.getTime() - startDate.getTime();
+}
+
+/**
+ * Gets the number of milliseconds since the provided date, date string, or timestamp.
+ * @param start date (or date string, or Unix timestamp)
+ * @returns number of milliseconds since that date
+ */
+export function getTimeSince(date: Date | number | string): number {
+    return getTimeBetween(date, new Date());
+}
+
+/**
+ * Gets the number of milliseconds until the provided date, date string, or timestamp.
+ * @param end date (or date string, or Unix timestamp)
+ * @returns number of milliseconds until that date
+ */
+export function getTimeUntil(end: Date | number | string): number {
+    return getTimeBetween(new Date(), end);
+}
+
+/**
  * Gets the number of days between the provided dates or date strings (e.g. 1/20/2022)
  * @param start date (or date string, or Unix timestamp)
  * @param end date (or date string, or Unix timestamp)
  * @returns number of days between those dates
  */
 export function getNumberOfDaysBetween(start: Date | number | string, end: Date | number | string): number {
-    const startDate = new Date(start);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(end);
-    endDate.setHours(0, 0, 0, 0);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.round(getTimeBetween(start, end) / (1000 * 60 * 60 * 24));
 }
 
 /**
