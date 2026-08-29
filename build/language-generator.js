@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LanguageGenerator = void 0;
 const misc_1 = require("./utils/misc");
+const random_1 = require("./utils/random");
 class LanguageGenerator {
     constructor(config) {
         this._config = config;
@@ -20,10 +21,13 @@ class LanguageGenerator {
         // If dealing with variable injection return that variable if it exists, else return the token
         if (stripped.startsWith('$')) {
             const identifier = stripped.substring(1);
-            if (variables[identifier] === undefined) {
+            // Select the node from the variables map
+            const varNode = (0, misc_1.getSelectedNode)(variables, identifier);
+            // TODO: Will this ever be true? Need to add a non-strict mode for node selection
+            if (varNode === undefined) {
                 throw new Error(`Token \`${token}\` references nonexistent variable, available variables are \`${JSON.stringify(Object.keys(variables))}\``);
             }
-            return variables[identifier];
+            return this.stringify(varNode);
         }
         // Check if there's a random modifier at the end
         let pickRandom = 0;
@@ -46,22 +50,14 @@ class LanguageGenerator {
             stripped = stripped.substring(0, stripped.lastIndexOf('?'));
         }
         // Resolve the language config node that this selector points to
-        const segments = stripped.split('.');
-        let node = this._config;
-        while (segments.length > 0) {
-            const segment = segments.shift();
-            if (!node || !node.hasOwnProperty(segment)) {
-                throw new Error(`Token \`${token}\` has bad selector \`${stripped}\` which failed on segment \`${segment}\``);
-            }
-            node = node[segment];
-        }
+        const node = (0, misc_1.getSelectedNode)(this._config, stripped);
         // Resolve list using the pick-random logic
         if (pickRandom === 0) {
             // If no amount specified, then assert the current node is a string
             if ((node === null || node === void 0 ? void 0 : node.constructor) !== String) {
                 throw new Error(`Token \`${token}\` expected a string but found type \`${(_a = node === null || node === void 0 ? void 0 : node.constructor) === null || _a === void 0 ? void 0 : _a.name}\``);
             }
-            return node.toString();
+            return this.stringify(node);
         }
         else {
             // If an amount is specified, then assert the current node is an array
@@ -69,7 +65,7 @@ class LanguageGenerator {
                 throw new Error(`Token \`${token}\` expected an array but found type \`${(_b = node === null || node === void 0 ? void 0 : node.constructor) === null || _b === void 0 ? void 0 : _b.name}\``);
             }
             // Copy the array and shuffle it (TODO: Each element of the array may not be a string, but that would be a huge error)
-            const choices = node.map(x => x.toString()).sort((x, y) => Math.random() - Math.random());
+            const choices = (0, random_1.shuffle)(node.map(x => this.stringify(x)));
             // Assert that we're not taking more than is possible, then take a slice of the desired size
             if (pickRandom > choices.length) {
                 throw new Error(`Token \`${token}\` is attempting to select ${pickRandom} elements from only ${choices.length} available choices`);
@@ -78,6 +74,12 @@ class LanguageGenerator {
             // Return the resulting elements joined in proper English
             return (0, misc_1.naturalJoin)(selections);
         }
+    }
+    stringify(value) {
+        if (typeof value === 'string') {
+            return value;
+        }
+        return JSON.stringify(value);
     }
     /**
      * Report language generation failure by logging and sending a message to the emergency log channel.

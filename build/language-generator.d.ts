@@ -5,6 +5,7 @@ export declare class LanguageGenerator {
     constructor(config: Record<string, any>);
     setLogger(logger: (message: string) => void): void;
     private _resolve;
+    private stringify;
     /**
      * Report language generation failure by logging and sending a message to the emergency log channel.
      * Refuses to log the failure if it's the same as the previous error message (to avoid retry spamming).
@@ -16,7 +17,7 @@ export declare class LanguageGenerator {
      * @param variables Variables that may be referenced and injected via variable tokens
      * @returns Processed text with all tokens recursively resolved
      */
-    generate(input: string, variables?: Record<string, string>): string;
+    generate(input: string, variables?: Record<string, any>): string;
 }
 export default LanguageGenerator;
 //# sourceMappingURL=language-generator.d.ts.map

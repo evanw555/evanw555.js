@@ -1,4 +1,5 @@
-import { naturalJoin } from './utils/misc';
+import { getSelectedNode, naturalJoin } from './utils/misc';
+import { shuffle } from './utils/random';
 
 export class LanguageGenerator {
     private readonly _config: Record<string, any>;
@@ -13,7 +14,7 @@ export class LanguageGenerator {
         this.logger = logger;
     }
 
-    private _resolve(token: string, variables: Record<string, string>): string {
+    private _resolve(token: string, variables: Record<string, any>): string {
         let stripped: string = token.substring(1, token.length - 1);
 
         // In the simple case (list of literals), handle this upfront
@@ -25,10 +26,13 @@ export class LanguageGenerator {
         // If dealing with variable injection return that variable if it exists, else return the token
         if (stripped.startsWith('$')) {
             const identifier: string = stripped.substring(1);
-            if (variables[identifier] === undefined) {
+            // Select the node from the variables map
+            const varNode = getSelectedNode(variables, identifier);
+            // TODO: Will this ever be true? Need to add a non-strict mode for node selection
+            if (varNode === undefined) {
                 throw new Error(`Token \`${token}\` references nonexistent variable, available variables are \`${JSON.stringify(Object.keys(variables))}\``);
             }
-            return variables[identifier];
+            return this.stringify(varNode);
         }
 
         // Check if there's a random modifier at the end
@@ -41,7 +45,7 @@ export class LanguageGenerator {
             // e.g. "{foo.bar?3}"
             pickRandom = parseInt(stripped.substring(stripped.lastIndexOf('?') + 1));
             stripped = stripped.substring(0, stripped.lastIndexOf('?'));
-        }else if (stripped.match(/\?\d+\-\d+$/)) {
+        } else if (stripped.match(/\?\d+\-\d+$/)) {
             // e.g. "{foo.bar?2-3}"
             const execResult: string[] = /\?(\d+)\-(\d+)$/.exec(stripped) as string[];
             const lo: number = parseInt(execResult[1]);
@@ -51,15 +55,7 @@ export class LanguageGenerator {
         }
 
         // Resolve the language config node that this selector points to
-        const segments: string[] = stripped.split('.');
-        let node: any = this._config;
-        while (segments.length > 0) {
-            const segment: string = segments.shift() as string;
-            if (!node || !node.hasOwnProperty(segment)) {
-                throw new Error(`Token \`${token}\` has bad selector \`${stripped}\` which failed on segment \`${segment}\``);
-            }
-            node = node[segment];
-        }
+        const node = getSelectedNode(this._config, stripped);
 
         // Resolve list using the pick-random logic
         if (pickRandom === 0) {
@@ -67,14 +63,14 @@ export class LanguageGenerator {
             if (node?.constructor !== String) {
                 throw new Error(`Token \`${token}\` expected a string but found type \`${node?.constructor?.name}\``);
             }
-            return node.toString();
+            return this.stringify(node);
         } else {
             // If an amount is specified, then assert the current node is an array
             if (!Array.isArray(node)) {
                 throw new Error(`Token \`${token}\` expected an array but found type \`${node?.constructor?.name}\``);
             }
             // Copy the array and shuffle it (TODO: Each element of the array may not be a string, but that would be a huge error)
-            const choices: string[] = node.map(x => x.toString()).sort((x, y) => Math.random() - Math.random());
+            const choices: string[] = shuffle(node.map(x => this.stringify(x)));
             // Assert that we're not taking more than is possible, then take a slice of the desired size
             if (pickRandom > choices.length) {
                 throw new Error(`Token \`${token}\` is attempting to select ${pickRandom} elements from only ${choices.length} available choices`);
@@ -83,6 +79,13 @@ export class LanguageGenerator {
             // Return the resulting elements joined in proper English
             return naturalJoin(selections);
         }
+    }
+
+    private stringify(value: any): string {
+        if (typeof value === 'string') {
+            return value;
+        }
+        return JSON.stringify(value);
     }
 
     /**
@@ -105,7 +108,7 @@ export class LanguageGenerator {
      * @param variables Variables that may be referenced and injected via variable tokens
      * @returns Processed text with all tokens recursively resolved
      */
-    generate(input: string, variables: Record<string, string> = {}): string {
+    generate(input: string, variables: Record<string, any> = {}): string {
         const p: RegExp = /{\!?([^{}]+)(\?\d*\-?\d*)?}/;
         // This logic can be retried a number of times, in case a bad result is generated
         let attemptsRemaining: number = 10;
