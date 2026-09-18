@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { FileRecordStorage } from '../src/file-record-storage';
 
 describe('File Record Storage Tests', () => {
@@ -57,5 +57,47 @@ describe('File Record Storage Tests', () => {
         expect(r5[0].description).equals('C');
         expect(r5[1].description).equals('H');
         expect(r5[2].description).equals('I');
+    });
+
+    it('can edit records', async () => {
+        const storage = new FileRecordStorage<{ id: number, description: string, original: boolean }>('/tmp/evanw555.js/test3.jsonl');
+
+        await storage.addRecord({ id: 11, description: 'A', original: true });
+        await storage.addRecord({ id: 12, description: 'B', original: true });
+        await storage.addRecord({ id: 13, description: 'C', original: true });
+
+        // First, edit none
+        const e1 = await storage.editRecord({
+            predicate: r => false,
+            transformation: r => r.original = false
+        });
+        const r1 = await storage.readRecords();
+        expect(e1).is.undefined;
+        expect(r1.length).equals(3);
+        expect(r1.every(r => r.original)).is.true;
+
+        // Now, edit one
+        const e2 = await storage.editRecord({
+            predicate: r => r.id === 12,
+            transformation: r => r.original = false
+        });
+        const r2 = await storage.readRecords();
+        assert(e2 !== undefined, 'returns one edited record');
+        expect(e2.id).equals(12);
+        expect(e2.original).is.false;
+        expect(r2.length).equals(3);
+        expect(r2.filter(r => r.original).length).equals(2);
+
+        // Try to edit all, but only edit one
+        const e3 = await storage.editRecord({
+            predicate: r => true,
+            transformation: r => r.original = false
+        });
+        const r3 = await storage.readRecords();
+        assert(e3 !== undefined, 'returns one edited record when matching against all');
+        expect(e3.id).equals(11);
+        expect(e3.original).is.false;
+        expect(r3.length).equals(3);
+        expect(r3.filter(r => r.original).length).equals(1);
     });
 });

@@ -62,4 +62,41 @@ export class FileRecordStorage<T> {
             });
         });
     }
+
+    /**
+     * Given a predicate and a transformation function, applies the transformation function
+     * to the first record matched against the predicate. Only applies to one record for safety.
+     * @param options.predicate Predicate function
+     * @param options.transformation Transformation function
+     * @returns The edited record, or undefined if none were edited
+     */
+    async editRecord(options: { predicate: (record: T) => boolean, transformation: (record: T) => void }): Promise<T | undefined> {
+        const records = await this.readRecords();
+
+        // Find the first one that matches and edit it in-place
+        let edited: T | undefined = undefined;
+        for (const record of records) {
+            if (options.predicate(record)) {
+                options.transformation(record);
+                edited = record;
+                break;
+            }
+        }
+
+        // Don't write back if none were edited
+        if (!edited) {
+            return;
+        }
+
+        const serialized = records.map(r => JSON.stringify(r)).join('\n');
+
+        return new Promise((resolve, reject) => {
+            fs.writeFile(this._path, serialized, (err) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(edited);
+            });
+        });
+    }
 }

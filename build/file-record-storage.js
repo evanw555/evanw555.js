@@ -74,6 +74,40 @@ class FileRecordStorage {
             });
         });
     }
+    /**
+     * Given a predicate and a transformation function, applies the transformation function
+     * to the first record matched against the predicate. Only applies to one record for safety.
+     * @param options.predicate Predicate function
+     * @param options.transformation Transformation function
+     * @returns The edited record, or undefined if none were edited
+     */
+    editRecord(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const records = yield this.readRecords();
+            // Find the first one that matches and edit it in-place
+            let edited = undefined;
+            for (const record of records) {
+                if (options.predicate(record)) {
+                    options.transformation(record);
+                    edited = record;
+                    break;
+                }
+            }
+            // Don't write back if none were edited
+            if (!edited) {
+                return;
+            }
+            const serialized = records.map(r => JSON.stringify(r)).join('\n');
+            return new Promise((resolve, reject) => {
+                fs_1.default.writeFile(this._path, serialized, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(edited);
+                });
+            });
+        });
+    }
 }
 exports.FileRecordStorage = FileRecordStorage;
 //# sourceMappingURL=file-record-storage.js.map
