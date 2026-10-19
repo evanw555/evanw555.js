@@ -1,5 +1,6 @@
 import { assert, expect } from 'chai';
 import { FileRecordStorage } from '../src/file-record-storage';
+import { fail } from 'assert';
 
 describe('File Record Storage Tests', () => {
     it('can read and write JSON records from a file', async () => {
@@ -99,5 +100,14 @@ describe('File Record Storage Tests', () => {
         expect(e3.original).is.false;
         expect(r3.length).equals(3);
         expect(r3.filter(r => r.original).length).equals(1);
+    });
+
+    it('can handle missing files', async () => {
+        const storage = new FileRecordStorage<{ value: string }>('/tmp/evanw555.js/missing.jsonl');
+        try {
+            await storage.addRecord({ value: 'hello' });
+        } catch (err) {
+            expect((err as any).code).equals('ENOENT');
+        }
     });
 });

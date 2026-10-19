@@ -25,9 +25,12 @@ export class LanguageGenerator {
 
         // If dealing with variable injection return that variable if it exists, else return the token
         if (stripped.startsWith('$')) {
-            const identifier: string = stripped.substring(1);
-            // Select the node from the variables map
-            const varNode = getSelectedNode(variables, identifier);
+            const identifiers: string[] = stripped.substring(1).split('??');
+            // Select the nodes from the variables map
+            // TODO: Can't fall back onto deep nonexistent references
+            const varNodes = identifiers.map(x => getSelectedNode(variables, x));
+            // Select the first one that isn't undefined
+            const varNode: string | undefined = varNodes.filter(x => x !== undefined)[0];
             // TODO: Will this ever be true? Need to add a non-strict mode for node selection
             if (varNode === undefined) {
                 throw new Error(`Token \`${token}\` references nonexistent variable, available variables are \`${JSON.stringify(Object.keys(variables))}\``);

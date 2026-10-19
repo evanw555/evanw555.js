@@ -4,6 +4,7 @@ import { LanguageGenerator } from '../src/language-generator';
 describe('Language Generator Tests', () => {
     it('can generate language', () => {
         const generator = new LanguageGenerator({ 'words': ['cat'], 'phrases': ['a lovely {words?}']});
+        generator.setLogger((message: string) => console.log(message));
         const variables: Record<string, any> = { entries: [{ x: 1, y: 2 }, { x: 10, y: 20 }], valid: true, list: ['a', 'b', 'c'] };
         generator.setLogger((m) => console.log(m));
 
@@ -12,5 +13,6 @@ describe('Language Generator Tests', () => {
         expect(generator.generate('The number is {$entries.0.y}!', variables)).equals('The number is 2!');
         expect(generator.generate('{$valid} or false', variables)).equals('true or false');
         expect(generator.generate('my list {$list}, middle is {$list.1}', variables)).equals('my list ["a","b","c"], middle is b');
+        expect(generator.generate('{$nonexistent??entries.2??entries.1.y??nonexistent}', variables)).equals('20', 'Can use fallback variable selection');
     });
 });

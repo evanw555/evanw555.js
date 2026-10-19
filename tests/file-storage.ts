@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { FileStorage } from '../src/file-storage';
+import { fail } from 'assert';
 
 describe('File Storage Tests', () => {
 
@@ -72,5 +73,15 @@ describe('File Storage Tests', () => {
         expect(s2.exists('a.txt')).true;
         expect(s2.exists('/a.txt')).true;
         expect(s2.exists('//a.txt')).true;
+    });
+
+    it('can handle missing files', async () => {
+        const s1 = new FileStorage('/tmp/evanw555.js/');
+        try {
+            await s1.readJson('missing.txt');
+            fail('Expected an error');
+        } catch (err) {
+            expect((err as any).code).equals('ENOENT');
+        }
     });
 });
